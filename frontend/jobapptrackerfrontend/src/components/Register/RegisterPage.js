@@ -2,95 +2,25 @@ import { Container, FloatingLabel, Form, Nav, Row, Col } from "react-bootstrap";
 import { NavBar } from "../navbar/NavBar"
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
-import './LoginPage.css';
-import { Login } from "../../models/Login";
+import './RegisterPage.css';
 
-export const LoginPage = () => {
+
+export const RegisterPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordHelperText, setPasswordHelperText] = useState("");
+    const [confirmPasswordHelperText, setConfirmPasswordHelperText] = useState("");
     const [emailHelperText, setEmailHelperText] = useState("");
     const [passwordFieldInErrorState, setPasswordFieldInErrorState] = useState(false);
     const [emailFieldInErrorState, setEmailFieldInErrorState] = useState(false);
-    /*
-    Return type is void
-    searchTerm is a string
+    const [confirmPasswordInErrorState, setConfirmPasswordInErrorState] = useState(false);
 
-    This method searches for a term.
-    */
-    const onSearchButtonPressed = (searchTerm) => {
-        console.log('The search term is', searchTerm);
-    }
+    const header = "Sign Up";
 
-    const onEmailChange = (event) => {
-        setEmail(event.target.value);
-        setEmailHelperText("");
-    }
-    
-    const onPasswordChange = (event) => {
-        setPassword(event.target.value);
-        setPasswordHelperText("");
-    }
-
-    const onSubmitPressed = () => {
-        const login = new Login(email, password);
-        const errors = login.getErrors();
-
-        if (isThereErrors(errors)) {
-            setErrors(errors);
-            console.log('Setting errors');
-            return;            
-        }
-    }
-
-    const setErrors = (errors) => {
-        setEmailHelperText(errors.getEmailError());
-        setPasswordHelperText(errors.getPasswordError());
-
-        if (isThereAEmailError()) {
-            setEmailFieldInErrorState(true);
-        }
-
-        if (isThereAPasswordError()) {
-            setPasswordHelperText(true);
-        }
-    }
-
-    const isThereErrors = (errors) => {
-        return errors.getPasswordError() !== "" || errors.getEmailError() !== "";
-    }
-
-    const isThereAEmailError = () => {
-        return emailHelperText !== "";
-    }
-
-    const isThereAPasswordError = () => {
-        return passwordHelperText !== "";
-    }
-
-    const getTextColorForEmail = () => {
-        if (isThereAEmailError()) {
-            return "red";
-        } else {
-            return "black";
-        }
-    }
-
-    const getTextColorForPassword = () => {
-        if (isThereAPasswordError()){
-            return "red";
-        } else {
-            return "black";
-        }
-    }
-
-    const header = "Login";
-    const signUpLink = "Don't have an account? Sign up!";
-    const forgotPasswordLink = "Reset your password";
-    
     return (
         <div>
-            <NavBar />
+            <NavBar showSearchBar="false"/>
             <Container className="loginformcontainer">
                 <Form className="Auth-form">
                     <h4>{header}</h4>
@@ -157,5 +87,5 @@ export const LoginPage = () => {
                 
             </Container>
         </div>
-    )
+    );
 }

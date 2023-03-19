@@ -2,18 +2,24 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import { Button } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { useState } from 'react';
 
-/*
-NavBar
+export const NavSearchBar = (props) => {
+    const [searchTerm, setSearchTerm] = useState("");
 
-props:
-onSearchButtonPressed(searchTerm: string) -> Void
-*/
-export function NavBar(props) {
+    const onSearchBoxChanged = (event) => {
+        const newSearchTerm = event.target.value;
+        setSearchTerm(newSearchTerm);
+    }
+
+    const onSearchButtonPressed = () => {
+        props.onSearchButtonPressed(searchTerm);
+    }
+
     return (
-        <div>
-          <Navbar bg="light" expand="lg">
+        <Navbar bg="light" expand="lg">
           <Container>
             <Navbar.Brand href="#home">Job Application Tracker</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -33,9 +39,18 @@ export function NavBar(props) {
                   </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
+              <Form className="d-flex">
+                <Form.Control
+                type="search"
+                placeholder="Search"
+                className="me-2"
+                aria-label="Search"
+                onChange={onSearchBoxChanged}
+                />
+                <Button variant="outline-success" onClick={onSearchButtonPressed}>Search</Button>
+            </Form>
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        </div>
-    );    
+    );
 }
