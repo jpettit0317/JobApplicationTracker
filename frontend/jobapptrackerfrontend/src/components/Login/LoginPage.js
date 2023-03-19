@@ -3,11 +3,15 @@ import { NavBar } from "../navbar/NavBar"
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import './LoginPage.css';
+import { Login } from "../../models/Login";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordHelperText, setPasswordHelperText] = useState("");
+    const [emailHelperText, setEmailHelperText] = useState("");
+    const [passwordFieldInErrorState, setPasswordFieldInErrorState] = useState(false);
+    const [emailFieldInErrorState, setEmailFieldInErrorState] = useState(false);
     /*
     Return type is void
     searchTerm is a string
@@ -20,15 +24,62 @@ export const LoginPage = () => {
 
     const onEmailChange = (event) => {
         setEmail(event.target.value);
+        setEmailHelperText("");
     }
     
     const onPasswordChange = (event) => {
         setPassword(event.target.value);
+        setPasswordHelperText("");
     }
 
     const onSubmitPressed = () => {
         console.log('Email is ', email);
         console.log('Password is', password);
+
+        const login = new Login(email, password);
+        const errors = login.getErrors();
+
+        console.log('Email error is ', errors.getEmailError());
+        console.log('Password error is ', errors.getPasswordError());
+
+        if (isThereErrors(errors)) {
+            setErrors(errors);
+            console.log('Setting errors');
+            return;            
+        }
+    }
+
+    const setErrors = (errors) => {
+        setEmailHelperText(errors.getEmailError());
+        setPasswordHelperText(errors.getPasswordError());
+    }
+
+    const isThereErrors = (errors) => {
+        return errors.getPasswordError() !== "" || errors.getEmailError() !== "";
+    }
+
+    const isThereAEmailError = () => {
+        return emailHelperText !== "";
+    }
+
+    const isThereAPasswordError = () => {
+        return passwordHelperText !== "";
+    }
+
+    const getTextColorForEmail = () => {
+        if (isThereAEmailError()) {
+            return "red";
+        } else {
+            return "black";
+        }
+    }
+
+    const getTextColorForPassword = () => {
+        if (isThereAPasswordError()){
+            return "red";
+        } else {
+            return "black";
+        }
     }
 
     const header = "Login";
@@ -45,8 +96,9 @@ export const LoginPage = () => {
                     <h4>{header}</h4>
                     <FloatingLabel
                     controlId="floatingInput"
-                    label="Email address *"
+                    label="Email address*"
                     className="mb-3"
+                    style={ {color: getTextColorForEmail()} }
                     >
                         <Form.Control
                         placeholder="name@example.com"
@@ -54,14 +106,16 @@ export const LoginPage = () => {
                         aria-label="Email"
                         onChange={onEmailChange}
                         required
+                        isInvalid={emailFieldInErrorState}
+                        style={ {color: getTextColorForEmail()} }
                         />
-                        <Form.Text id="passwordHelpBlock" muted>
-                            {passwordHelperText}
+                        <Form.Text id="emailHelpBlock" style={ {color: getTextColorForEmail()}}>
+                            {emailHelperText}
                         </Form.Text>
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
-                    label="Password *"
+                    label="Password*"
                     className="mb-3"
                     >
                         <Form.Control
@@ -71,10 +125,14 @@ export const LoginPage = () => {
                         type="password"
                         onChange={onPasswordChange}
                         required
+                        isInvalid={passwordFieldInErrorState}
+                        style={ {color : getTextColorForPassword()} }
                         />
+                        <Form.Text id="passwordHelpBlock" style={ {color: getTextColorForPassword()} }>
+                            {passwordHelperText}
+                        </Form.Text>
                     </FloatingLabel>
-                </Form>
-                <Row>
+                    <Row>
                         <Col>
                             <Nav>
                                 <Nav.Link href="Signup">
@@ -83,7 +141,7 @@ export const LoginPage = () => {
                             </Nav>
                         </Col>
                         <Col>
-                            <Nav>
+                            <Nav style={{justifyContent: "right"}}>
                                 <Nav.Link href="Reset Password">
                                     {forgotPasswordLink}
                                 </Nav.Link>
@@ -95,6 +153,8 @@ export const LoginPage = () => {
                             Submit
                         </Button>
                     </Row>
+                </Form>
+                
             </Container>
         </div>
     )
