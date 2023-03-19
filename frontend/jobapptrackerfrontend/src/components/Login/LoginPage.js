@@ -33,14 +33,8 @@ export const LoginPage = () => {
     }
 
     const onSubmitPressed = () => {
-        console.log('Email is ', email);
-        console.log('Password is', password);
-
         const login = new Login(email, password);
         const errors = login.getErrors();
-
-        console.log('Email error is ', errors.getEmailError());
-        console.log('Password error is ', errors.getPasswordError());
 
         if (isThereErrors(errors)) {
             setErrors(errors);
@@ -52,6 +46,14 @@ export const LoginPage = () => {
     const setErrors = (errors) => {
         setEmailHelperText(errors.getEmailError());
         setPasswordHelperText(errors.getPasswordError());
+
+        if (isThereAEmailError()) {
+            setEmailFieldInErrorState(true);
+        }
+
+        if (isThereAPasswordError()) {
+            setPasswordHelperText(true);
+        }
     }
 
     const isThereErrors = (errors) => {
@@ -85,9 +87,7 @@ export const LoginPage = () => {
     const header = "Login";
     const signUpLink = "Don't have an account? Sign up!";
     const forgotPasswordLink = "Reset your password";
-    const passwordError = "Your password must be 8-20 characters long, contain letters and numbers, " +
-    "and must not contain spaces, special characters, or emoji.";
-
+    
     return (
         <div>
             <NavBar onSearchButtonPressed={onSearchButtonPressed}/>
