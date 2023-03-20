@@ -1,4 +1,4 @@
-import { passwordNotInRange, emailAddressIsEmpty } from "../constants/login-constants";
+import { passwordNotInRange, emailAddressIsEmpty } from "../../constants/login-constants";
 
 export class Login {
     #email;

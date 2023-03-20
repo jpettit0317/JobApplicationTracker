@@ -1,4 +1,4 @@
-import { Login, LoginErrors } from "../models/Login";
+import { Login, LoginErrors } from "../models/Login/Login";
 import { passwordNotInRange, emailAddressIsEmpty } from "../constants/login-constants";
 
 describe('Login Tests', function () {
