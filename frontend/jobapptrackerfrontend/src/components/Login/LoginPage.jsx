@@ -3,7 +3,7 @@ import { NavBar } from "../navbar/NavBar"
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import './LoginPage.css';
-import { Login } from "../../models/Login";
+import { Login } from "../../models/Login/Login";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -93,12 +93,13 @@ export const LoginPage = () => {
             <NavBar />
             <Container className="loginformcontainer">
                 <Form className="Auth-form">
-                    <h4>{header}</h4>
+                    <h4 data-testid="loginHeader">{header}</h4>
                     <FloatingLabel
                     controlId="floatingInput"
                     label="Email address*"
                     className="mb-3"
                     style={ {color: getTextColorForEmail()} }
+                    data-testid="floatingEmailAddress"
                     >
                         <Form.Control
                         placeholder="name@example.com"
@@ -108,8 +109,13 @@ export const LoginPage = () => {
                         required
                         isInvalid={emailFieldInErrorState}
                         style={ {color: getTextColorForEmail()} }
+                        data-testid="emailField"
                         />
-                        <Form.Text id="emailHelpBlock" style={ {color: getTextColorForEmail()}}>
+                        <Form.Text 
+                        id="emailHelpBlock" 
+                        style={ {color: getTextColorForEmail()}}
+                        data-testid="emailHelperText"
+                        >
                             {emailHelperText}
                         </Form.Text>
                     </FloatingLabel>
@@ -117,6 +123,7 @@ export const LoginPage = () => {
                     controlId="floatingInput"
                     label="Password*"
                     className="mb-3"
+                    data-testid="floatingPassword"
                     >
                         <Form.Control
                         placeholder="password"
@@ -127,29 +134,32 @@ export const LoginPage = () => {
                         required
                         isInvalid={passwordFieldInErrorState}
                         style={ {color : getTextColorForPassword()} }
+                        data-testid="passwordField"
                         />
-                        <Form.Text id="passwordHelpBlock" style={ {color: getTextColorForPassword()} }>
+                        <Form.Text id="passwordHelpBlock" 
+                        style={ {color: getTextColorForPassword()} }
+                        data-testid="passwordHelperText">
                             {passwordHelperText}
                         </Form.Text>
                     </FloatingLabel>
                     <Row>
                         <Col>
                             <Nav>
-                                <Nav.Link href="Signup">
+                                <Nav.Link href="Signup" data-testid="signuplink">
                                     {signUpLink}
                                 </Nav.Link>
                             </Nav>
                         </Col>
                         <Col>
                             <Nav style={{justifyContent: "right"}}>
-                                <Nav.Link href="Reset Password">
+                                <Nav.Link href="Reset Password" data-testid="resetPasswordlink">
                                     {forgotPasswordLink}
                                 </Nav.Link>
                             </Nav>
                         </Col>
                     </Row>
                     <Row>
-                        <Button onClick={onSubmitPressed}>
+                        <Button onClick={onSubmitPressed} data-testid="loginSubmit">
                             Submit
                         </Button>
                     </Row>
