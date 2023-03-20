@@ -2,6 +2,7 @@ import { Container, FloatingLabel, Form, Nav, Row, Col } from "react-bootstrap";
 import { NavBar } from "../navbar/NavBar"
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
+import { Register, RegisterErrors } from "../../models/SignUp/Register";
 import './RegisterPage.css';
 
 
@@ -17,6 +18,85 @@ export const RegisterPage = () => {
     const [confirmPasswordInErrorState, setConfirmPasswordInErrorState] = useState(false);
 
     const header = "Sign Up";
+    const loginLink = "Have an account? Login.";
+
+    const getTextColorForEmail = () => {
+        if (emailFieldInErrorState) {
+            return "red";
+        }
+        return "black";
+    }
+
+    const getTextColorForPassword = () => {
+        if (passwordFieldInErrorState) {
+            return "red";
+        }
+        return "black";
+    }
+
+    const getTextColorForConfirmPassword = () => {
+        if (confirmPasswordInErrorState) {
+            return "red";
+        }
+        return "black";
+    }
+
+    const onEmailChange = (e) => {
+        setEmail(e.target.value);
+        setEmailHelperText("");
+        setEmailFieldInErrorState(false);
+    }
+
+    const onPasswordChange = (e) => {
+        setPassword(e.target.value);
+        setPasswordHelperText("");
+        setPasswordFieldInErrorState(false);
+    }
+
+    const onConfirmPasswordChange = (e) => {
+        setConfirmPassword(e.target.value);
+        setConfirmPasswordHelperText("");
+        setConfirmPasswordInErrorState(false);
+    }
+
+    const onSubmitPressed = () => {
+        const register = new Register(email, password,
+            confirmPassword);
+        
+        const errors = register.getErrors();
+
+        if(areThereErrors(errors)) {
+            setErrors(errors);
+            return;
+        }
+    }
+
+    const setErrors = (errors) => {
+        const emailError = errors.getEmailError();
+        const passwordError = errors.getPasswordError();
+        const confirmPasswordError = errors.getConfirmPasswordError();
+
+        if (emailError !== "") {
+            setEmailHelperText(emailError);
+            setEmailFieldInErrorState(true);
+        }
+
+        if (passwordError !== "") {
+            setPasswordHelperText(passwordError);
+            setPasswordFieldInErrorState(true);
+        }
+
+        if (confirmPasswordError !== "") {
+            setConfirmPasswordHelperText(confirmPasswordError);
+            setConfirmPasswordInErrorState(true);
+        }
+    }
+
+    const areThereErrors = (errors) => {
+        return errors.getEmailError() !== "" ||
+        errors.getPasswordError() !== "" ||
+        errors.getConfirmPasswordError() !== "";
+    }
 
     return (
         <div>
@@ -62,18 +142,30 @@ export const RegisterPage = () => {
                             {passwordHelperText}
                         </Form.Text>
                     </FloatingLabel>
+                    <FloatingLabel
+                    controlId="floatingInput"
+                    label="Confirm Password*"
+                    className="mb-3"
+                    >
+                        <Form.Control
+                        placeholder="password"
+                        className="me-2"
+                        aria-label="Password"
+                        type="password"
+                        onChange={onConfirmPasswordChange}
+                        required
+                        isInvalid={confirmPasswordInErrorState}
+                        style={ {color : getTextColorForConfirmPassword()} }
+                        />
+                        <Form.Text id="passwordHelpBlock" style={ {color: getTextColorForConfirmPassword()} }>
+                            {confirmPasswordHelperText}
+                        </Form.Text>
+                    </FloatingLabel>
                     <Row>
                         <Col>
                             <Nav>
-                                <Nav.Link href="Signup">
-                                    {signUpLink}
-                                </Nav.Link>
-                            </Nav>
-                        </Col>
-                        <Col>
-                            <Nav style={{justifyContent: "right"}}>
-                                <Nav.Link href="Reset Password">
-                                    {forgotPasswordLink}
+                                <Nav.Link href="Login">
+                                    {loginLink}
                                 </Nav.Link>
                             </Nav>
                         </Col>
