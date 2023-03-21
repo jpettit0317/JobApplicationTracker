@@ -23,11 +23,13 @@ export const LoginPage = () => {
     }
 
     const onEmailChange = (event) => {
+        setEmailFieldInErrorState(false);
         setEmail(event.target.value);
         setEmailHelperText("");
     }
     
     const onPasswordChange = (event) => {
+        setPasswordFieldInErrorState(false);
         setPassword(event.target.value);
         setPasswordHelperText("");
     }
@@ -36,6 +38,7 @@ export const LoginPage = () => {
         const login = new Login(email, password);
         const errors = login.getErrors();
 
+        console.log("Email error is ", errors.getEmailError());
         if (isThereErrors(errors)) {
             setErrors(errors);
             console.log('Setting errors');
@@ -44,15 +47,16 @@ export const LoginPage = () => {
     }
 
     const setErrors = (errors) => {
-        setEmailHelperText(errors.getEmailError());
-        setPasswordHelperText(errors.getPasswordError());
-
-        if (isThereAEmailError()) {
+        if (isThereAEmailError(errors)) {
+            console.log("Setting email error to ", errors.getEmailError());
             setEmailFieldInErrorState(true);
+            setEmailHelperText(errors.getEmailError());
         }
 
-        if (isThereAPasswordError()) {
-            setPasswordHelperText(true);
+        if (isThereAPasswordError(errors)) {
+            console.log("Setting password error to ", errors.getPasswordError());
+            setPasswordFieldInErrorState(true);
+            setPasswordHelperText(errors.getPasswordError());
         }
     }
 
@@ -60,28 +64,12 @@ export const LoginPage = () => {
         return errors.getPasswordError() !== "" || errors.getEmailError() !== "";
     }
 
-    const isThereAEmailError = () => {
-        return emailHelperText !== "";
+    const isThereAEmailError = (errors) => {
+        return errors.getEmailError() !== "";
     }
 
-    const isThereAPasswordError = () => {
-        return passwordHelperText !== "";
-    }
-
-    const getTextColorForEmail = () => {
-        if (isThereAEmailError()) {
-            return "red";
-        } else {
-            return "black";
-        }
-    }
-
-    const getTextColorForPassword = () => {
-        if (isThereAPasswordError()){
-            return "red";
-        } else {
-            return "black";
-        }
+    const isThereAPasswordError = (errors) => {
+        return errors.getPasswordError() !== "";
     }
 
     const header = "Login";
@@ -98,7 +86,7 @@ export const LoginPage = () => {
                     controlId="floatingInput"
                     label="Email address*"
                     className="mb-3"
-                    style={ {color: getTextColorForEmail()} }
+                    style={ {color: "black"} }
                     data-testid="floatingEmailAddress"
                     >
                         <Form.Control
@@ -108,16 +96,18 @@ export const LoginPage = () => {
                         onChange={onEmailChange}
                         required
                         isInvalid={emailFieldInErrorState}
-                        style={ {color: getTextColorForEmail()} }
+                        style={ {color: "black"} }
                         data-testid="emailField"
                         />
-                        <Form.Text 
-                        id="emailHelpBlock" 
-                        style={ {color: getTextColorForEmail()}}
-                        data-testid="emailHelperText"
-                        >
-                            {emailHelperText}
-                        </Form.Text>
+                        { passwordFieldInErrorState &&
+                           <Form.Text 
+                           id="emailHelpBlock" 
+                           style={ {color: "red"}}
+                           data-testid="emailHelperText"
+                           >
+                               {emailHelperText}
+                           </Form.Text>  
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -133,14 +123,16 @@ export const LoginPage = () => {
                         onChange={onPasswordChange}
                         required
                         isInvalid={passwordFieldInErrorState}
-                        style={ {color : getTextColorForPassword()} }
+                        style={ {color : "black"} }
                         data-testid="passwordField"
                         />
-                        <Form.Text id="passwordHelpBlock" 
-                        style={ {color: getTextColorForPassword()} }
-                        data-testid="passwordHelperText">
-                            {passwordHelperText}
-                        </Form.Text>
+                        { passwordFieldInErrorState &&
+                           <Form.Text id="passwordHelpBlock" 
+                           style={ {color: "red"} }
+                           data-testid="passwordHelperText">
+                               {passwordHelperText}
+                           </Form.Text>
+                        }
                     </FloatingLabel>
                     <Row>
                         <Col>
