@@ -31,7 +31,6 @@ describe('Login Page ui tests', () => {
         const navBarBrand = screen.getByTestId(testIds.navBarBrand);
         const floatingEmailAddress = screen.getByTestId(testIds.floatingEmailAddress);
         const emailField = screen.getByTestId(testIds.emailField);
-        const emailHelper = screen.getByTestId(testIds.emailHelper);
         const passwordField = screen.getByTestId(testIds.passwordField);
         const floatingPassword = screen.getByTestId(testIds.floatingPassword);
         const signUpLink = screen.getByTestId(testIds.signUpLink);
@@ -43,7 +42,8 @@ describe('Login Page ui tests', () => {
         expect(navBarBrand).toBeInTheDocument();
         expect(floatingEmailAddress).toBeInTheDocument();
         expect(emailField).toBeInTheDocument();
-        expect(emailHelper).toBeInTheDocument();
+        expect(screen.queryByTestId(testIds.emailHelper)).not.toBeInTheDocument(); 
+        expect(screen.queryByTestId(testIds.passwordHelperText)).not.toBeInTheDocument(); 
         expect(passwordField).toBeInTheDocument();
         expect(floatingPassword).toBeInTheDocument();
         expect(signUpLink).toBeInTheDocument();
@@ -62,6 +62,29 @@ describe('Login Page ui tests', () => {
             expect(screen.getByText(/Email address is empty./i)).toBeInTheDocument();
             expect(screen.getByText(/Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji./i))
             .toBeInTheDocument();
+        });
+    });
+
+    test('when passed in a valid email and password, there should be no errors', async () => {
+        const login = {
+            email: "test@test.com",
+            password: "root;Beer09"
+        };
+
+        render(<LoginPage />);
+        act(() => {
+            const emailField = screen.getByTestId(testIds.emailField);
+            const passwordField = screen.getByTestId(testIds.passwordField);
+
+            userEvent.type(emailField, login.email);
+            userEvent.type(passwordField, login.password);
+
+            userEvent.click(screen.getByText(/submit/i));
+        });
+
+        await waitFor(async () => {
+            expect(screen.queryByTestId(testIds.emailHelper)).not.toBeInTheDocument();
+            expect(screen.queryByTestId(testIds.passwordHelperText)).not.toBeInTheDocument();
         });
     });
 });
