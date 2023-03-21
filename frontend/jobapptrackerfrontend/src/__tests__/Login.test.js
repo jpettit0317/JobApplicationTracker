@@ -40,6 +40,5 @@ describe('Login Tests', function () {
 
       assertErrorsAreEqual(actualResult, expectedResult); 
     });
-   
   });
 });

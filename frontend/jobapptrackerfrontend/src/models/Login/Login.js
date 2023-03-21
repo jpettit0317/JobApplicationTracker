@@ -1,4 +1,5 @@
 import { passwordNotInRange, emailAddressIsEmpty } from "../../constants/login-constants";
+import { areThereEmojis } from "../../functions/emojiChecker/emojichecker";
 
 export class Login {
     #email;
@@ -28,7 +29,8 @@ export class Login {
     }
 
     getPasswordError() {
-        if (!this.isPasswordWithinValidRange()) {
+        if (!this.isPasswordWithinValidRange() ||
+        this.doesPasswordContainSpecialCharacters()) {
             return passwordNotInRange;
         } else {
             return "";
@@ -45,7 +47,7 @@ export class Login {
     }
 
     doesPasswordContainSpecialCharacters() {
-        
+        return areThereEmojis(this.#password);
     }
 }
 

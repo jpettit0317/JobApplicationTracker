@@ -23,6 +23,16 @@ describe('Login Page ui tests', () => {
         navBarBrand: "navbarbrand"
     };
 
+    const login = {
+        email: "test@test.com",
+        password: "root;Beer09"
+    };
+
+    const emojiLogin = {
+        email: "test@test.com",
+        password: "Hello World! 🤣"
+    };
+
     test('test if LoginPage renders correctly', () => {
         render(<LoginPage />);
 
@@ -66,10 +76,7 @@ describe('Login Page ui tests', () => {
     });
 
     test('when passed in a valid email and password, there should be no errors', async () => {
-        const login = {
-            email: "test@test.com",
-            password: "root;Beer09"
-        };
+        
 
         render(<LoginPage />);
         act(() => {
@@ -85,6 +92,26 @@ describe('Login Page ui tests', () => {
         await waitFor(async () => {
             expect(screen.queryByTestId(testIds.emailHelper)).not.toBeInTheDocument();
             expect(screen.queryByTestId(testIds.passwordHelperText)).not.toBeInTheDocument();
+        });
+    });
+
+    test('when passed in a valid email and emoji password,' +
+    ' should return no error for email and an error for password', async () => {
+        render(<LoginPage />);
+
+        act(() => {
+            const emailField = screen.getByTestId(testIds.emailField);
+            const passwordField = screen.getByTestId(testIds.passwordField);
+
+            userEvent.type(emailField, emojiLogin.email);
+            userEvent.type(passwordField, emojiLogin.password);
+
+            userEvent.click(screen.getByText(/submit/i));
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByTestId(testIds.emailHelper)).not.toBeInTheDocument();
+            expect(screen.queryByTestId(testIds.passwordHelperText)).toBeInTheDocument();
         });
     });
 });

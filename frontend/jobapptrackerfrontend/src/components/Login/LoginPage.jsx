@@ -99,7 +99,7 @@ export const LoginPage = () => {
                         style={ {color: "black"} }
                         data-testid="emailField"
                         />
-                        { passwordFieldInErrorState &&
+                        { emailFieldInErrorState &&
                            <Form.Text 
                            id="emailHelpBlock" 
                            style={ {color: "red"}}
