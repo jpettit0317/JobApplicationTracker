@@ -94,12 +94,13 @@ export const RegisterPage = () => {
             <NavBar showSearchBar="false"/>
             <Container className="loginformcontainer">
                 <Form className="Auth-form">
-                    <h4>{header}</h4>
+                    <h4 data-testid="registerHeader">{header}</h4>
                     <FloatingLabel
                     controlId="floatingInput"
                     label="Email address*"
                     className="mb-3"
                     style={ {color: "black"} }
+                    data-testid="floatingEmailAddress"
                     >
                         <Form.Control
                         placeholder="name@example.com"
@@ -109,9 +110,13 @@ export const RegisterPage = () => {
                         required
                         isInvalid={emailFieldInErrorState}
                         style={ {color: "black"} }
+                        data-testid="emailAddress"
                         />
                         { emailFieldInErrorState &&
-                           <Form.Text id="emailHelpBlock" style={ {color: "red"}}>
+                           <Form.Text id="emailHelpBlock" 
+                           style={ {color: "red"}}
+                           data-testid="emailAddressHelperText"
+                           >
                             {emailHelperText}
                            </Form.Text>
                         }
@@ -120,6 +125,7 @@ export const RegisterPage = () => {
                     controlId="floatingInput"
                     label="Password*"
                     className="mb-3"
+                    data-testid="floatingPassword"
                     >
                         <Form.Control
                         placeholder="password"
@@ -130,9 +136,13 @@ export const RegisterPage = () => {
                         required
                         isInvalid={passwordFieldInErrorState}
                         style={ {color : "black"} }
+                        data-testid="password"
                         />
                         { passwordFieldInErrorState &&
-                           <Form.Text id="passwordHelpBlock" style={ {color: "red"} }>
+                           <Form.Text id="passwordHelpBlock" 
+                           style={ {color: "red"} }
+                           data-testid="passwordHelperText"
+                           >
                            {passwordHelperText}
                            </Form.Text>
                         }
@@ -141,6 +151,7 @@ export const RegisterPage = () => {
                     controlId="floatingInput"
                     label="Confirm Password*"
                     className="mb-3"
+                    data-testid="floatingConfirmPassword"
                     >
                         <Form.Control
                         placeholder="password"
@@ -151,9 +162,14 @@ export const RegisterPage = () => {
                         required
                         isInvalid={confirmPasswordInErrorState}
                         style={ {color : "black"} }
+                        data-testid="confirmPassword"
                         />
                         { confirmPasswordInErrorState &&
-                           <Form.Text id="passwordHelpBlock" style={ {color: "red"} }>
+                           <Form.Text 
+                           id="passwordHelpBlock" 
+                           style={ {color: "red"} }
+                           data-testid="confirmPasswordHelperText"
+                           >
                            {confirmPasswordHelperText}
                            </Form.Text>
                         }
@@ -161,14 +177,18 @@ export const RegisterPage = () => {
                     <Row>
                         <Col>
                             <Nav>
-                                <Nav.Link href="Login">
+                                <Nav.Link href="Login"
+                                data-testid="loginLink"
+                                >
                                     {loginLink}
                                 </Nav.Link>
                             </Nav>
                         </Col>
                     </Row>
                     <Row>
-                        <Button onClick={onSubmitPressed}>
+                        <Button onClick={onSubmitPressed}
+                        data-testid="submit"
+                        >
                             Submit
                         </Button>
                     </Row>
