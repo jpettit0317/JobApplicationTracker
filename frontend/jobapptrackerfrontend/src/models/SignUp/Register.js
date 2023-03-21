@@ -1,4 +1,5 @@
 import { passwordNotInRange, emailAddressIsEmpty, passwordsMismatch } from "../../constants/login-constants";
+import { areThereEmojis } from "../../functions/emojiChecker/emojichecker";
 
 export class Register {
     #email;
@@ -43,14 +44,16 @@ export class Register {
     }
 
     getPasswordError() {
-        if (!this.isPasswordWithinValidRange(this.#password)) {
+        if (!this.isPasswordWithinValidRange(this.#password) ||
+            this.areThereEmojis(this.#password)) {
             return passwordNotInRange;
         } 
         return "";
     }
 
     getConfirmPasswordError() {
-        if (!this.isPasswordWithinValidRange(this.#confirmPassword)) {
+        if (!this.isPasswordWithinValidRange(this.#confirmPassword)
+        || this.areThereEmojis(this.#confirmPassword)) {
             return passwordNotInRange;
         } 
         
@@ -72,6 +75,10 @@ export class Register {
 
     arePasswordsEqual() {
         return this.#confirmPassword === this.#password;
+    }
+
+    areThereEmojis(input) {
+        return areThereEmojis(input);
     }
 }
 
