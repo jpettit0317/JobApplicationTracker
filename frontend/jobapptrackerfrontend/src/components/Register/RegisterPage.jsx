@@ -20,43 +20,22 @@ export const RegisterPage = () => {
     const header = "Sign Up";
     const loginLink = "Have an account? Login.";
 
-    const getTextColorForEmail = () => {
-        if (emailFieldInErrorState) {
-            return "red";
-        }
-        return "black";
-    }
-
-    const getTextColorForPassword = () => {
-        if (passwordFieldInErrorState) {
-            return "red";
-        }
-        return "black";
-    }
-
-    const getTextColorForConfirmPassword = () => {
-        if (confirmPasswordInErrorState) {
-            return "red";
-        }
-        return "black";
-    }
-
     const onEmailChange = (e) => {
+        setEmailFieldInErrorState(false);
         setEmail(e.target.value);
         setEmailHelperText("");
-        setEmailFieldInErrorState(false);
     }
 
     const onPasswordChange = (e) => {
+        setPasswordFieldInErrorState(false);
         setPassword(e.target.value);
         setPasswordHelperText("");
-        setPasswordFieldInErrorState(false);
     }
 
     const onConfirmPasswordChange = (e) => {
+        setConfirmPasswordInErrorState(false);
         setConfirmPassword(e.target.value);
         setConfirmPasswordHelperText("");
-        setConfirmPasswordInErrorState(false);
     }
 
     const onSubmitPressed = () => {
@@ -76,19 +55,19 @@ export const RegisterPage = () => {
         const passwordError = errors.getPasswordError();
         const confirmPasswordError = errors.getConfirmPasswordError();
 
-        if (emailError !== "") {
-            setEmailHelperText(emailError);
+        if (isThereEmailError(emailError)) {
             setEmailFieldInErrorState(true);
+            setEmailHelperText(emailError);
         }
 
-        if (passwordError !== "") {
-            setPasswordHelperText(passwordError);
+        if (isTherePasswordError(passwordError)) {
             setPasswordFieldInErrorState(true);
+            setPasswordHelperText(passwordError);
         }
 
-        if (confirmPasswordError !== "") {
-            setConfirmPasswordHelperText(confirmPasswordError);
+        if (isThereConfirmPasswordError(confirmPasswordError)) {
             setConfirmPasswordInErrorState(true);
+            setConfirmPasswordHelperText(confirmPasswordError);
         }
     }
 
@@ -97,6 +76,18 @@ export const RegisterPage = () => {
         errors.getPasswordError() !== "" ||
         errors.getConfirmPasswordError() !== "";
     }
+
+    const isThereEmailError = (emailError) => {
+        return emailError !== "";
+    }
+
+    const isTherePasswordError = (passwordError) => {
+        return passwordError !== "";
+    }
+
+    const isThereConfirmPasswordError = (confirmPasswordError) => {
+        return confirmPasswordError !== "";
+    }    
 
     return (
         <div>
@@ -108,7 +99,7 @@ export const RegisterPage = () => {
                     controlId="floatingInput"
                     label="Email address*"
                     className="mb-3"
-                    style={ {color: getTextColorForEmail()} }
+                    style={ {color: "black"} }
                     >
                         <Form.Control
                         placeholder="name@example.com"
@@ -117,11 +108,13 @@ export const RegisterPage = () => {
                         onChange={onEmailChange}
                         required
                         isInvalid={emailFieldInErrorState}
-                        style={ {color: getTextColorForEmail()} }
+                        style={ {color: "black"} }
                         />
-                        <Form.Text id="emailHelpBlock" style={ {color: getTextColorForEmail()}}>
+                        { emailFieldInErrorState &&
+                           <Form.Text id="emailHelpBlock" style={ {color: "red"}}>
                             {emailHelperText}
-                        </Form.Text>
+                           </Form.Text>
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -136,11 +129,13 @@ export const RegisterPage = () => {
                         onChange={onPasswordChange}
                         required
                         isInvalid={passwordFieldInErrorState}
-                        style={ {color : getTextColorForPassword()} }
+                        style={ {color : "black"} }
                         />
-                        <Form.Text id="passwordHelpBlock" style={ {color: getTextColorForPassword()} }>
-                            {passwordHelperText}
-                        </Form.Text>
+                        { passwordFieldInErrorState &&
+                           <Form.Text id="passwordHelpBlock" style={ {color: "red"} }>
+                           {passwordHelperText}
+                           </Form.Text>
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -155,11 +150,13 @@ export const RegisterPage = () => {
                         onChange={onConfirmPasswordChange}
                         required
                         isInvalid={confirmPasswordInErrorState}
-                        style={ {color : getTextColorForConfirmPassword()} }
+                        style={ {color : "black"} }
                         />
-                        <Form.Text id="passwordHelpBlock" style={ {color: getTextColorForConfirmPassword()} }>
-                            {confirmPasswordHelperText}
-                        </Form.Text>
+                        { confirmPasswordInErrorState &&
+                           <Form.Text id="passwordHelpBlock" style={ {color: "red"} }>
+                           {confirmPasswordHelperText}
+                           </Form.Text>
+                        }
                     </FloatingLabel>
                     <Row>
                         <Col>
