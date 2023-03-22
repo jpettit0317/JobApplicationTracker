@@ -95,5 +95,27 @@ describe('Register Page UI tests', () => {
                 expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).not.toBeInTheDocument();
             });
         });
+        test('when username is valid, but password and confirmPassword is not equal, should return passwords do not match', async () => {
+            const mismatchPassword = login.password + "@";
+            render(<RegisterPage />);
+
+            act(() => {
+                const emailField = screen.getByTestId(testIds.emailAddress);
+                const passwordField = screen.getByTestId(testIds.passwordField);
+                const confirmPassWordField = screen.getByTestId(testIds.confirmPassword);
+
+                userEvent.type(emailField, login.email);
+                userEvent.type(passwordField, login.password);
+                userEvent.type(confirmPassWordField, mismatchPassword);
+
+                userEvent.click(screen.getByText(/submit/i)); 
+            });
+
+            await waitFor(() => {
+                expect(screen.queryByTestId(testIds.emailAddressHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.passwordHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
+            });
+        });
     });
 });
