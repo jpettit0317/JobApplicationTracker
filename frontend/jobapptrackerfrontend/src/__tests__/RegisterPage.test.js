@@ -25,6 +25,11 @@ describe('Register Page UI tests', () => {
         password: "root;Beer09",
     };
 
+    const emojiLogin = {
+        email: "test@test.com",
+        password: "Hello World! 🤣"
+    };
+
     describe('renders correctly', () => {
         test('on render there should be no errors', () => {
             render(<RegisterPage />);
@@ -114,6 +119,29 @@ describe('Register Page UI tests', () => {
             await waitFor(() => {
                 expect(screen.queryByTestId(testIds.emailAddressHelperText)).not.toBeInTheDocument();
                 expect(screen.queryByTestId(testIds.passwordHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
+            });
+        });
+
+        test('when username is valid, but password and confirm password has an emoji,' +
+        ' password and confirm password should have an error underneath them', async () => {
+            render(<RegisterPage />);
+            
+            act(() => {
+                const emailField = screen.getByTestId(testIds.emailAddress);
+                const passwordField = screen.getByTestId(testIds.passwordField);
+                const confirmPassWordField = screen.getByTestId(testIds.confirmPassword);
+
+                userEvent.type(emailField, emojiLogin.email);
+                userEvent.type(passwordField, emojiLogin.password);
+                userEvent.type(confirmPassWordField, emojiLogin.password);
+
+                userEvent.click(screen.getByText(/submit/i)); 
+            });
+
+            await waitFor(() => {
+                expect(screen.queryByTestId(testIds.emailAddressHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.passwordHelperText)).toBeInTheDocument();
                 expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
             });
         });
