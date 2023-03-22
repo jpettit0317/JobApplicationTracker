@@ -145,5 +145,29 @@ describe('Register Page UI tests', () => {
                 expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
             });
         });
+
+        test('when username is valid, password and confirmPassword contain a space' +
+        ' there should be an error beneath password and confirm password', async () => {
+            render(<RegisterPage />);
+            const spacePassword = "pass word94;";
+
+            act(() => {
+                const emailField = screen.getByTestId(testIds.emailAddress);
+                const passwordField = screen.getByTestId(testIds.passwordField);
+                const confirmPassWordField = screen.getByTestId(testIds.confirmPassword);
+
+                userEvent.type(emailField, emojiLogin.email);
+                userEvent.type(passwordField, spacePassword);
+                userEvent.type(confirmPassWordField, spacePassword);
+
+                userEvent.click(screen.getByText(/submit/i)); 
+            });
+
+            await waitFor(() => {
+                expect(screen.queryByTestId(testIds.emailAddressHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.passwordHelperText)).toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
+            });
+        });
     });
 });

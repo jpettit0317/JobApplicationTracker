@@ -1,5 +1,5 @@
 import { passwordNotInRange, emailAddressIsEmpty } from "../../constants/login-constants";
-import { areThereEmojis } from "../../functions/emojiChecker/emojichecker";
+import { areThereEmojis } from "../../functions/emojiChecker/areThereEmojis";
 
 export class Login {
     #email;

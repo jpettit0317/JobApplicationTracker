@@ -1,5 +1,5 @@
 import { passwordNotInRange, emailAddressIsEmpty, passwordsMismatch } from "../../constants/login-constants";
-import { areThereEmojis } from "../../functions/emojiChecker/emojichecker";
+import { areThereEmojis } from "../../functions/emojiChecker/areThereEmojis";
 
 export class Register {
     #email;
@@ -79,6 +79,10 @@ export class Register {
 
     areThereEmojis(input) {
         return areThereEmojis(input);
+    }
+
+    isThereSpaces(input) {
+        
     }
 }
 
