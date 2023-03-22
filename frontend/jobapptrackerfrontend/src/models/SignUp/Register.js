@@ -1,5 +1,6 @@
 import { passwordNotInRange, emailAddressIsEmpty, passwordsMismatch } from "../../constants/login-constants";
 import { areThereEmojis } from "../../functions/emojiChecker/areThereEmojis";
+import { areThereSpaces } from "../../functions/spaceChecker/areThereSpaces";
 
 export class Register {
     #email;
@@ -45,7 +46,8 @@ export class Register {
 
     getPasswordError() {
         if (!this.isPasswordWithinValidRange(this.#password) ||
-            this.areThereEmojis(this.#password)) {
+            this.areThereEmojis(this.#password) ||
+             this.isThereSpaces(this.#password)) {
             return passwordNotInRange;
         } 
         return "";
@@ -53,7 +55,8 @@ export class Register {
 
     getConfirmPasswordError() {
         if (!this.isPasswordWithinValidRange(this.#confirmPassword)
-        || this.areThereEmojis(this.#confirmPassword)) {
+        || this.areThereEmojis(this.#confirmPassword) ||
+         this.isThereSpaces(this.#confirmPassword)) {
             return passwordNotInRange;
         } 
         
@@ -82,7 +85,7 @@ export class Register {
     }
 
     isThereSpaces(input) {
-        
+        return areThereSpaces(input);
     }
 }
 
