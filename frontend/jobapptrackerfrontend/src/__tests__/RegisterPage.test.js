@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { execPath } from "process";
 import { act } from "react-dom/test-utils";
 import { RegisterPage } from "../components/Register/RegisterPage";
 
@@ -17,7 +18,8 @@ describe('Register Page UI tests', () => {
         passwordField: "password",
         loginLink: "loginLink",
         submit: "submit",
-        registerHeader: "registerHeader"
+        registerHeader: "registerHeader",
+        navBar: "navbar"
     };
 
     const login = {
@@ -50,6 +52,7 @@ describe('Register Page UI tests', () => {
             const passwordField = screen.getByTestId(testIds.passwordField);
             const loginLink = screen.getByTestId(testIds.loginLink);
             const submitButton = screen.getByTestId(testIds.submit);
+            const navBar = screen.getByTestId(testIds.navBar);
 
             expect(loginLink).toBeInTheDocument();
             expect(registerHeader).toBeInTheDocument();
@@ -60,6 +63,7 @@ describe('Register Page UI tests', () => {
             expect(passwordField).toBeInTheDocument();
             expect(confirmPasswordField).toBeInTheDocument();
             expect(submitButton).toBeInTheDocument();
+            expect(navBar).toBeInTheDocument();
 
             expect(emailAddressHelper).not.toBeInTheDocument();
             expect(passwordHelperText).not.toBeInTheDocument();
