@@ -2,7 +2,7 @@ import { Register, RegisterErrors } from "../models/SignUp/Register";
 import { passwordNotInRange, 
     passwordsMismatch,
     emailAddressIsEmpty
-} from "../constants/login-constants";
+} from "../constants/usersignlogin-constants";
 
 describe('Register tests', () => {
     const login = {

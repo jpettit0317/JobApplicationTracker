@@ -1,4 +1,4 @@
-import { passwordNotInRange, emailAddressIsEmpty } from "../../constants/login-constants";
+import { passwordNotInRange, emailAddressIsEmpty } from "../../constants/usersignlogin-constants";
 import { areThereEmojis } from "../../functions/emojiChecker/areThereEmojis";
 
 export class Login {

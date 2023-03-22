@@ -1,8 +1,9 @@
-import { passwordNotInRange, emailAddressIsEmpty, passwordsMismatch } from "../../constants/login-constants";
+import { passwordNotInRange, emailAddressIsEmpty, passwordsMismatch } from "../../constants/usersignlogin-constants";
 import { areThereEmojis } from "../../functions/emojiChecker/areThereEmojis";
 import { areThereLetters } from "../../functions/letterChecker/areThereLetters";
 import { areThereNumbers } from "../../functions/numberChecker/areThereNumbers";
 import { areThereSpaces } from "../../functions/spaceChecker/areThereSpaces";
+import { areThereSpecialCharacters } from "../../functions/specialCharacterChecker/areThereSpecialCharacters";
 
 export class Register {
     #email;
@@ -47,30 +48,49 @@ export class Register {
     }
 
     getPasswordError() {
-        if (!this.isPasswordWithinValidRange(this.#password) ||
-            this.areThereEmojis(this.#password) ||
-             this.isThereSpaces(this.#password) ||
-             !this.areThereNumbers(this.#password) ||
-             !this.areThereLetters(this.#password)) {
+        if (this.doesPasswordHaveFormatErrors(this.#password)) {
             return passwordNotInRange;
-        } 
-        return "";
+        } else if (!this.arePasswordsEqual()) {
+            return passwordsMismatch;
+        } else {
+            return "";
+        }
     }
 
     getConfirmPasswordError() {
-        if (!this.isPasswordWithinValidRange(this.#confirmPassword)
-        || this.areThereEmojis(this.#confirmPassword) ||
-         this.isThereSpaces(this.#confirmPassword) ||
-          !this.areThereNumbers(this.#confirmPassword) ||
-          !this.areThereLetters(this.#confirmPassword)) {
+        if (this.doesPasswordHaveFormatErrors(this.#confirmPassword)) {
             return passwordNotInRange;
-        } 
-        
-        if (!this.arePasswordsEqual()) {
+        } else if (!this.arePasswordsEqual()) {
             return passwordsMismatch;
+        } else {
+            return "";
         }
+    }
 
-        return "";
+    areTherePasswordErrors(input) {
+        if (this.doesPasswordHaveFormatErrors(input)) {
+            return passwordNotInRange;
+        } else {
+            return "";
+        }
+    }
+
+    doesPasswordHaveFormatErrors(input) {
+        if (!this.isPasswordWithinValidRange(input)) {
+            return true;
+        } else if (this.areThereEmojis(input)) {
+            return true;
+        } else if (this.isThereSpaces(input)) {
+            return true;
+        } else if (!this.areThereNumbers(input)) {
+            return true;
+        } else if (!this.areThereLetters(input)) {
+            return true;
+        } else if (this.areThereSpecialCharacters(input)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     isPasswordWithinValidRange(password) {
@@ -100,6 +120,10 @@ export class Register {
 
     areThereLetters(input) {
         return areThereLetters(input);
+    }
+
+    areThereSpecialCharacters(input) {
+        return areThereSpecialCharacters(input);
     }
 }
 

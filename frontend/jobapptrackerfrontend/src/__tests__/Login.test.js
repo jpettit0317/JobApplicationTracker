@@ -1,5 +1,5 @@
 import { Login, LoginErrors } from "../models/Login/Login";
-import { passwordNotInRange, emailAddressIsEmpty } from "../constants/login-constants";
+import { passwordNotInRange, emailAddressIsEmpty } from "../constants/usersignlogin-constants";
 
 describe('Login Tests', function () {
   const emptyEmail = "";

@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils';
 import { passwordNotInRange,
     emailAddressIsEmpty,
     passwordsMismatch 
-} from '../constants/login-constants';
+} from '../constants/usersignlogin-constants';
 
 describe('Login Page ui tests', () => {
     const testIds = {
