@@ -30,6 +30,10 @@ describe('Register Page UI tests', () => {
         password: "Hello World! 🤣"
     };
 
+    const testTitles = [
+        "when passed in a password and confirmPassword with no letters, there should be errors underneath them"
+    ];
+
     describe('renders correctly', () => {
         test('on render there should be no errors', () => {
             render(<RegisterPage />);
@@ -118,7 +122,7 @@ describe('Register Page UI tests', () => {
 
             await waitFor(() => {
                 expect(screen.queryByTestId(testIds.emailAddressHelperText)).not.toBeInTheDocument();
-                expect(screen.queryByTestId(testIds.passwordHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.passwordHelperText)).toBeInTheDocument();
                 expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
             });
         });
@@ -168,6 +172,29 @@ describe('Register Page UI tests', () => {
                 expect(screen.queryByTestId(testIds.passwordHelperText)).toBeInTheDocument();
                 expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
             });
+        })
+        
+        it(testTitles[0], async () => {
+            render(<RegisterPage />);
+            const numberPassword = "100000000";
+
+            act(() => {
+                const emailField = screen.getByTestId(testIds.emailAddress);
+                const passwordField = screen.getByTestId(testIds.passwordField);
+                const confirmPassWordField = screen.getByTestId(testIds.confirmPassword);
+
+                userEvent.type(emailField, emojiLogin.email);
+                userEvent.type(passwordField, numberPassword);
+                userEvent.type(confirmPassWordField, numberPassword);
+
+                userEvent.click(screen.getByText(/submit/i)); 
+            });
+
+            await waitFor(() => {
+                expect(screen.queryByTestId(testIds.emailAddressHelperText)).not.toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.passwordHelperText)).toBeInTheDocument();
+                expect(screen.queryByTestId(testIds.confirmPasswordHelperText)).toBeInTheDocument();
+            }); 
         });
     });
 });
