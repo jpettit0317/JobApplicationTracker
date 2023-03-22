@@ -19,15 +19,15 @@ export const NavSearchBar = (props) => {
     }
 
     return (
-        <Navbar bg="light" expand="lg">
+        <Navbar bg="light" expand="lg" data-testid="navSearchBar">
           <Container>
-            <Navbar.Brand href="#home">Job Application Tracker</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Brand href="#home" data-testid="navSearchBarBrand">Job Application Tracker</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" data-testid="navBarToggle"/>
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
                 <Nav.Link href="#home">Home</Nav.Link>
                 <Nav.Link href="#link">Link</Nav.Link>
-                <NavDropdown title="Dropdown" id="basic-nav-dropdown">
+                <NavDropdown title="Dropdown" id="basic-nav-dropdown" data-testid="navDropDown">
                   <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                   <NavDropdown.Item href="#action/3.2">
                     Another action
@@ -39,15 +39,18 @@ export const NavSearchBar = (props) => {
                   </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
-              <Form className="d-flex">
+              <Form className="d-flex" data-testid="searchForm">
                 <Form.Control
                 type="search"
                 placeholder="Search"
                 className="me-2"
                 aria-label="Search"
                 onChange={onSearchBoxChanged}
+                data-testid="searchField"
                 />
-                <Button variant="outline-success" onClick={onSearchButtonPressed}>Search</Button>
+                <Button variant="outline-success" 
+                onClick={onSearchButtonPressed}
+                data-testid="searchButton">Search</Button>
             </Form>
             </Navbar.Collapse>
           </Container>
