@@ -4,7 +4,7 @@ import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import { Register, RegisterErrors } from "../../models/SignUp/Register";
 import './RegisterPage.css';
-
+import { LoadingSpinner } from "../loadingspinner/LoadingSpinner";
 
 export const RegisterPage = () => {
     const [email, setEmail] = useState("");
@@ -16,6 +16,8 @@ export const RegisterPage = () => {
     const [passwordFieldInErrorState, setPasswordFieldInErrorState] = useState(false);
     const [emailFieldInErrorState, setEmailFieldInErrorState] = useState(false);
     const [confirmPasswordInErrorState, setConfirmPasswordInErrorState] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingDiv, setLoadingDiv] = useState("");
 
     const header = "Sign Up";
     const loginLink = "Have an account? Login.";
@@ -48,6 +50,20 @@ export const RegisterPage = () => {
             setErrors(errors);
             return;
         }
+
+        turnOnLoading();
+    }
+
+    const turnOnLoading = () => {
+        const divId = "grayout";
+
+        setIsLoading(true);
+        setLoadingDiv(divId);
+    }
+
+    const turnOffLoading = () => {
+        setIsLoading(false);
+        setLoadingDiv("");
     }
 
     const setErrors = (errors) => {
@@ -90,8 +106,11 @@ export const RegisterPage = () => {
     }    
 
     return (
-        <div>
+        <div id={loadingDiv}>
             <NavBar showSearchBar="false"/>
+            { isLoading &&
+               <LoadingSpinner />
+            }
             <Container className="loginformcontainer">
                 <Form className="Auth-form">
                     <h4 data-testid="registerHeader">{header}</h4>
@@ -186,12 +205,10 @@ export const RegisterPage = () => {
                         </Col>
                     </Row>
                     <Row>
-                        <Button onClick={onSubmitPressed}
-                        data-testid="submit"
-                        >
+                        <Button onClick={onSubmitPressed} data-testid="submit">
                             Submit
                         </Button>
-                    </Row>
+                    </Row> 
                 </Form>
                 
             </Container>
