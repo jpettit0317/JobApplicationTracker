@@ -4,7 +4,7 @@ import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import './LoginPage.css';
 import { Login } from "../../models/Login/Login";
-
+import { Link } from "react-router-dom";
 export const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -134,19 +134,13 @@ export const LoginPage = () => {
                            </Form.Text>
                         }
                     </FloatingLabel>
-                    <Row>
+                    <Row style={{padding: "10px"}}>
                         <Col>
-                            <Nav>
-                                <Nav.Link href="Signup" data-testid="signuplink">
+                            <Nav data-testid="signuplink">
+                                <Link to="/register">{signUpLink}</Link>
+                                {/* <Nav.Link href="Signup" data-testid="signuplink">
                                     {signUpLink}
-                                </Nav.Link>
-                            </Nav>
-                        </Col>
-                        <Col>
-                            <Nav style={{justifyContent: "right"}}>
-                                <Nav.Link href="Reset Password" data-testid="resetPasswordlink">
-                                    {forgotPasswordLink}
-                                </Nav.Link>
+                                </Nav.Link> */}
                             </Nav>
                         </Col>
                     </Row>
