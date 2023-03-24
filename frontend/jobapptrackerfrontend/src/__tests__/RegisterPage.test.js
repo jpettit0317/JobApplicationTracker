@@ -2,10 +2,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { execPath } from "process";
 import { act } from "react-dom/test-utils";
+import { MemoryRouter } from "react-router";
 import { RegisterPage } from "../components/Register/RegisterPage";
 
 
 describe('Register Page UI tests', () => {
+    const route = "/register";
+
     const testIds = {
         floatingEmailLabel: "floatingEmailAddress",
         emailAddress: "emailAddress",
@@ -36,9 +39,17 @@ describe('Register Page UI tests', () => {
         "when passed in a password and confirmPassword with no letters, there should be errors underneath them"
     ];
 
+    const renderRegisterPage = (route) => {
+        render(
+            <MemoryRouter initialEntries={[route]}>
+                <RegisterPage />
+            </MemoryRouter>
+        );
+    }
+
     describe('renders correctly', () => {
         test('on render there should be no errors', () => {
-            render(<RegisterPage />);
+            renderRegisterPage(route);(route); 
 
             const registerHeader = screen.getByTestId(testIds.registerHeader);
             const floatingEmailAddress = screen.getByTestId(testIds.floatingEmailLabel);
@@ -74,7 +85,7 @@ describe('Register Page UI tests', () => {
     describe('changing value tests', () => {
         test('when username, password, and confirm password is empty' +
         ' there should be errors on all three fields', async () => {
-            render(<RegisterPage />);
+            renderRegisterPage(route);(route); 
 
             act(() => {
                 userEvent.click(screen.getByText(/submit/i));
@@ -88,7 +99,7 @@ describe('Register Page UI tests', () => {
             });
         });
         test('when username, password, confirmPassword is valid, there should be no errors', async () => {
-            render(<RegisterPage />);
+            renderRegisterPage(route);(route);;
 
             act(() => {
                 const emailField = screen.getByTestId(testIds.emailAddress);
@@ -110,7 +121,7 @@ describe('Register Page UI tests', () => {
         });
         test('when username is valid, but password and confirmPassword is not equal, should return passwords do not match', async () => {
             const mismatchPassword = login.password + "@";
-            render(<RegisterPage />);
+            renderRegisterPage(route); 
 
             act(() => {
                 const emailField = screen.getByTestId(testIds.emailAddress);
@@ -133,7 +144,7 @@ describe('Register Page UI tests', () => {
 
         test('when username is valid, but password and confirm password has an emoji,' +
         ' password and confirm password should have an error underneath them', async () => {
-            render(<RegisterPage />);
+            renderRegisterPage(route);
             
             act(() => {
                 const emailField = screen.getByTestId(testIds.emailAddress);
@@ -156,7 +167,7 @@ describe('Register Page UI tests', () => {
 
         test('when username is valid, password and confirmPassword contain a space' +
         ' there should be an error beneath password and confirm password', async () => {
-            render(<RegisterPage />);
+            renderRegisterPage(route);
             const spacePassword = "pass word94;";
 
             act(() => {
@@ -179,7 +190,7 @@ describe('Register Page UI tests', () => {
         })
         
         it(testTitles[0], async () => {
-            render(<RegisterPage />);
+            renderRegisterPage(route);
             const numberPassword = "100000000";
 
             act(() => {

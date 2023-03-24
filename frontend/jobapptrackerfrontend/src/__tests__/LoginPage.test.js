@@ -6,8 +6,11 @@ import { passwordNotInRange,
     emailAddressIsEmpty,
     passwordsMismatch 
 } from '../constants/usersignlogin-constants';
+import { MemoryRouter } from 'react-router';
 
 describe('Login Page ui tests', () => {
+    const route = "/login";
+
     const testIds = {
         loginHeader: "loginHeader",
         floatingEmailAddress: "floatingEmailAddress",
@@ -17,7 +20,6 @@ describe('Login Page ui tests', () => {
         passwordField: "passwordField",
         passwordHelperText: "passwordHelperText",
         signUpLink: "signuplink",
-        resetPasswordLink: "resetPasswordlink",
         submitButton: "loginSubmit",
         navBar: "navbar",
         navBarBrand: "navbarbrand"
@@ -33,8 +35,16 @@ describe('Login Page ui tests', () => {
         password: "Hello World! 🤣"
     };
 
+    const renderLoginPage = (route) => {
+        render(
+            <MemoryRouter initialEntries={[route]}>
+                <LoginPage />
+            </MemoryRouter>
+        );
+    }
+
     test('test if LoginPage renders correctly', () => {
-        render(<LoginPage />);
+        renderLoginPage(route); 
 
         const loginHeader = screen.getByTestId(testIds.loginHeader);
         const navBar = screen.getByTestId(testIds.navBar);
@@ -44,7 +54,6 @@ describe('Login Page ui tests', () => {
         const passwordField = screen.getByTestId(testIds.passwordField);
         const floatingPassword = screen.getByTestId(testIds.floatingPassword);
         const signUpLink = screen.getByTestId(testIds.signUpLink);
-        const resetPasswordLink = screen.getByTestId(testIds.resetPasswordLink);
         const loginSubmit = screen.getByTestId(testIds.submitButton);
 
         expect(loginHeader).toBeInTheDocument();
@@ -57,12 +66,11 @@ describe('Login Page ui tests', () => {
         expect(passwordField).toBeInTheDocument();
         expect(floatingPassword).toBeInTheDocument();
         expect(signUpLink).toBeInTheDocument();
-        expect(resetPasswordLink).toBeInTheDocument();
         expect(loginSubmit).toBeInTheDocument();
     });
 
     test('when there is no username and password, pressing the login button should produce errors', async () => {
-        render(<LoginPage />);
+        renderLoginPage(route);
 
         act(() => {
             userEvent.click(screen.getByText(/submit/i));
@@ -78,7 +86,7 @@ describe('Login Page ui tests', () => {
     test('when passed in a valid email and password, there should be no errors', async () => {
         
 
-        render(<LoginPage />);
+        renderLoginPage(route);
         act(() => {
             const emailField = screen.getByTestId(testIds.emailField);
             const passwordField = screen.getByTestId(testIds.passwordField);
@@ -97,7 +105,7 @@ describe('Login Page ui tests', () => {
 
     test('when passed in a valid email and emoji password,' +
     ' should return no error for email and an error for password', async () => {
-        render(<LoginPage />);
+        renderLoginPage(route);
 
         act(() => {
             const emailField = screen.getByTestId(testIds.emailField);

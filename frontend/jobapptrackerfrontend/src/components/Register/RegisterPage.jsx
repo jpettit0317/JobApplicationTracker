@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import { Register, RegisterErrors } from "../../models/SignUp/Register";
 import './RegisterPage.css';
 import { LoadingSpinner } from "../loadingspinner/LoadingSpinner";
+import { Link } from "react-router-dom";
 
 export const RegisterPage = () => {
     const [email, setEmail] = useState("");
@@ -193,14 +194,10 @@ export const RegisterPage = () => {
                            </Form.Text>
                         }
                     </FloatingLabel>
-                    <Row>
+                    <Row style={{padding: "10px"}}>
                         <Col>
-                            <Nav>
-                                <Nav.Link href="Login"
-                                data-testid="loginLink"
-                                >
-                                    {loginLink}
-                                </Nav.Link>
+                            <Nav data-testid="loginLink">
+                                <Link to="/login">{loginLink}</Link>
                             </Nav>
                         </Col>
                     </Row>
