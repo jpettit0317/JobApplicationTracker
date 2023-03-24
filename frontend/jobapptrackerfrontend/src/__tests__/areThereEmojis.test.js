@@ -1,4 +1,4 @@
-import { areThereEmojis } from "../functions/emojiChecker/emojichecker";
+import { areThereEmojis } from "../functions/emojiChecker/areThereEmojis";
 
 describe('areThereEmojis tests', () => {
     const input = "Hello World!";

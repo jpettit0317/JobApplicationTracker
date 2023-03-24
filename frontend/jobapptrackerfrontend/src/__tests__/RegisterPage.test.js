@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { execPath } from "process";
 import { act } from "react-dom/test-utils";
 import { MemoryRouter } from "react-router";
 import { RegisterPage } from "../components/Register/RegisterPage";
