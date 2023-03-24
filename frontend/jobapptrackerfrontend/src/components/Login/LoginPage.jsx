@@ -138,9 +138,6 @@ export const LoginPage = () => {
                         <Col>
                             <Nav data-testid="signuplink">
                                 <Link to="/register">{signUpLink}</Link>
-                                {/* <Nav.Link href="Signup" data-testid="signuplink">
-                                    {signUpLink}
-                                </Nav.Link> */}
                             </Nav>
                         </Col>
                     </Row>
