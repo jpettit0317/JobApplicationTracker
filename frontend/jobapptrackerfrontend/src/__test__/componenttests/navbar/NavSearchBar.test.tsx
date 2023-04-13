@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { NavSearchBar } from "../../../components/navbar/NavSearchBar";
 import { NavSearchBarProps } from "../../../components/navbar/props/NavSearchBarProps";
 import { NavSearchBarTestIds } from "../../../components/navbar/testIds/NavSearchBarTestIds";
