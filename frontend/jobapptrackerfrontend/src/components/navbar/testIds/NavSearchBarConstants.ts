@@ -1,4 +1,4 @@
-export class NavSearchBarTestIds {
+export class NavSearchBarConstants {
     static readonly navSearchBarId = "navSearchBar";
     static readonly navSearchBarBrandId = "navSearchBarBrand";
     static readonly navSearchBarToggle = "navBarToggle";
