@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { NavBar } from "../navbar/NavBar";
 import { getLoginErrors } from "../../functions/getLoginErrors";
 import { LoginFormIds } from "./constants/LoginFormIds";
+import { navBarTitle } from "../../constants/NavBarTitle";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -72,11 +73,10 @@ export const LoginPage = () => {
 
     const header = "Login";
     const signUpLink = "Don't have an account? Sign up!";
-    const forgotPasswordLink = "Reset your password";
     
     return (
         <div>
-            <NavBar />
+            <NavBar title={navBarTitle}/>
             <Container className="loginformcontainer">
                 <Form className="Auth-form">
                     <h4 data-testid={LoginFormIds.loginHeader}>{header}</h4>
