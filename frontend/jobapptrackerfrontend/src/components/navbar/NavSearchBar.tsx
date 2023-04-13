@@ -6,7 +6,7 @@ import { Button } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
 import { useState } from 'react';
 import { NavSearchBarProps } from './props/NavSearchBarProps';
-import { NavSearchBarConstants } from './testIds/NavSearchBarConstants';
+import { NavSearchBarTestIds } from './testIds/NavSearchBarTestIds';
 
 export const NavSearchBar = (props: NavSearchBarProps) => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -21,15 +21,15 @@ export const NavSearchBar = (props: NavSearchBarProps) => {
     }
 
     return (
-        <Navbar bg="light" expand="lg" data-testid={NavSearchBarConstants.navSearchBarId}>
+        <Navbar bg="light" expand="lg" data-testid={NavSearchBarTestIds.navSearchBarId}>
           <Container>
-            <Navbar.Brand href="#home" data-testid={NavSearchBarConstants.navSearchBarBrandId}>{props.title}</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" data-testid={NavSearchBarConstants.navSearchBarToggle}/>
+            <Navbar.Brand href="#home" data-testid={NavSearchBarTestIds.navSearchBarBrandId}>{props.title}</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" data-testid={NavSearchBarTestIds.navSearchBarToggle}/>
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
                 <Nav.Link href="#home">Home</Nav.Link>
                 <Nav.Link href="#link">Link</Nav.Link>
-                <NavDropdown title="Dropdown" id="basic-nav-dropdown" data-testid={NavSearchBarConstants.navSearchDropDown}>
+                <NavDropdown title="Dropdown" id="basic-nav-dropdown" data-testid={NavSearchBarTestIds.navSearchDropDown}>
                   <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                   <NavDropdown.Item href="#action/3.2">
                     Another action
@@ -41,18 +41,18 @@ export const NavSearchBar = (props: NavSearchBarProps) => {
                   </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
-              <Form className="d-flex" data-testid={NavSearchBarConstants.navSearchForm}>
+              <Form className="d-flex" data-testid={NavSearchBarTestIds.navSearchForm}>
                 <Form.Control
                 type="search"
                 placeholder="Search"
                 className="me-2"
                 aria-label="Search"
                 onChange={onSearchBoxChanged}
-                data-testid={NavSearchBarConstants.navSearchField}
+                data-testid={NavSearchBarTestIds.navSearchField}
                 />
                 <Button variant="outline-success" 
                 onClick={onSearchButtonPressed}
-                data-testid="searchButton">Search</Button>
+                data-testid={NavSearchBarTestIds.navSearchButton}>Search</Button>
             </Form>
             </Navbar.Collapse>
           </Container>
