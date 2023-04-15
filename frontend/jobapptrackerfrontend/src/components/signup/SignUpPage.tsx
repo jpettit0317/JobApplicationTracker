@@ -9,6 +9,7 @@ import { SignUpConfirmPassword } from "../../model/interfaces/signup/SignUp";
 import { SignUpErrors } from "../../model/interfaces/signup/SignUpErrors";
 import { getSignUpErrors } from "../../functions/getSignUpErrors";
 import { FormControlFeedback } from "../formcontrolhelper/FormControlFeedback";
+import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
 
 export const SignUpPage = () => {
     const [signUp, setSignUp] = useState<SignUpConfirmPassword>({
@@ -31,6 +32,10 @@ export const SignUpPage = () => {
         isConfirmPasswordInErrorState: false       
     });
     
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [grayoutId, setGrayoutId] = useState<string>("");
+
+    const grayoutCSSId = "grayout";
     const header = "Sign Up";
     const loginLink = "Already have an account? Log in!";
 
@@ -100,6 +105,13 @@ export const SignUpPage = () => {
         if (areThereErrors()) {
             return;
         }
+
+        setLoadingState(true, grayoutCSSId);
+    }
+
+    const setLoadingState = (loading: boolean, id: string) => {
+        setIsLoading(loading);
+        setGrayoutId(id);
     }
 
     const areThereErrors = (): boolean => {
@@ -114,6 +126,14 @@ export const SignUpPage = () => {
         <div>
             <NavBar title={navBarTitle} />
             <Container className="signupformcontainer">
+                { isLoading &&
+                     <LoadingIndicator 
+                        isLoading={isLoading}
+                        size={30}
+                        ariaLabel="Loading"
+                        testId="loading"
+                    />
+                }
                 <Form className="Auth-form">
                     <h4 data-testid={SignUpTestIds.signUpHeader}>
                         {header}
