@@ -7,6 +7,8 @@ import { SignUpTestIds } from "./SignUpTestIds";
 import { Link } from "react-router-dom";
 import { SignUpConfirmPassword } from "../../model/interfaces/signup/SignUp";
 import { SignUpErrors } from "../../model/interfaces/signup/SignUpErrors";
+import { getSignUpErrors } from "../../functions/getSignUpErrors";
+import { FormControlFeedback } from "../formcontrolhelper/FormControlFeedback";
 
 export const SignUpPage = () => {
     const [signUp, setSignUp] = useState<SignUpConfirmPassword>({
@@ -93,7 +95,19 @@ export const SignUpPage = () => {
     }
 
     const onSubmitButtonPressed = () => {
+        setSignUpErrors(getSignUpErrors(signUp));
 
+        if (areThereErrors()) {
+            return;
+        }
+    }
+
+    const areThereErrors = (): boolean => {
+        return signUpErrors.emailError !== "" ||
+            signUpErrors.firstnameError !== "" ||
+            signUpErrors.lastnameError !== "" ||
+            signUpErrors.passwordError !== "" ||
+            signUpErrors.confirmPasswordError !== "";
     }
 
     return (
@@ -121,6 +135,11 @@ export const SignUpPage = () => {
                         style={ {color: "black"} }
                         data-testid={SignUpTestIds.emailField}
                         />
+                        { signUpErrors.isEmailInErrorState &&
+                            <FormControlFeedback type="invalid" 
+                                text={signUpErrors.emailError}
+                            />
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -139,6 +158,11 @@ export const SignUpPage = () => {
                         style={ {color: "black"} }
                         data-testid={SignUpTestIds.firstNameField}
                         />
+                        { signUpErrors.isFirstnameInErrorState &&
+                            <FormControlFeedback type="invalid"
+                                text={signUpErrors.firstnameError}
+                            />
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -157,6 +181,12 @@ export const SignUpPage = () => {
                         style={ {color: "black"} }
                         data-testid={SignUpTestIds.lastnameField}
                         />
+                        { signUpErrors.isLastnameInErrorState &&
+                            <FormControlFeedback 
+                                type="invalid"
+                                text={signUpErrors.lastnameError}
+                            />
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -176,6 +206,12 @@ export const SignUpPage = () => {
                         type="password"
                         data-testid={SignUpTestIds.passwordField}
                         />
+                        { signUpErrors.isPasswordInErrorState &&
+                            <FormControlFeedback 
+                                type="invalid"
+                                text={signUpErrors.passwordError}
+                            />
+                        }
                     </FloatingLabel>
                     <FloatingLabel
                     controlId="floatingInput"
@@ -195,6 +231,12 @@ export const SignUpPage = () => {
                         style={ {color: "black"} }
                         data-testid={SignUpTestIds.confirmPasswordField}
                         />
+                        { signUpErrors.isPasswordInErrorState &&
+                            <FormControlFeedback
+                                type="invalid"
+                                text={signUpErrors.confirmPasswordError}
+                            />
+                        }
                     </FloatingLabel>
                     <Row style={{padding: "10px"}}>
                         <Col>
