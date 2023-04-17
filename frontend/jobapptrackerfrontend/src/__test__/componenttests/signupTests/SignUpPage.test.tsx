@@ -110,7 +110,7 @@ describe("Sign Up Page tests", () => {
                 userEvent.type(confirmPassword!, validSignUp.confirmPassword);
 
                 userEvent.click(submitButton!);
-            })
+            });
 
             waitForChanges(() => {
                 assertElementIsInDocument(loadingIndicator);
@@ -137,7 +137,7 @@ describe("Sign Up Page tests", () => {
 
             changeState(() => {
                 userEvent.click(submitButton!);
-            })
+            });
 
             waitForChanges(() => {
                 assertElementIsNotInDocument(loadingIndicator);
@@ -196,7 +196,7 @@ describe("Sign Up Page tests", () => {
                 userEvent.type(confirmPassword!, invalidSignUp.confirmPassword);
 
                 userEvent.click(submitButton!);
-            })
+            });
 
             waitForChanges(() => {
                 assertElementsAreNotInDocument(nonPresentIds);
@@ -254,7 +254,7 @@ describe("Sign Up Page tests", () => {
                 userEvent.type(confirmPassword!, invalidSignUp.confirmPassword);
 
                 userEvent.click(submitButton!);
-            })
+            });
 
             waitForChanges(() => {
                 assertElementsAreNotInDocument(nonPresentIds);
