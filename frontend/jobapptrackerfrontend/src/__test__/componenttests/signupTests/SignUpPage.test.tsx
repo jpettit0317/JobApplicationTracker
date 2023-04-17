@@ -1,8 +1,6 @@
-import { render } from "@testing-library/react";
 import { SignUpPage } from "../../../components/signup/SignUpPage";
-import { MemoryRouter } from "react-router";
 import { SignUpTestIds } from "../../../components/signup/SignUpTestIds";
-import { areHTMLElementsNull, assertElementIsInDocument, assertElementIsNotInDocument, assertElementsAreInDocument, assertElementsAreNotInDocument, failIfHTMLElementIsNull, failIfHTMLElementsAreNull } from "../../helperfunctions/assertions/htmlElementAssertions";
+import { assertElementIsInDocument, assertElementIsNotInDocument, assertElementsAreInDocument, assertElementsAreNotInDocument, failIfHTMLElementIsNull, failIfHTMLElementsAreNull } from "../../helperfunctions/assertions/htmlElementAssertions";
 import { changeState, renderJSXElement, waitForChanges } from "../../helperfunctions/setup/uitestsetup";
 import { getElement } from "../../helperfunctions/htmlelements/getElement";
 import { SignUpConfirmPasswordBuilder } from "../../../model/builders/SignUpBuilder";
