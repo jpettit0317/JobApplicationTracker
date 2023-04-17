@@ -12,8 +12,8 @@ export const LoadingIndicator = (props: LoadingIndicatorProps) => {
                     position: 'absolute', 
                     zIndex: 1000,
                     margin: '100px',
-                    width: '50%',
-                    padding: '10px',
+                    width: '90%',
+                    padding: '100px',
                 }
             }
         >
