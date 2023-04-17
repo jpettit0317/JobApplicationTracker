@@ -6,19 +6,20 @@ import {
 } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { SignUpPage } from './components/signup/SignUpPage';
-
+import { RoutePath
+ } from './enums/RoutePath_enum';
 function App() {
   const router = createBrowserRouter([
     {
-      path: "/",
+      path: RoutePath.home,
       element: <LoginPage />
     },
     {
-      path: "/login",
+      path: RoutePath.login,
       element: <LoginPage />
     },
     {
-      path: "/signup",
+      path: RoutePath.signup,
       element: <SignUpPage />
     }
   ])
