@@ -131,7 +131,7 @@ export const SignUpPage = () => {
                         isLoading={isLoading}
                         size={30}
                         ariaLabel="Loading"
-                        testId="loading"
+                        testId={SignUpTestIds.loadingIndicator}
                     />
                 }
                 <Form className="Auth-form">
