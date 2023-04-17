@@ -33,9 +33,7 @@ export const SignUpPage = () => {
     });
     
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [grayoutId, setGrayoutId] = useState<string>("");
-
-    const grayoutCSSId = "grayout";
+    
     const header = "Sign Up";
     const loginLink = "Already have an account? Log in!";
 
@@ -106,12 +104,7 @@ export const SignUpPage = () => {
             return;
         }
 
-        setLoadingState(true, grayoutCSSId);
-    }
-
-    const setLoadingState = (loading: boolean, id: string) => {
-        setIsLoading(loading);
-        setGrayoutId(id);
+        setIsLoading(true);
     }
 
     const areThereErrors = (): boolean => {
