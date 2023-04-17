@@ -35,3 +35,20 @@ export const areHTMLElementsNull = (elements: (HTMLElement | null) []): boolean 
 export const isHTMLElementNull = (element: HTMLElement | null): boolean => {
     return element === null;
 }
+
+export const failWithMessage = (errorMessage: string = "") => {
+    fail(errorMessage);
+}
+
+export const failIfHTMLElementsAreNull = (elements: (HTMLElement | null)[],
+    errorMessage: string = "") => {
+        if (areHTMLElementsNull(elements)) {
+            failWithMessage(errorMessage);
+        }
+}
+
+export const failIfHTMLElementIsNull = (element: HTMLElement | null, errorMessage: string = "") => {
+    if (isHTMLElementNull(element)) {
+        failWithMessage(errorMessage);
+    }
+}
