@@ -10,11 +10,19 @@ export const waitForChanges = async (fn: () => void) => {
     await waitFor(fn)
 }
 
-export const renderJSXElement = (routes: string[] = [],
+export const renderJSXElementWithRoute = (routes: string[] = [],
      element: JSX.Element) => {
         render(
             <MemoryRouter initialEntries={routes}>
                 {element}
             </MemoryRouter>
         )
+}
+
+export const renderJSXElement = (element: JSX.Element) => {
+    render(
+        <div>
+            {element}
+        </div>
+    );
 }
