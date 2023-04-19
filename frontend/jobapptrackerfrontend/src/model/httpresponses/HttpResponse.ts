@@ -4,7 +4,7 @@ export class HttpResponse<T> {
     readonly statusCode: number;
     readonly errorMessage: string;
 
-    private constructor(newData: T,
+    public constructor(newData: T,
         newStatusCode: number = 0, errorMessage: string = "") {
             this.data = newData;
             this.statusCode = newStatusCode;
