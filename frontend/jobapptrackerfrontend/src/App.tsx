@@ -8,7 +8,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { SignUpPage } from './components/signup/SignUpPage';
 import { RoutePath
  } from './enums/RoutePath_enum';
-function App() {
+ 
+ function App() {
   const router = createBrowserRouter([
     {
       path: RoutePath.home,
