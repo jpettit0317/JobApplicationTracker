@@ -2,7 +2,7 @@ import { useState } from "react"
 import { navBarTitle } from "../../constants/NavBarTitle";
 import { NavBar } from "../navbar/NavBar";
 import './SignUpPage.css';
-import { Button, Col, Container, FloatingLabel, Form, Nav, Row } from "react-bootstrap";
+import { Button, Col, Container, FloatingLabel, Form, Nav, Row} from "react-bootstrap";
 import { SignUpTestIds } from "./SignUpTestIds";
 import { Link } from "react-router-dom";
 import { SignUpConfirmPassword } from "../../model/interfaces/signup/SignUp";
@@ -10,6 +10,10 @@ import { SignUpErrors } from "../../model/interfaces/signup/SignUpErrors";
 import { getSignUpErrors } from "../../functions/getSignUpErrors";
 import { FormControlFeedback } from "../formcontrolhelper/FormControlFeedback";
 import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
+import { HttpResponse } from "../../model/httpresponses/HttpResponse";
+import { APIEndPoint } from "../../enums/APIEndPoint_enum";
+import { SignUpAlert } from "../alerts/SignUpAlert";
+import { addUser } from "../../functions/networkcalls/addUser";
 
 export const SignUpPage = () => {
     const [signUp, setSignUp] = useState<SignUpConfirmPassword>({
@@ -33,7 +37,9 @@ export const SignUpPage = () => {
     });
     
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    
+    const [isAlertShowing, setIsAlertShowing] = useState<boolean>(false);
+    const [alertMessage, setAlertMessage] = useState<string>("");
+
     const header = "Sign Up";
     const loginLink = "Already have an account? Log in!";
 
@@ -98,25 +104,81 @@ export const SignUpPage = () => {
     }
 
     const onSubmitButtonPressed = () => {
-        setSignUpErrors(getSignUpErrors(signUp));
+        const newSignUpErrors = getSignUpErrors(signUp);
+        setSignUpErrors(newSignUpErrors);
 
-        if (areThereErrors()) {
+        if (areThereErrors(newSignUpErrors)) {
             return;
         }
-
-        setIsLoading(true);
+        addUserToBackend(); 
     }
 
-    const areThereErrors = (): boolean => {
-        return signUpErrors.emailError !== "" ||
-            signUpErrors.firstnameError !== "" ||
-            signUpErrors.lastnameError !== "" ||
-            signUpErrors.passwordError !== "" ||
-            signUpErrors.confirmPasswordError !== "";
+    const addUserToBackend = () => {
+        debugger;
+        setIsLoading(true);
+
+        addUser(signUp, APIEndPoint.addUser).then(
+            (response: (HttpResponse<string> | undefined)) => {
+                handleAddUser(response); 
+            })
+            .catch((reason: string) => {
+                handleUnexpectedError(reason);
+            });
+    }
+
+    const handleAddUser = (response: (HttpResponse<string> | undefined)) => {
+        if (response !== undefined && !response.isError()) {
+            setIsLoading(false);
+            handleSuccess(response);
+        } else if(response === undefined) {
+            setIsLoading(false);
+            handleUndefined();
+        } else {
+            setIsLoading(false);
+            handleError(response);
+        }
+    }
+
+    const handleError = (resp: HttpResponse<string>) => {
+        setAlertMessage(resp.errorMessage);
+        setIsAlertShowing(true);
+    }
+
+    const handleSuccess = (response: (HttpResponse<string> | undefined)) => {
+        console.log("The response is ", JSON.stringify(response));
+    }
+
+    const handleUndefined = () => {
+        console.log("Response is undefined");
+    }
+
+    const handleUnexpectedError = (reasonForFailure: string = "") => {
+        setIsLoading(false);
+        setAlertMessage(reasonForFailure);
+        setIsAlertShowing(true); 
+    }
+
+    const closeAlert = () => {
+        setAlertMessage("");
+        setIsAlertShowing(false);
+    }
+
+    const areThereErrors = (errors: SignUpErrors): boolean => {
+        return errors.emailError !== "" ||
+            errors.firstnameError !== "" ||
+            errors.lastnameError !== "" ||
+            errors.passwordError !== "" ||
+            errors.confirmPasswordError !== "";
     }
 
     return (
         <div>
+            {/* { isAlertShowing &&
+                <SignUpAlert alertMessage={alertMessage}
+                    shouldShow={isAlertShowing}
+                    closeButtonPressed={closeAlert}
+                />
+            } */}
             <NavBar title={navBarTitle} />
             <Container className="signupformcontainer">
                 { isLoading &&
