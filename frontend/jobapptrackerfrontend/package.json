@@ -28,9 +28,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
     "eject": "react-scripts eject",
-    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache"
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache --transformIgnorePatterns \"node_modules/(?!axios)/\"",
+    "test:coverage": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\" --collectCoverage"
   },
   "eslintConfig": {
     "extends": [
@@ -51,7 +52,8 @@
     ]
   },
   "devDependencies": {
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0"
-  }
+  } 
 }
