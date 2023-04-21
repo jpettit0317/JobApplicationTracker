@@ -113,7 +113,7 @@ export const SignUpPage = () => {
         addUserToBackend(); 
     }
 
-    const addUserToBackend = () => {
+    const addUserToBackend = async () => {
         debugger;
         setIsLoading(true);
 
@@ -122,8 +122,9 @@ export const SignUpPage = () => {
                 handleAddUser(response); 
             })
             .catch((reason: string) => {
+                console.log("The reason for failure is ", reason);
                 handleUnexpectedError(reason);
-            });
+        });
     }
 
     const handleAddUser = (response: (HttpResponse<string> | undefined)) => {
@@ -173,12 +174,12 @@ export const SignUpPage = () => {
 
     return (
         <div>
-            {/* { isAlertShowing &&
+            { isAlertShowing &&
                 <SignUpAlert alertMessage={alertMessage}
                     shouldShow={isAlertShowing}
                     closeButtonPressed={closeAlert}
                 />
-            } */}
+            }
             <NavBar title={navBarTitle} />
             <Container className="signupformcontainer">
                 { isLoading &&
