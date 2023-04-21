@@ -1,41 +1,47 @@
-import { HttpResponse, HttpResponseBuilder } from "../../model/httpresponses/HttpResponse";
+import { HttpResponse } from "../../model/httpresponses/HttpResponse";
+import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
+import { HttpResponseData } from "../../model/interfaces/init/ResponseData";
 
 describe("HttpResponse unit tests", <T>() => {
     const assertIsError = (actualValue: boolean, expectedValue: boolean) => {
         expect(actualValue).toBe(expectedValue);
     }
 
-    const assertResponsesAreEqual = (response: HttpResponse<string[]>, data: string[], statusCode: number, errorMessage: string) => {
-        expect(response.data).toBe(data);
-        expect(response.errorMessage).toBe(errorMessage);
-        expect(response.statusCode).toBe(statusCode);
+    const assertResponsesAreEqual = (resp: HttpResponse<string[]>, respData: HttpResponseData<string[]>) => {
+        expect(resp.data).toBe(respData.data);
+        expect(resp.errorMessage).toBe(respData.errorMessage);
+        expect(resp.statusCode).toBe(respData.status);
+    }
+
+    const createHttpResponse = (resp: HttpResponseData<string[]> 
+        = {status: 0, errorMessage: "", data: []}): HttpResponse<string[]> => {
+            return new HttpResponseBuilder<string[]>(resp.data)
+                .setErrorMessage(resp.errorMessage)
+                .setStatusCode(resp.status)
+                .build();
     }
     
     describe("value tests", () => {
         test("when an HttpResponse has default values, then members should have values", () => {
-            const defaultData: string[] = [];
-            const defaultErrorMessage: string = "";
-            const defaultStatusCode: number = 0;
+            const defaultRespData: HttpResponseData<string[]> = {
+                status: 0,
+                errorMessage: "",
+                data: []
+            };
+            const response = createHttpResponse(defaultRespData);
 
-            const response = new HttpResponseBuilder<string[]>(defaultData)
-                .setErrorMessage(defaultErrorMessage)
-                .setStatusCode(defaultStatusCode)
-                .build();
-            
-            assertResponsesAreEqual(response, defaultData, defaultStatusCode, defaultErrorMessage);
+            assertResponsesAreEqual(response, defaultRespData);
         });
 
         test("when an HttpResponse has set values, then members should have values", () => {
-            const defaultData: string[] = ["Hello", "World"];
-            const defaultErrorMessage: string = "Nothing";
-            const defaultStatusCode: number = 200;
-
-            const response = new HttpResponseBuilder<string[]>(defaultData)
-                .setErrorMessage(defaultErrorMessage)
-                .setStatusCode(defaultStatusCode)
-                .build();
+            const respData: HttpResponseData<string[]> = {
+                data: ["Hello", "World"],
+                errorMessage: "Nothing",
+                status: 200
+            };
+            const response = createHttpResponse(respData);
             
-            assertResponsesAreEqual(response, defaultData, defaultStatusCode, defaultErrorMessage);
+            assertResponsesAreEqual(response, respData);
         });
     });
 
@@ -50,10 +56,12 @@ describe("HttpResponse unit tests", <T>() => {
             ];
 
             for (const statusCode of errorStatusCodes) {
-                const response = new HttpResponseBuilder<string[]>([])
-                    .setErrorMessage("")
-                    .setStatusCode(statusCode)
-                    .build();
+                const respData: HttpResponseData<string[]> = {
+                    status: statusCode,
+                    errorMessage: "",
+                    data: []
+                };
+                const response = createHttpResponse(respData);
         
                 const actualValue = response.isError();
                 const expectedValue = false;
@@ -70,10 +78,12 @@ describe("HttpResponse unit tests", <T>() => {
             ];
 
             for (let statusCode of errorStatusCodes) {
-                const response = new HttpResponseBuilder<string[]>([])
-                    .setErrorMessage("Something bad happened.")
-                    .setStatusCode(statusCode)
-                    .build();
+                const resData: HttpResponseData<string[]> = {
+                    status: statusCode,
+                    errorMessage: "Something bad happend.",
+                    data: []
+                };
+                const response = createHttpResponse(resData);
                 
                 const actualValue = response.isError();
                 const expectedValue = true;
