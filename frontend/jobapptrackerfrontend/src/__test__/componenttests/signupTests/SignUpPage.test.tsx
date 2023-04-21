@@ -6,7 +6,8 @@ import { getElement } from "../../helperfunctions/htmlelements/getElement";
 import { SignUpConfirmPasswordBuilder } from "../../../model/builders/SignUpBuilder";
 import userEvent from "@testing-library/user-event";
 import { SignUp } from "../../../model/interfaces/signup/SignUp";
-import { HttpResponse, HttpResponseBuilder } from "../../../model/httpresponses/HttpResponse";
+import { HttpResponse } from "../../../model/httpresponses/HttpResponse";
+import { HttpResponseBuilder } from "../../../model/builders/HttpResponseBuilder";
 
 describe("Sign Up Page tests", () => {
     const signUpRoute: string = "/signup";
@@ -30,6 +31,17 @@ describe("Sign Up Page tests", () => {
         test("when sign up page is first loaded, there should be no errors" + 
         "or loading indicators", () => {
             renderSignUpPage();
+
+            const defaultHttpResponse: HttpResponse<string> =
+                new HttpResponseBuilder<string>("Token")
+                    .setErrorMessage("")
+                    .setStatusCode(200)
+                    .build();
+            
+            const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
+            jest.mock("../../../functions/networkcalls/addUser", () => {
+                addUser: mockAddUser 
+            });
 
             const presentIds: string[] = [
                 SignUpTestIds.signUpHeader,
@@ -168,7 +180,13 @@ describe("Sign Up Page tests", () => {
         + "there should be an error for email, password and confirm password"
         , () => {
             renderSignUpPage();
-           
+          
+            const defaultHttpResponse: HttpResponse<string> =
+            new HttpResponseBuilder<string>("")
+                .setErrorMessage("Error message")
+                .setStatusCode(400)
+                .build();
+
             const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
             jest.mock("../../../functions/networkcalls/addUser", () => {
                 addUser: mockAddUser 
@@ -231,6 +249,12 @@ describe("Sign Up Page tests", () => {
         + "there should be a password field error,"
         + "confirm password field error and no loading indicator", () => {
             renderSignUpPage();
+
+            const defaultHttpResponse: HttpResponse<string> =
+            new HttpResponseBuilder<string>("")
+                .setErrorMessage("Error message")
+                .setStatusCode(400)
+                .build();
 
             const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
             jest.mock("../../../functions/networkcalls/addUser", () => {
