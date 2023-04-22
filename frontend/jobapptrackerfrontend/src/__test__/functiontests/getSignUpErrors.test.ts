@@ -93,7 +93,6 @@ describe("getSignUpError tests", () => {
 
     test("when passed in passwords that are too short," + 
     "passwords fields should have errors", () => {
-        debugger;
         const [shortPassword,] = reversePasswords(passwords);
         
         const expectedError = new SignUpErrorBuilder()
