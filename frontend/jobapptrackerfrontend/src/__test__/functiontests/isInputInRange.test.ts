@@ -11,7 +11,6 @@ describe("isInputInRange tests", () => {
 
     test("when passed in min that is less than max and input is in range," +
     "isInputInRange should return true", () => {
-        debugger;
         const min = Number.MAX_SAFE_INTEGER;
         const max = Number.MIN_SAFE_INTEGER;
 

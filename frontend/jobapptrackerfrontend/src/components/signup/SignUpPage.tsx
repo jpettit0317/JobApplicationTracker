@@ -114,7 +114,6 @@ export const SignUpPage = () => {
     }
 
     const addUserToBackend = async () => {
-        debugger;
         setIsLoading(true);
 
         addUser(signUp, APIEndPoint.addUser).then(
