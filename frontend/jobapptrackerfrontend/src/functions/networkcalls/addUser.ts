@@ -3,19 +3,30 @@ import { SignUp } from "../../model/interfaces/signup/SignUp";
 import axios from "axios";
 import { HttpStatusCodes } from "../../enums/HttpStatusCodes_enum";
 import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
+import { HttpResponseData } from "../../model/interfaces/init/ResponseData";
 
 export const addUser = async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => {
-  try {
-    const resp = await axios.post<string>(url, signUp);
-    console.log("Response data is ", resp.data);
-    
-    const addUserResponse = {
-      data: resp.data,
-      statusCode: resp.status,
-      errorMessage: ""
+  if (url === "" || isSignUpEmpty(signUp)) {
+    const badInput: HttpResponseData<string> = {
+      data: "",
+      status: 404,
+      errorMessage: "URL or signup is empty."
     };
 
-    return createResponse(addUserResponse);
+    return createResponse(badInput);
+  }
+
+  try {
+    const resp = await axios.post(url, signUp);
+    console.log("\n\n\nResponse data is ", resp.data);
+
+    const respData: HttpResponseData<string> = {
+      data: resp.data.token as string,
+      status: resp.data.statusCode,
+      errorMessage: resp.data.errorMessage
+    };
+
+    return createResponse(respData);
 
   } catch (error: any) {
     const errorString = error.message as string;
@@ -27,10 +38,28 @@ export const addUser = async (signUp: SignUp, url: string): Promise<HttpResponse
   }
 }
 
-export const createResponse = (resp: {data: string, statusCode: number, errorMessage: string} 
-  = {data: "", statusCode: 0, errorMessage: ""}): HttpResponse<string> => {
+const isSignUpEmpty = (signUp: SignUp): boolean => {
+  return signUp.email === "" 
+    || signUp.firstname === "" || signUp.lastname === ""
+    || signUp.password === "";
+}
+
+export const createResponse = (resp: HttpResponseData<string>): HttpResponse<string> => {
     return new HttpResponseBuilder<string>(resp.data)
       .setErrorMessage(resp.errorMessage)
-      .setStatusCode(resp.statusCode)
+      .setStatusCode(resp.status)
       .build();
 }
+
+const createResponseFromJSON = (input: string): HttpResponse<string> => {
+  const data = JSON.parse(input);
+
+  const token = data.data.token as string;
+  const statusCode = data.data.statusCode as number;
+  const errorMessage = data.data.errorMessage as string;
+
+  return new HttpResponseBuilder<string>(token)
+    .setErrorMessage(errorMessage)
+    .setStatusCode(statusCode)
+    .build();
+};
