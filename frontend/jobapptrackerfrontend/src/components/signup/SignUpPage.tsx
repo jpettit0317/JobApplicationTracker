@@ -4,7 +4,7 @@ import { NavBar } from "../navbar/NavBar";
 import './SignUpPage.css';
 import { Button, Col, Container, FloatingLabel, Form, Nav, Row} from "react-bootstrap";
 import { SignUpTestIds } from "./SignUpTestIds";
-import { Link } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 import { SignUpConfirmPassword } from "../../model/interfaces/signup/SignUp";
 import { SignUpErrors } from "../../model/interfaces/signup/SignUpErrors";
 import { getSignUpErrors } from "../../functions/getSignUpErrors";
@@ -16,8 +16,11 @@ import { SignUpAlert } from "../alerts/SignUpAlert";
 import { addUser } from "../../functions/networkcalls/addUser";
 import { saveToken } from "../../functions/session/saveToken";
 import { getToken } from "../../functions/session/getToken";
+import { RoutePath } from "../../enums/RoutePath_enum";
 
 export const SignUpPage = () => {
+    const navigate = useNavigate();
+
     const [signUp, setSignUp] = useState<SignUpConfirmPassword>({
         email: "",
         firstname: "",
@@ -151,6 +154,8 @@ export const SignUpPage = () => {
         saveToken(response.data);
         const tokenSaved = getToken();
         console.log("The token saved is ", tokenSaved);
+        console.log("Redirecting to Job App Page.");
+        redirectToJobAppPage();
     }
 
     const handleUndefined = () => {
@@ -168,6 +173,10 @@ export const SignUpPage = () => {
     const closeAlert = () => {
         setAlertMessage("");
         setIsAlertShowing(false);
+    }
+
+    const redirectToJobAppPage = () => {
+        navigate(RoutePath.jobapplist);
     }
 
     const areThereErrors = (errors: SignUpErrors): boolean => {
