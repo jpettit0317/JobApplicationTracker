@@ -14,6 +14,8 @@ import { HttpResponse } from "../../model/httpresponses/HttpResponse";
 import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { SignUpAlert } from "../alerts/SignUpAlert";
 import { addUser } from "../../functions/networkcalls/addUser";
+import { saveToken } from "../../functions/session/saveToken";
+import { getToken } from "../../functions/session/getToken";
 
 export const SignUpPage = () => {
     const [signUp, setSignUp] = useState<SignUpConfirmPassword>({
@@ -144,12 +146,17 @@ export const SignUpPage = () => {
         setIsAlertShowing(true);
     }
 
-    const handleSuccess = (response: (HttpResponse<string> | undefined)) => {
+    const handleSuccess = (response: HttpResponse<string>) => {
         console.log("The response is ", JSON.stringify(response));
+        saveToken(response.data);
+        const tokenSaved = getToken();
+        console.log("The token saved is ", tokenSaved);
     }
 
     const handleUndefined = () => {
         console.log("Response is undefined");
+        setAlertMessage("Something went wrong!!");
+        setIsAlertShowing(true);
     }
 
     const handleUnexpectedError = (reasonForFailure: string = "") => {
