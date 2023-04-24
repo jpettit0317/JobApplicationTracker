@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { SignUpPage } from './components/signup/SignUpPage';
 import { RoutePath
  } from './enums/RoutePath_enum';
+import { JobAppListPage } from './components/jobapplist/JobAppListPage';
  
  function App() {
   const router = createBrowserRouter([
@@ -22,6 +23,10 @@ import { RoutePath
     {
       path: RoutePath.signup,
       element: <SignUpPage />
+    },
+    {
+      path: RoutePath.jobapplist,
+      element: <JobAppListPage />
     }
   ])
 
