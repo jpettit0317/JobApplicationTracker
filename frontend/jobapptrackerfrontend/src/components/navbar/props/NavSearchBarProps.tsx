@@ -1,5 +1,5 @@
 
 export interface NavSearchBarProps {
-    title: string,
+    title: string;
     onSearchButtonPressed: (searchTerm: string) => void;
 }
