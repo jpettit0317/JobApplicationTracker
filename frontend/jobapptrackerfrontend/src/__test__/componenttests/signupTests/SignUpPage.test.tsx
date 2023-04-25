@@ -8,6 +8,8 @@ import userEvent from "@testing-library/user-event";
 import { SignUp } from "../../../model/interfaces/signup/SignUp";
 import { HttpResponse } from "../../../model/httpresponses/HttpResponse";
 import { HttpResponseBuilder } from "../../../model/builders/HttpResponseBuilder";
+import { getToken } from "../../../functions/session/getToken";
+import { JobAppListPageTestIds } from "../../../components/jobapplist/JobAppListPageTestIds";
 
 describe("Sign Up Page tests", () => {
     const signUpRoute: string = "/signup";
@@ -25,6 +27,12 @@ describe("Sign Up Page tests", () => {
 
     const renderSignUpPage = () => {
         renderJSXElementWithRoute([signUpRoute], <SignUpPage />);   
+    }
+
+    const assertMockFunctionHasBeenCalledTimes = (amount: number = 0,
+        mockFn: jest.Mock<Promise<HttpResponse<string>>,
+        [signUp: SignUp, url: string]>) => {
+        expect(mockFn).toBeCalledTimes(amount);
     }
 
     describe("Render tests", () => {
@@ -70,16 +78,18 @@ describe("Sign Up Page tests", () => {
 
             assertElementsAreInDocument(presentIds);
             assertElementsAreNotInDocument(nonPresentIds);
+            assertMockFunctionHasBeenCalledTimes(0, mockAddUser);
         });
     });
 
     describe("Filling in field tests", () => {
-        test("when sign up has all fields filled in, there should be a loading "
-        + "indicator and no errors", () => {
+        test("when sign up has all fields filled in" +
+        "should take the user to "  ,() => {
             renderSignUpPage();
-            
+            debugger; 
+            const defaultTokenValue = "Token";
             const defaultHttpResponse: HttpResponse<string> =
-                new HttpResponseBuilder<string>("Token")
+                new HttpResponseBuilder<string>(defaultTokenValue)
                     .setErrorMessage("")
                     .setStatusCode(200)
                     .build();
@@ -133,8 +143,13 @@ describe("Sign Up Page tests", () => {
                 userEvent.click(submitButton!);
             });
 
+
             waitForChanges(() => {
                 assertElementsAreNotInDocument(nonPresentIds);
+                assertElementsAreInDocument([
+                    JobAppListPageTestIds.jobAppListPageHeader
+                ]);
+                assertMockFunctionHasBeenCalledTimes(1, mockAddUser);
             });
         });
 
@@ -173,6 +188,7 @@ describe("Sign Up Page tests", () => {
             waitForChanges(() => {
                 assertElementIsNotInDocument(loadingIndicator);
                 assertElementsAreInDocument(presentIds);
+                assertMockFunctionHasBeenCalledTimes(0, mockAddUser);
             });
         });
         
@@ -242,6 +258,7 @@ describe("Sign Up Page tests", () => {
             waitForChanges(() => {
                 assertElementsAreNotInDocument(nonPresentIds);
                 assertElementsAreInDocument(presentIds);
+                assertMockFunctionHasBeenCalledTimes(0, mockAddUser);
             });
         });
 
@@ -311,6 +328,7 @@ describe("Sign Up Page tests", () => {
             waitForChanges(() => {
                 assertElementsAreNotInDocument(nonPresentIds);
                 assertElementsAreInDocument(presentIds);
+                assertMockFunctionHasBeenCalledTimes(0, mockAddUser);
             });
         });
     });
