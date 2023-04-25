@@ -1,5 +1,6 @@
 import { navBarTitle } from "../../constants/NavBarTitle";
 import { NavSearchBar } from "../navbar/NavSearchBar";
+import { JobAppListPageTestIds } from "./JobAppListPageTestIds";
 
 export const JobAppListPage = () => {
     const onSearchButtonPressed = (searchTerm: string = "") => {
@@ -12,7 +13,9 @@ export const JobAppListPage = () => {
                 onSearchButtonPressed={onSearchButtonPressed}
                 title={navBarTitle}
             />
-            <h1 data-testid="jobAppListPageHeader">Job App List</h1>
+            <h1 data-testid={JobAppListPageTestIds.jobAppListPageHeader}>
+                Job App List
+            </h1>
         </div>
     );
 }
