@@ -17,6 +17,7 @@ import { addUser } from "../../functions/networkcalls/addUser";
 import { saveToken } from "../../functions/session/saveToken";
 import { getToken } from "../../functions/session/getToken";
 import { RoutePath } from "../../enums/RoutePath_enum";
+import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 
 export const SignUpPage = () => {
     const navigate = useNavigate();
@@ -138,6 +139,8 @@ export const SignUpPage = () => {
         } else if(response === undefined) {
             setIsLoading(false);
             handleUndefined();
+        } else if (response!.isErrorOfType(HttpResponseErrorType.userExists)){
+            handleUserExistsError(response);
         } else {
             setIsLoading(false);
             handleError(response);
@@ -168,6 +171,15 @@ export const SignUpPage = () => {
         setIsLoading(false);
         setAlertMessage(reasonForFailure);
         setIsAlertShowing(true); 
+    }
+
+    const handleUserExistsError = (response: HttpResponse<string>) => {
+        setIsLoading(false);
+        setSignUpErrors({
+            ...signUpErrors,
+            emailError: response.errorMessage,
+            isEmailInErrorState: true
+        });
     }
 
     const closeAlert = () => {
