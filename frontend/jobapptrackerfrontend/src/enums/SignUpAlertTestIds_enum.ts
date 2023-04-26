@@ -1,4 +1,5 @@
 export enum SignUpAlertTestIds {
     signUpAlert = "signupalert",
-    signUpAlertHeading = "signupalertHeading"
+    signUpAlertHeading = "signupalertHeading",
+    signUpAlertBody = "signupalertBody"
 }
