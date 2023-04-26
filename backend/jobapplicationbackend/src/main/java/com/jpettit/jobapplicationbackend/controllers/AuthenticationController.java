@@ -1,6 +1,7 @@
 package com.jpettit.jobapplicationbackend.controllers;
 
 import com.jpettit.jobapplicationbackend.constants.CrossOriginAllowedUrls;
+import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.exceptions.UserExistsException;
 import com.jpettit.jobapplicationbackend.models.requests.AuthenticationRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AuthenticationResponse;
@@ -28,6 +29,7 @@ public class AuthenticationController {
                     .token("")
                     .errorMessage(usEx.getMessage())
                     .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorType(ErrorType.USER_EXISTS)
                     .build();
             return new ResponseEntity<>(errorResponse, HttpStatus.OK);
         }

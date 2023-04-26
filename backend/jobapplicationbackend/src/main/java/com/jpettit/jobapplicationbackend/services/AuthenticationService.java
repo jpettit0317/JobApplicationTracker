@@ -1,5 +1,6 @@
 package com.jpettit.jobapplicationbackend.services;
 
+import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.exceptions.UserExistsException;
 import com.jpettit.jobapplicationbackend.models.requests.AuthenticationRequest;
@@ -48,6 +49,7 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .errorMessage("")
                 .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
                 .build();
     }
 
