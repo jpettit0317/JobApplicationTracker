@@ -1,6 +1,7 @@
-import { HttpResponse } from "../../model/httpresponses/HttpResponse";
-import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
-import { HttpResponseData } from "../../model/interfaces/init/ResponseData";
+import { HttpResponse } from "../../../model/httpresponses/HttpResponse";
+import { HttpResponseBuilder } from "../../../model/builders/HttpResponseBuilder";
+import { HttpResponseData } from "../../../model/interfaces/init/HttpResponseData";
+import { HttpResponseErrorType } from "../../../enums/HttpResponseErrorTypes_enum";
 
 describe("HttpResponse unit tests", <T>() => {
     const assertIsError = (actualValue: boolean, expectedValue: boolean) => {
@@ -13,8 +14,7 @@ describe("HttpResponse unit tests", <T>() => {
         expect(resp.statusCode).toBe(respData.status);
     }
 
-    const createHttpResponse = (resp: HttpResponseData<string[]> 
-        = {status: 0, errorMessage: "", data: []}): HttpResponse<string[]> => {
+    const createHttpResponse = (resp: HttpResponseData<string[]>): HttpResponse<string[]> => {
             return new HttpResponseBuilder<string[]>(resp.data)
                 .setErrorMessage(resp.errorMessage)
                 .setStatusCode(resp.status)
@@ -26,7 +26,8 @@ describe("HttpResponse unit tests", <T>() => {
             const defaultRespData: HttpResponseData<string[]> = {
                 status: 0,
                 errorMessage: "",
-                data: []
+                data: [],
+                errorType: HttpResponseErrorType.none
             };
             const response = createHttpResponse(defaultRespData);
 
@@ -36,8 +37,9 @@ describe("HttpResponse unit tests", <T>() => {
         test("when an HttpResponse has set values, then members should have values", () => {
             const respData: HttpResponseData<string[]> = {
                 data: ["Hello", "World"],
-                errorMessage: "Nothing",
-                status: 200
+                errorMessage: "",
+                status: 200,
+                errorType: HttpResponseErrorType.none
             };
             const response = createHttpResponse(respData);
             
@@ -59,7 +61,8 @@ describe("HttpResponse unit tests", <T>() => {
                 const respData: HttpResponseData<string[]> = {
                     status: statusCode,
                     errorMessage: "",
-                    data: []
+                    data: [],
+                    errorType: HttpResponseErrorType.none
                 };
                 const response = createHttpResponse(respData);
         
@@ -81,7 +84,8 @@ describe("HttpResponse unit tests", <T>() => {
                 const resData: HttpResponseData<string[]> = {
                     status: statusCode,
                     errorMessage: "Something bad happend.",
-                    data: []
+                    data: [],
+                    errorType: HttpResponseErrorType.other
                 };
                 const response = createHttpResponse(resData);
                 

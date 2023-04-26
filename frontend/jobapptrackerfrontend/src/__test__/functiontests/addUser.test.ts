@@ -1,11 +1,8 @@
 import { addUser } from "../../functions/networkcalls/addUser";
-import { SignUp, SignUpConfirmPassword } from "../../model/interfaces/signup/SignUp";
+import { SignUp } from "../../model/interfaces/signup/SignUp";
 import { HttpResponse } from "../../model/httpresponses/HttpResponse";
-import { HttpResponseData } from "../../model/interfaces/init/ResponseData";
-import { APIEndPoint } from "../../enums/APIEndPoint_enum";
-import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
-import { HttpStatusCodes } from "../../enums/HttpStatusCodes_enum";
-import axios from "axios";
+import { HttpResponseData } from "../../model/interfaces/init/HttpResponseData";
+import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 
 describe("addUser tests", () => {
 
@@ -23,10 +20,6 @@ describe("addUser tests", () => {
         expect(actual.statusCode).toBe(expected.statusCode);
     }
 
-    const assertAxiosHasBeenCalledTimes = (timesCalled: number = 0) => {
-        // expect(mockAxios).toBeCalledTimes(timesCalled);
-    }
-
     test("when passed in an empty SignUp or empty url, should return error", () => {
         const emptySignUp: SignUp = {
             email: "",
@@ -40,7 +33,8 @@ describe("addUser tests", () => {
             const respData: HttpResponseData<string> = {
                 data: "",
                 errorMessage: "URL or signup is empty.",
-                status: 404
+                status: 404,
+                errorType: HttpResponseErrorType.other
             };
 
             assertResponseIsEqualToData(resp, respData);
