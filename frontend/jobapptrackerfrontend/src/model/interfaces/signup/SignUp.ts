@@ -8,3 +8,8 @@ export interface SignUp {
 export interface SignUpConfirmPassword extends SignUp {
     readonly confirmPassword: string;
 }
+
+export const isSignUpEmpty = (signUp: SignUp): boolean => {
+    return signUp.email === "" || signUp.firstname === "" 
+        || signUp.lastname === "" || signUp.password === "";
+}
