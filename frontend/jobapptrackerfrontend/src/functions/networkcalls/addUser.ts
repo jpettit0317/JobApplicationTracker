@@ -1,54 +1,64 @@
-import { HttpResponse } from "../../model/httpresponses/HttpResponse";
+import { HttpResponse, createHttpResponse } from "../../model/httpresponses/HttpResponse";
 import { SignUp } from "../../model/interfaces/signup/SignUp";
 import axios from "axios";
 import { HttpStatusCodes } from "../../enums/HttpStatusCodes_enum";
 import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
-import { HttpResponseData } from "../../model/interfaces/init/ResponseData";
+import { HttpResponseData } from "../../model/interfaces/init/HttpResponseData";
+import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
+import { responsivePropType } from "react-bootstrap/esm/createUtilityClasses";
+import { getErrorTypeFromString } from "../parseErrors/getErrorTypeFromString";
+import { isSignUpEmpty } from "../../model/interfaces/signup/SignUp";
 
 export const addUser = async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => {
   if (url === "" || isSignUpEmpty(signUp)) {
-    const badInput: HttpResponseData<string> = {
-      data: "",
-      status: 404,
-      errorMessage: "URL or signup is empty."
-    };
-
-    return createResponse(badInput);
+    handleBadInput(); 
   }
 
   try {
-    const resp = await axios.post(url, signUp);
-    console.log("\n\n\nResponse data is ", resp.data);
-
-    const respData: HttpResponseData<string> = {
-      data: resp.data.token as string,
-      status: resp.data.statusCode,
-      errorMessage: resp.data.errorMessage
-    };
-
-    return createResponse(respData);
-
+    return makeAddUserCall(url, signUp);
   } catch (error: any) {
-    const errorString = error.message as string;
-
-    return new HttpResponseBuilder<string>("")
-      .setStatusCode(HttpStatusCodes.notFound)
-      .setErrorMessage(errorString)
-      .build();
+    return handleErrorFromAddUserCall(error); 
   }
 }
 
-const isSignUpEmpty = (signUp: SignUp): boolean => {
-  return signUp.email === "" 
-    || signUp.firstname === "" || signUp.lastname === ""
-    || signUp.password === "";
+const makeAddUserCall = async (url: string, signUp: SignUp): Promise<HttpResponse<string>> => {
+  const resp = await axios.post(url, signUp);
+    console.log("\n\n\nResponse data is ", resp.data);
+
+    const errorType = convertErrorTypeStringToErrorType(resp.data.errorType);
+
+    const respData: HttpResponseData<string> = {
+      data: resp.data.token as string,
+      status: resp.data.statusCode as number,
+      errorMessage: resp.data.errorMessage as string,
+      errorType: errorType 
+    };
+
+    return createHttpResponse<string>(respData);
 }
 
-export const createResponse = (resp: HttpResponseData<string>): HttpResponse<string> => {
-    return new HttpResponseBuilder<string>(resp.data)
-      .setErrorMessage(resp.errorMessage)
-      .setStatusCode(resp.status)
-      .build();
+const handleErrorFromAddUserCall = (error: any): HttpResponse<string> => {
+  const errorString = error.message as string;
+
+  const errorData: HttpResponseData<string> = {
+    data: "",
+    status: HttpStatusCodes.notFound,
+    errorMessage: errorString,
+    errorType: HttpResponseErrorType.other
+  };
+
+  return createHttpResponse<string>(errorData);
+}
+
+const handleBadInput = (): HttpResponse<string> => {
+  const badInput: HttpResponseData<string> = {
+    data: "",
+    status: 404,
+    errorMessage: "URL or signup is empty.",
+    errorType: HttpResponseErrorType.other
+  };
+
+  return createHttpResponse<string>(badInput);
 }
 
 const createResponseFromJSON = (input: string): HttpResponse<string> => {
@@ -63,3 +73,9 @@ const createResponseFromJSON = (input: string): HttpResponse<string> => {
     .setStatusCode(statusCode)
     .build();
 };
+
+const convertErrorTypeStringToErrorType = (input: any): HttpResponseErrorType => {
+  const inputString = input as string;
+
+  return getErrorTypeFromString(inputString); 
+}
