@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpettit.jobapplicationbackend.helpers.helper.AuthenticationResponseTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
+import com.jpettit.jobapplicationbackend.helpers.helpervars.AuthenticationResponseTestVars;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,20 +20,16 @@ class AuthenticationResponseTest {
     }
 
     @AfterEach
-    void tearDown() {
-        sut = null;
-    }
+    void tearDown() { setSut(null); }
 
-    private void setUpResponse() {
-        sut.setErrorMessage(AuthenticationResponseTestHelper.response.getErrorMessage());
-        sut.setToken(AuthenticationResponseTestHelper.response.getToken());
-        sut.setStatusCode(AuthenticationResponseTestHelper.response.getStatusCode());
-        sut.setErrorType(AuthenticationResponseTestHelper.response.getErrorType());
+
+    private void setSut(AuthenticationResponse response) {
+        sut = response;
     }
 
     @Test
     void toJSONString_shouldReturnString() {
-        setUpResponse();
+        setSut(AuthenticationResponseTestVars.response);
         final String errorMessageStart = "When getting JSON string for " + sut.toString();
         try {
            final String expected = convertResponseToString();
@@ -43,7 +40,7 @@ class AuthenticationResponseTest {
                     .build();
            AuthenticationResponseTestHelper.assertStringsAreEqual(pair, errorMessageStart);
         } catch (JsonProcessingException e) {
-            final String message = sut.toString() + " threw an exeception "
+            final String message = sut.toString() + " threw an exception "
                     + e.getMessage();
             fail(message);
         }
