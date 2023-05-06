@@ -36,9 +36,6 @@ class AuthenticationServiceTest {
     @Mock
     private JwtService jwtService;
 
-//    @MockBean
-//    private AuthenticationManager authenticationManager;
-
     @InjectMocks
     private AuthenticationService sut;
 
@@ -66,7 +63,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    public void register_WhenPassedInNonExistantRegister_ShouldReturnResponse() throws UserExistsException {
+    public void register_WhenPassedInNonExistentRegister_ShouldReturnResponse() throws UserExistsException {
         final RegisterRequest request = AuthenticationServiceTestHelper.validRequest;
         final AuthenticationResponse expectedResponse = AuthenticationResponse.builder()
                 .token("Token")
@@ -93,7 +90,7 @@ class AuthenticationServiceTest {
 
         final AuthenticationResponse actualResponse = sut.register(request);
 
-        AuthenticationServiceTestHelper.assertAuthenicatonResponsesAreEqual(actualResponse, expectedResponse);
+        AuthenticationServiceTestHelper.assertAuthenticationResponsesAreEqual(actualResponse, expectedResponse);
 
     }
 
