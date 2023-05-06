@@ -82,7 +82,7 @@ class AuthenticationControllerTest {
     public void register_WhenPassedInANonExistentUser_ShouldReturnToken() throws UserExistsException {
         setRegisterRequest(AuthenticationControllerTestVars.validRegisterRequest);
         setExpected(AuthenticationControllerTestVars.createResponseEntity(
-                AuthenticationControllerTestVars.validAuthenicationResponse, HttpStatus.OK));
+                AuthenticationControllerTestVars.validAuthenticationResponse, HttpStatus.OK));
 
 
         when(authenticationService.register(ArgumentMatchers.any()))
