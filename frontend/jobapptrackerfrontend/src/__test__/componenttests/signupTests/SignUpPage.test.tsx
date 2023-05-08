@@ -5,11 +5,13 @@ import { changeState, renderJSXElement, renderJSXElementWithRoute, waitForChange
 import { getElement } from "../../helperfunctions/htmlelements/getElement";
 import { SignUpConfirmPasswordBuilder } from "../../../model/builders/SignUpBuilder";
 import userEvent from "@testing-library/user-event";
-import { SignUp } from "../../../model/interfaces/signup/SignUp";
+import { SignUp, SignUpConfirmPassword } from "../../../model/interfaces/signup/SignUp";
 import { HttpResponse } from "../../../model/httpresponses/HttpResponse";
 import { HttpResponseBuilder } from "../../../model/builders/HttpResponseBuilder";
 import { getToken } from "../../../functions/session/getToken";
 import { JobAppListPageTestIds } from "../../../components/jobapplist/JobAppListPageTestIds";
+import { HttpResponseErrorType } from "../../../enums/HttpResponseErrorTypes_enum";
+import { HttpStatusCodes } from "../../../enums/HttpStatusCodes_enum";
 
 describe("Sign Up Page tests", () => {
     const signUpRoute: string = "/signup";
@@ -46,7 +48,7 @@ describe("Sign Up Page tests", () => {
                     .setStatusCode(200)
                     .build();
             
-            const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
+            const mockAddUser = jest.fn(async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
             jest.mock("../../../functions/networkcalls/addUser", () => {
                 addUser: mockAddUser 
             });
@@ -94,7 +96,7 @@ describe("Sign Up Page tests", () => {
                     .setStatusCode(200)
                     .build();
             
-            const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
+            const mockAddUser = jest.fn(async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
             jest.mock("../../../functions/networkcalls/addUser", () => {
                 addUser: mockAddUser 
             });
@@ -203,7 +205,7 @@ describe("Sign Up Page tests", () => {
                 .setStatusCode(400)
                 .build();
 
-            const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
+            const mockAddUser = jest.fn(async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
             jest.mock("../../../functions/networkcalls/addUser", () => {
                 addUser: mockAddUser 
             });
@@ -273,7 +275,7 @@ describe("Sign Up Page tests", () => {
                 .setStatusCode(400)
                 .build();
 
-            const mockAddUser = jest.fn((signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
+            const mockAddUser = jest.fn(async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(defaultHttpResponse));
             jest.mock("../../../functions/networkcalls/addUser", () => {
                 addUser: mockAddUser 
             });
@@ -329,6 +331,70 @@ describe("Sign Up Page tests", () => {
                 assertElementsAreNotInDocument(nonPresentIds);
                 assertElementsAreInDocument(presentIds);
                 assertMockFunctionHasBeenCalledTimes(0, mockAddUser);
+            });
+        });
+
+        test("when passed in an email that exists, email should have an error", () => {
+            renderSignUpPage();
+            const signUp: SignUpConfirmPassword = {
+                email: "noname@email.com",
+                firstname: "John",
+                lastname: "Doe",
+                password: "password94_",
+                confirmPassword: "password94_"
+            };
+            const emailFieldError = signUp.email + " already exists.";
+            const userExistsResponse = new HttpResponseBuilder<string>("")
+                .setErrorMessage(emailFieldError)
+                .setErrorType(HttpResponseErrorType.userExists)
+                .setStatusCode(HttpStatusCodes.forbidden)
+                .build();
+
+            const mockAddUser = jest.fn(async (signUp: SignUp, url: string): Promise<HttpResponse<string>> => Promise.resolve(userExistsResponse));
+            jest.mock("../../../functions/networkcalls/addUser", () => {
+                addUser: mockAddUser 
+            });
+
+            const nonPresentIds = [
+                SignUpTestIds.confirmPasswordHelper,
+                SignUpTestIds.passwordHelper,
+                SignUpTestIds.firstnameHelper,
+                SignUpTestIds.lastnameHelper
+            ];
+
+            const emailField = getElement(SignUpTestIds.emailField);
+            const firstnameField = getElement(SignUpTestIds.firstNameField);
+            const lastnameField = getElement(SignUpTestIds.lastnameField);
+            const passwordField = getElement(SignUpTestIds.passwordField);
+            const confirmPassword = getElement(SignUpTestIds.confirmPasswordField);
+            const submitButton = getElement(SignUpTestIds.submit);
+    
+            const presentHtmlElements = [
+                emailField,
+                firstnameField,
+                lastnameField,
+                passwordField,
+                confirmPassword,
+                submitButton
+            ];
+
+
+            failIfHTMLElementsAreNull(presentHtmlElements);
+
+            changeState( () => {
+                userEvent.type(emailField!, signUp.email);
+                userEvent.type(firstnameField!, signUp.firstname);
+                userEvent.type(lastnameField!, signUp.lastname);
+                userEvent.type(passwordField!, signUp.password);
+                userEvent.type(confirmPassword!, signUp.confirmPassword);
+
+                userEvent.click(submitButton!); 
+            });
+
+            waitForChanges(() => {
+                assertElementsAreNotInDocument(nonPresentIds);
+                assertElementIsInDocument(getElement(SignUpTestIds.emailHelper));
+                assertMockFunctionHasBeenCalledTimes(1, mockAddUser);
             });
         });
     });

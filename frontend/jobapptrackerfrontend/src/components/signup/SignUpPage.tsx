@@ -127,7 +127,6 @@ export const SignUpPage = () => {
                 handleAddUser(response); 
             })
             .catch((reason: string) => {
-                console.log("The reason for failure is ", reason);
                 handleUnexpectedError(reason);
         });
     }
@@ -153,16 +152,12 @@ export const SignUpPage = () => {
     }
 
     const handleSuccess = (response: HttpResponse<string>) => {
-        console.log("The response is ", JSON.stringify(response));
         saveToken(response.data);
         const tokenSaved = getToken();
-        console.log("The token saved is ", tokenSaved);
-        console.log("Redirecting to Job App Page.");
         redirectToJobAppPage();
     }
 
     const handleUndefined = () => {
-        console.log("Response is undefined");
         setAlertMessage("Something went wrong!!");
         setIsAlertShowing(true);
     }
