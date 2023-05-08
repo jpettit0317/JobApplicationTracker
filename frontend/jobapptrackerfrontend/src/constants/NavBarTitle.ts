@@ -1,0 +1,1 @@
+export const navBarTitle = "Job Application Tracker";

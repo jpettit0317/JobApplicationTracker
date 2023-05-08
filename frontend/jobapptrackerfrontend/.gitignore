@@ -22,6 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-#images
-/public/logo192.png
-/public/logo512.png
+# ide
+.vscode
