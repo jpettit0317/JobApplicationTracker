@@ -31,5 +31,5 @@ jobs:
         distribution: corretto
         cache: gradle
     - name: Setup Gradle and Test
-      working-directory: ../../backend/jobapplicationbackend
+      working-directory: backend/jobapplicationbackend
       run: ./gradlew build --no-daemon
