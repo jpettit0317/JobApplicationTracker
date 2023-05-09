@@ -32,4 +32,4 @@ jobs:
         cache: gradle
     - name: Setup Gradle and Test
       working-directory: backend/jobapplicationbackend
-      run: ./gradlew build --no-daemon
+      run: ./gradlew clean test
