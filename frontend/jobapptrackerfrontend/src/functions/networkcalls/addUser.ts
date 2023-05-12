@@ -2,7 +2,6 @@ import { HttpResponse, createHttpResponse } from "../../model/httpresponses/Http
 import { SignUp } from "../../model/interfaces/signup/SignUp";
 import axios from "axios";
 import { HttpStatusCodes } from "../../enums/HttpStatusCodes_enum";
-import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
 import { HttpResponseData } from "../../model/interfaces/init/HttpResponseData";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 import { getErrorTypeFromString } from "../parseErrors/getErrorTypeFromString";
