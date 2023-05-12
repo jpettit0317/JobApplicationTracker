@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Alert } from "react-bootstrap";
 import { SignUpAlertProps } from "./alertProps/SignUpAlertProps";
 import { SignUpAlertTestIds } from "../../enums/SignUpAlertTestIds_enum";
