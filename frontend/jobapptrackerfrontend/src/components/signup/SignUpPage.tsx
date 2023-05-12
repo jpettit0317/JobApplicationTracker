@@ -4,7 +4,7 @@ import { NavBar } from "../navbar/NavBar";
 import './SignUpPage.css';
 import { Button, Col, Container, FloatingLabel, Form, Nav, Row} from "react-bootstrap";
 import { SignUpTestIds } from "./SignUpTestIds";
-import { Link, redirect, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SignUpConfirmPassword } from "../../model/interfaces/signup/SignUp";
 import { SignUpErrors } from "../../model/interfaces/signup/SignUpErrors";
 import { getSignUpErrors } from "../../functions/getSignUpErrors";
@@ -153,7 +153,6 @@ export const SignUpPage = () => {
 
     const handleSuccess = (response: HttpResponse<string>) => {
         saveToken(response.data);
-        const tokenSaved = getToken();
         redirectToJobAppPage();
     }
 
