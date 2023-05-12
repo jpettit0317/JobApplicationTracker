@@ -15,7 +15,6 @@ import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { SignUpAlert } from "../alerts/SignUpAlert";
 import { addUser } from "../../functions/networkcalls/addUser";
 import { saveToken } from "../../functions/session/saveToken";
-import { getToken } from "../../functions/session/getToken";
 import { RoutePath } from "../../enums/RoutePath_enum";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 
