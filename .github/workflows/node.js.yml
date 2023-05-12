@@ -24,9 +24,9 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
-        node-version: 19.x 
-        cache: npm
-	cache-dependency-path: frontend/jobapptrackerfrontend/package-lock.json
+        node-version: '19.0' 
+        cache: 'npm'
+	cache-dependency-path: 'frontend/jobapptrackerfrontend/package-lock.json'
     - name: Installing dependencies for Node.js ${{ matrix.node-version }}
       working-directory: frontend/jobapptrackerfrontend 
       run: npm ci
