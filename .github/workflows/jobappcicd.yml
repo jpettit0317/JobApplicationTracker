@@ -43,6 +43,7 @@ jobs:
       working-directory: frontend/jobapptrackerfrontend
       run: npm test
 
+  buildtest_backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -54,6 +55,6 @@ jobs:
         java-version: 17
         distribution: corretto
         cache: gradle
-    - name: Setup Gradle and Test
+    - name: Build project and test
       working-directory: backend/jobapplicationbackend
-      run: ./gradlew clean test
+      run: ./gradlew clean build
