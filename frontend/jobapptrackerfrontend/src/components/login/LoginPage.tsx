@@ -5,7 +5,7 @@ import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import './LoginPage.css';
 import { Login } from "../../model/interfaces/login/Login";
-import { LoginErrors } from "../../model/interfaces/LoginErrors";
+import { LoginErrors } from "../../model/interfaces/login/LoginErrors";
 import { Link } from "react-router-dom";
 import { NavBar } from "../navbar/NavBar";
 import { getLoginErrors } from "../../functions/getLoginErrors";
@@ -13,31 +13,42 @@ import { LoginFormIds } from "./constants/LoginFormIds";
 import { navBarTitle } from "../../constants/NavBarTitle";
 
 export const LoginPage = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordHelperText, setPasswordHelperText] = useState("");
-    const [emailHelperText, setEmailHelperText] = useState("");
-    const [passwordFieldInErrorState, setPasswordFieldInErrorState] = useState(false);
-    const [emailFieldInErrorState, setEmailFieldInErrorState] = useState(false);
+    const [login, setLogin] = useState<Login>({
+        email: "",
+        password: ""
+    }); 
+    const [loginErrors, setLoginErrors] = useState<LoginErrors>({
+        emailError: "",
+        isEmailInErrorState: false,
+        passwordError: "",
+        isPasswordInErrorState: false
+    });
 
-    const onEmailChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-        setEmailFieldInErrorState(false);
-        setEmail(event.target.value);
-        setEmailHelperText("");
+    const onEmailChange = (event: any) => {
+        setLogin({
+            ...login,
+            email: event.target.value
+        });
+        setLoginErrors({
+            ...loginErrors,
+            isEmailInErrorState: false,
+            emailError: ""
+        });
     }
     
-    const onPasswordChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-        setPasswordFieldInErrorState(false);
-        setPassword(event.target.value);
-        setPasswordHelperText("");
+    const onPasswordChange = (event: any) => {
+        setLogin({
+            ...login,
+            password: event.target.value
+        });
+        setLoginErrors({
+            ...loginErrors,
+            isPasswordInErrorState: false,
+            passwordError: ""
+        });
     }
 
     const onSubmitPressed = () => {
-        const login: Login = {
-            email: email,
-            password: password
-        };
-
         const errors = getLoginErrors(login);
 
         if (isThereErrors(errors)) {
@@ -48,13 +59,19 @@ export const LoginPage = () => {
 
     const setErrors = (errors: LoginErrors) => {
         if (isThereAEmailError(errors)) {
-            setEmailFieldInErrorState(true);
-            setEmailHelperText(errors.emailError);
+            setLoginErrors({
+                ...loginErrors,
+                emailError: errors.emailError,
+                isEmailInErrorState: true
+            });
         }
 
         if (isThereAPasswordError(errors)) {
-            setPasswordFieldInErrorState(true);
-            setPasswordHelperText(errors.passwordError);
+            setLoginErrors({
+                ...loginErrors,
+                passwordError: errors.passwordError,
+                isPasswordInErrorState: true
+            }); 
         }
     }
 
@@ -93,17 +110,17 @@ export const LoginPage = () => {
                         aria-label="Email"
                         onChange={onEmailChange}
                         required
-                        isInvalid={emailFieldInErrorState}
+                        isInvalid={loginErrors.isEmailInErrorState}
                         style={ {color: "black"} }
                         data-testid={LoginFormIds.emailField}
                         />
-                        { emailFieldInErrorState &&
+                        { loginErrors.isEmailInErrorState &&
                            <Form.Text 
                            id="emailHelpBlock" 
                            style={ {color: "red"}}
                            data-testid={LoginFormIds.emailHelper}
                            >
-                               {emailHelperText}
+                               {loginErrors.emailError}
                            </Form.Text>  
                         }
                     </FloatingLabel>
@@ -120,15 +137,15 @@ export const LoginPage = () => {
                         type="password"
                         onChange={onPasswordChange}
                         required
-                        isInvalid={passwordFieldInErrorState}
+                        isInvalid={loginErrors.isPasswordInErrorState}
                         style={ {color : "black"} }
                         data-testid={LoginFormIds.passwordField}
                         />
-                        { passwordFieldInErrorState &&
+                        { loginErrors.isPasswordInErrorState &&
                            <Form.Text id="passwordHelpBlock" 
                            style={ {color: "red"} }
                            data-testid={LoginFormIds.passwordHelper}>
-                               {passwordHelperText}
+                               {loginErrors.passwordError}
                            </Form.Text>
                         }
                     </FloatingLabel>
