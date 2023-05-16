@@ -4,7 +4,7 @@ import { Container, FloatingLabel, Form, Nav, Row, Col } from "react-bootstrap";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import './LoginPage.css';
-import { Login } from "../../model/interfaces/Login";
+import { Login } from "../../model/interfaces/login/Login";
 import { LoginErrors } from "../../model/interfaces/LoginErrors";
 import { Link } from "react-router-dom";
 import { NavBar } from "../navbar/NavBar";

@@ -3,7 +3,7 @@ import { LoginPage } from '../../../components/login/LoginPage';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { LoginFormIds } from '../../../components/login/constants/LoginFormIds';
-import { Login } from '../../../model/interfaces/Login';
+import { Login } from '../../../model/interfaces/login/Login';
 import { 
     assertElementsAreInDocument,
     assertElementsAreNotInDocument,

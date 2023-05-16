@@ -1,4 +1,4 @@
-import { Login } from "../model/interfaces/Login";
+import { Login } from "../model/interfaces/login/Login";
 import { LoginSignUpConstants } from "../constants/LoginSignUpConstants";
 import { LoginErrors } from "../model/interfaces/LoginErrors";
 import { areThereEmojis } from "./areThereEmojis";
