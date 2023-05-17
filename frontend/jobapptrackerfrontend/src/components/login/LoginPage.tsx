@@ -11,6 +11,7 @@ import { NavBar } from "../navbar/NavBar";
 import { getLoginErrors } from "../../functions/getLoginErrors";
 import { LoginFormIds } from "./constants/LoginFormIds";
 import { navBarTitle } from "../../constants/NavBarTitle";
+import { LoginAlert } from "../alerts/LoginAlert";
 
 export const LoginPage = () => {
     const [login, setLogin] = useState<Login>({
@@ -23,6 +24,9 @@ export const LoginPage = () => {
         passwordError: "",
         isPasswordInErrorState: false
     });
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isAlertShowing, setIsAlertShowing] = useState<boolean>(false);
+    const [alertMessage, setAlertMessage] = useState<string>("");
 
     const onEmailChange = (event: any) => {
         setLogin({
@@ -57,6 +61,14 @@ export const LoginPage = () => {
         }
     }
 
+    const onAlertCloseButtonPressed = () => {
+        setIsAlertShowing(false);
+    }
+
+    const loginUserToBackend = async () => {
+        setIsLoading(true);
+    }
+
     const isThereErrors = (errors: LoginErrors) => {
         return isThereAEmailError(errors) 
         || isThereAPasswordError(errors);
@@ -75,6 +87,14 @@ export const LoginPage = () => {
     
     return (
         <div>
+            { isAlertShowing &&
+                <LoginAlert 
+                    alertMessage={alertMessage}
+                    alertTitle="Error"
+                    shouldShow={isAlertShowing}
+                    closeButtonPressed={onAlertCloseButtonPressed}
+                />
+            }
             <NavBar title={navBarTitle}/>
             <Container className="loginformcontainer">
                 <Form className="Auth-form">
