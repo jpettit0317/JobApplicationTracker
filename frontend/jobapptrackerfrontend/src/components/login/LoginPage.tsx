@@ -52,32 +52,14 @@ export const LoginPage = () => {
         const errors = getLoginErrors(login);
 
         if (isThereErrors(errors)) {
-            setErrors(errors);
+            setLoginErrors(errors); 
             return;            
         }
     }
 
-    const setErrors = (errors: LoginErrors) => {
-        if (isThereAEmailError(errors)) {
-            setLoginErrors({
-                ...loginErrors,
-                emailError: errors.emailError,
-                isEmailInErrorState: true
-            });
-        }
-
-        if (isThereAPasswordError(errors)) {
-            setLoginErrors({
-                ...loginErrors,
-                passwordError: errors.passwordError,
-                isPasswordInErrorState: true
-            }); 
-        }
-    }
-
     const isThereErrors = (errors: LoginErrors) => {
-        return errors.passwordError !== "" 
-        || errors.emailError !== "";
+        return isThereAEmailError(errors) 
+        || isThereAPasswordError(errors);
     }
 
     const isThereAEmailError = (errors: LoginErrors) => {
