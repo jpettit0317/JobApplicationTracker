@@ -10,4 +10,5 @@ export class LoginFormIds {
     static readonly submit = "loginSubmit";
     static readonly navBar = "navbar";
     static readonly navBarBrand = "navbarbrand";
+    static readonly loadingIndicator = "loadingIndicator";
 }

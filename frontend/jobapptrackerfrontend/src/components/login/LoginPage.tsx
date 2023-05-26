@@ -12,6 +12,10 @@ import { getLoginErrors } from "../../functions/getLoginErrors";
 import { LoginFormIds } from "./constants/LoginFormIds";
 import { navBarTitle } from "../../constants/NavBarTitle";
 import { LoginAlert } from "../alerts/LoginAlert";
+import { loginUser } from "../../functions/networkcalls/loginUser";
+import { APIEndPoint } from "../../enums/APIEndPoint_enum";
+import { HttpResponse } from "../../model/httpresponses/HttpResponse";
+import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
 
 export const LoginPage = () => {
     const [login, setLogin] = useState<Login>({
@@ -59,6 +63,8 @@ export const LoginPage = () => {
             setLoginErrors(errors); 
             return;            
         }
+
+        loginUserToBackend();
     }
 
     const onAlertCloseButtonPressed = () => {
@@ -67,7 +73,47 @@ export const LoginPage = () => {
 
     const loginUserToBackend = async () => {
         setIsLoading(true);
+
+        loginUser(login, APIEndPoint.loginUser).then(
+            (response: (HttpResponse<string> | undefined)) => {
+                handleLoginUser(response);
+            })
+            .catch((reason: string) => {
+                handleUnexpectedError(reason); 
+        });
     }
+
+    const handleLoginUser = (resp: (HttpResponse<string> | undefined)) => {
+        setIsLoading(false);
+        
+        if (resp !== undefined && !resp.isError()) {
+            handleSuccess(resp);
+        } else if (resp === undefined) {
+            handleUndefined();
+        } else {
+            handleError(resp);
+        }
+    }
+
+    const handleError = (resp: HttpResponse<string>) => {
+        setAlertMessage(resp.errorMessage);
+        setIsAlertShowing(true);
+    }
+
+    const handleUndefined = () => {
+        setAlertMessage("Something went wrong!!");
+        setIsAlertShowing(true);
+    };
+
+    const handleSuccess = (resp: HttpResponse<string>) => {
+
+    };
+
+    const handleUnexpectedError = (reason: string) => {
+        setIsLoading(false);
+        setAlertMessage(reason);
+        setIsAlertShowing(true);
+    };
 
     const isThereErrors = (errors: LoginErrors) => {
         return isThereAEmailError(errors) 
@@ -97,6 +143,14 @@ export const LoginPage = () => {
             }
             <NavBar title={navBarTitle}/>
             <Container className="loginformcontainer">
+                { isLoading &&
+                    <LoadingIndicator 
+                        isLoading={isLoading}
+                        size={30}
+                        ariaLabel="Loading"
+                        testId={LoginFormIds.loadingIndicator}
+                    />
+                }
                 <Form className="Auth-form">
                     <h4 data-testid={LoginFormIds.loginHeader}>{header}</h4>
                     <FloatingLabel
