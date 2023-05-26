@@ -1,9 +1,7 @@
 import { render } from '@testing-library/react';
 import { LoginPage } from '../../../components/login/LoginPage';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
 import { LoginFormIds } from '../../../components/login/constants/LoginFormIds';
-import { Login } from '../../../model/interfaces/login/Login';
 import { 
     assertElementsAreInDocument,
     assertElementsAreNotInDocument,
@@ -11,46 +9,31 @@ import {
     isHTMLElementNull
 } from '../../helperfunctions/assertions/htmlElementAssertions';
 import { getElement } from '../../helperfunctions/htmlelements/getElement';
-import { changeState, waitForChanges } from '../../helperfunctions/setup/uitestsetup';
+import { changeState, renderJSXElementWithRoute, waitForChanges } from '../../helperfunctions/setup/uitestsetup';
+import { assertMockLoginuserHasBeenCalledTimes } from '../../helperfunctions/assertions/loginpageassertions';
+import {
+    validLogins,
+    invalidLogins,
+    loginRoute,
+    createResolvingMockFunction,
+    validHttpResponse
+} from "../../helpervars/loginvars/loginvars";
 
 describe('Login Page UI tests', () => {
-    const route = "/login";
-    const emojiInput = "HelloWorld🤣";
-
-    const validLogins: Login[] = [
-        { 
-            email: "nonameman@email.com",
-            password: "password0q4r;t"
-        },
-        {
-            email: "nonameman@email.com",
-            password: "hello:world+=;"
-        }
-    ];
-
-    const invalidLogins: Login[] = [
-        {
-            email: emojiInput,
-            password: emojiInput + ";"   
-        },
-        {
-            email: "nonameman@email.com",
-            password: "hello world!"
-        }
-    ];
+    const loginUserPath = "../../../functions/networkcalls/loginUser";
 
     const renderLoginPage = () => {
-        render(
-            <MemoryRouter initialEntries={[route]}>
-                <LoginPage />
-            </MemoryRouter>
-        );
+        renderJSXElementWithRoute([loginRoute], <LoginPage />); 
     }
-
+    
     describe('render test', () => {
         test('should render correctly', () => {
             renderLoginPage();
-
+            
+            const mockLoginUser = createResolvingMockFunction(validHttpResponse);
+            jest.mock(loginUserPath, () => {
+                loginUser: mockLoginUser
+            });
             const idsInDocument = [
                 LoginFormIds.loginHeader,
                 LoginFormIds.navBar,
@@ -68,6 +51,7 @@ describe('Login Page UI tests', () => {
                 LoginFormIds.passwordHelper
             ];
 
+            assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 0);
             assertElementsAreInDocument(idsInDocument);
             assertElementsAreNotInDocument(idsNotInDocument);
         });
@@ -82,6 +66,11 @@ describe('Login Page UI tests', () => {
                 LoginFormIds.passwordHelper
             ];
 
+            const mockLoginUser = createResolvingMockFunction(validHttpResponse);
+            jest.mock(loginUserPath, () => {
+                loginUser: mockLoginUser
+            });
+
             if (isHTMLElementNull(submitButton)) {
                 fail("Submit button doesn't exist");
             }
@@ -92,6 +81,7 @@ describe('Login Page UI tests', () => {
 
             waitForChanges(() => {
                 assertElementsAreInDocument(helperIds);
+                assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 0);
             });
         });
 
@@ -154,6 +144,11 @@ describe('Login Page UI tests', () => {
          ", there should be no errors", () => {
             renderLoginPage();
 
+            const mockLoginUser = createResolvingMockFunction(validHttpResponse);
+            jest.mock(loginUserPath, () => {
+                loginUser: mockLoginUser
+            });
+
             const ids = [
                 LoginFormIds.emailHelper,
                 LoginFormIds.passwordHelper
@@ -176,6 +171,7 @@ describe('Login Page UI tests', () => {
 
             waitForChanges(() => {
                 assertElementsAreNotInDocument(ids);
+                assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 1);
             });
         });
     });
@@ -189,6 +185,11 @@ describe('Login Page UI tests', () => {
         const nonpresentIds = [
             LoginFormIds.emailHelper
         ];
+
+        const mockLoginUser = createResolvingMockFunction(validHttpResponse);
+        jest.mock(loginUserPath, () => {
+            loginUser: mockLoginUser
+        });
 
         const submitButton = getElement(LoginFormIds.submit);
         const emailField = getElement(LoginFormIds.emailField);
@@ -207,6 +208,7 @@ describe('Login Page UI tests', () => {
         waitForChanges(() => {
             assertElementsAreInDocument(presentIds);
             assertElementsAreNotInDocument(nonpresentIds);
+            assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 0);
         });
     });
 });
