@@ -16,6 +16,7 @@ import { loginUser } from "../../functions/networkcalls/loginUser";
 import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { HttpResponse } from "../../model/httpresponses/HttpResponse";
 import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
+import { RoutePath } from "../../enums/RoutePath_enum";
 
 export const LoginPage = () => {
     const [login, setLogin] = useState<Login>({
@@ -106,7 +107,8 @@ export const LoginPage = () => {
     };
 
     const handleSuccess = (resp: HttpResponse<string>) => {
-
+        console.log("Successful response is ")
+        console.log(JSON.stringify(resp));
     };
 
     const handleUnexpectedError = (reason: string) => {
@@ -208,7 +210,7 @@ export const LoginPage = () => {
                     <Row style={{padding: "10px"}}>
                         <Col>
                             <Nav data-testid={LoginFormIds.signUpLink}>
-                                <Link to="/register">{signUpLink}</Link>
+                                <Link to={RoutePath.signup}>{signUpLink}</Link>
                             </Nav>
                         </Col>
                     </Row>
