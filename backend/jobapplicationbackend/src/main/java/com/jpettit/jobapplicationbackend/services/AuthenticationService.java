@@ -60,7 +60,12 @@ public class AuthenticationService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         } catch (AuthenticationException authEx) {
-            System.out.println(authEx.getMessage());
+            return AuthenticationResponse.builder()
+                    .token("")
+                    .errorMessage("Invalid email or password.")
+                    .errorType(ErrorType.INVALID_INPUT)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .build();
         }
 
         var user = repository.findByEmail(request.getEmail())
@@ -69,6 +74,9 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .errorType(ErrorType.NONE)
+                .statusCode(HttpStatus.OK.value())
+                .errorMessage("")
                 .build();
     }
 
