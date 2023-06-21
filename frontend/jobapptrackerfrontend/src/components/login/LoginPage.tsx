@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 import './LoginPage.css';
 import { Login } from "../../model/interfaces/login/Login";
 import { LoginErrors } from "../../model/interfaces/login/LoginErrors";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { NavBar } from "../navbar/NavBar";
 import { getLoginErrors } from "../../functions/getLoginErrors";
 import { LoginFormIds } from "./constants/LoginFormIds";
@@ -17,8 +17,12 @@ import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { HttpResponse } from "../../model/httpresponses/HttpResponse";
 import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
 import { RoutePath } from "../../enums/RoutePath_enum";
+import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
+import { saveToken } from "../../functions/session/saveToken";
 
 export const LoginPage = () => {
+    const navigate = useNavigate();
+
     const [login, setLogin] = useState<Login>({
         email: "",
         password: ""
@@ -91,6 +95,8 @@ export const LoginPage = () => {
             handleSuccess(resp);
         } else if (resp === undefined) {
             handleUndefined();
+        } else if (resp!.isErrorOfType(HttpResponseErrorType.invalidInput)) {
+            handleInvalindInput(resp);
         } else {
             handleError(resp);
         }
@@ -106,9 +112,20 @@ export const LoginPage = () => {
         setIsAlertShowing(true);
     };
 
+    const handleInvalindInput = (response: HttpResponse<string>) => {
+        setLoginErrors({
+            emailError: response.errorMessage,
+            isEmailInErrorState: true,
+            passwordError: response.errorMessage,
+            isPasswordInErrorState: true
+        });
+    }
+
     const handleSuccess = (resp: HttpResponse<string>) => {
-        console.log("Successful response is ")
-        console.log(JSON.stringify(resp));
+        const loginToken = resp.data;
+
+        saveToken(loginToken);
+        navigateToPage(RoutePath.jobapplist);
     };
 
     const handleUnexpectedError = (reason: string) => {
@@ -128,6 +145,10 @@ export const LoginPage = () => {
 
     const isThereAPasswordError = (errors: LoginErrors) => {
         return errors.passwordError !== "";
+    }
+
+    const navigateToPage = (path: RoutePath) => {
+        navigate(path);
     }
 
     const header = "Login";

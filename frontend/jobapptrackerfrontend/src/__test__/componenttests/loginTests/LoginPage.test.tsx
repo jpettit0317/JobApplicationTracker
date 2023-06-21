@@ -18,6 +18,9 @@ import {
     createResolvingMockFunction,
     validHttpResponse
 } from "../../helpervars/loginvars/loginvars";
+import { HttpResponseBuilder } from '../../../model/builders/HttpResponseBuilder';
+import { HttpStatusCodes } from '../../../enums/HttpStatusCodes_enum';
+import { JobAppListPageTestIds } from '../../../components/jobapplist/JobAppListPageTestIds';
 
 describe('Login Page UI tests', () => {
     const loginUserPath = "../../../functions/networkcalls/loginUser";
@@ -209,6 +212,73 @@ describe('Login Page UI tests', () => {
             assertElementsAreInDocument(presentIds);
             assertElementsAreNotInDocument(nonpresentIds);
             assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 0);
+        });
+    });
+
+    test("when login is invalid, there should be errors in email and password", () => {
+        renderLoginPage();
+
+        const presentIds = [
+            LoginFormIds.passwordHelper,
+            LoginFormIds.emailHelper
+        ];
+        const badUserInput = new HttpResponseBuilder("")
+            .setErrorMessage("Invalid username or password")
+            .setStatusCode(HttpStatusCodes.forbidden)
+            .build();
+
+        const mockLoginUser = createResolvingMockFunction(badUserInput);
+        jest.mock(loginUserPath, () => {
+            loginUser: mockLoginUser
+        });
+
+        const emailField = getElement(LoginFormIds.emailField);
+        const passwordField = getElement(LoginFormIds.passwordField);
+        const submitButton = getElement(LoginFormIds.submit);
+
+        if (areHTMLElementsNull([emailField, passwordField, submitButton])) {
+            fail("Submit button, Email field, or Password field is null.");
+        }
+        const invalidLogin = validLogins[0];
+
+        changeState(() => {
+            userEvent.type(emailField!, invalidLogin.email);
+            userEvent.type(passwordField!, invalidLogin.password);
+            userEvent.click(submitButton!);
+        });
+
+        waitForChanges(() => {
+            assertElementsAreInDocument(presentIds);
+            assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 1);
+        });
+    });
+
+    test("when login is valid, there should be no errors and should be in Job App Page.", () => {
+        renderLoginPage();
+
+        const mockLoginUser = createResolvingMockFunction(validHttpResponse);
+        jest.mock(loginUserPath, () => {
+            loginUser: mockLoginUser
+        });
+
+        const emailField = getElement(LoginFormIds.emailField);
+        const passwordField = getElement(LoginFormIds.passwordField);
+        const submitButton = getElement(LoginFormIds.submit);
+        
+        if (areHTMLElementsNull([emailField, passwordField, submitButton])) {
+            fail("Submit button, Email field, or Password field is null.");
+        }
+        const validLogin = validLogins[0];
+
+        changeState(() => {
+            userEvent.type(emailField!, validLogin.email);
+            userEvent.type(passwordField!, validLogin.password);
+            userEvent.click(submitButton!);
+        });
+
+        waitForChanges(() => {
+            assertElementsAreInDocument([JobAppListPageTestIds.jobAppListPageHeader]);
+            assertMockLoginuserHasBeenCalledTimes(mockLoginUser, 1);
         });
     });
 });
