@@ -8,6 +8,7 @@ import com.jpettit.jobapplicationbackend.models.responses.AuthenticationResponse
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.UserRepository;
+import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -54,29 +57,70 @@ public class AuthenticationService {
         return repository.findByEmail(email).isPresent();
     }
 
-    public AuthenticationResponse login(AuthenticationRequest request) throws IllegalArgumentException {
+    public void authenticateUser(AuthenticationRequest request)
+            throws IllegalArgumentException, AuthenticationException {
+        final UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+        authenticationManager.authenticate(token);
+    }
 
+    public AuthenticationResponse handleGeneratingToken(String email) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+            var user = repository.findByEmail(email)
+                    .orElseThrow();
+            final String jwToken = jwtService.generateToken(user);
+
+            return AuthenticationResponse.builder()
+                    .token(jwToken)
+                    .statusCode(HttpStatus.OK.value())
+                    .errorType(ErrorType.NONE)
+                    .errorMessage("")
+                    .build();
+        } catch(NoSuchElementException ex) {
+            return AuthenticationResponse.builder()
+                    .token("")
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorType(ErrorType.INVALID_INPUT)
+                    .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                    .build();
+        }
+    }
+    public AuthenticationResponse login(AuthenticationRequest request) throws IllegalArgumentException, NoSuchElementException {
+        if (isAuthRequestEmpty(request)) {
+            return getEmptyUserInput();
+        }
+        try {
+          authenticateUser(request);
         } catch (AuthenticationException authEx) {
             return AuthenticationResponse.builder()
                     .token("")
-                    .errorMessage("Invalid email or password.")
+                    .errorMessage(ErrorMessages.AuthMessages.invalidInput)
                     .errorType(ErrorType.INVALID_INPUT)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .build();
+        } catch (IllegalArgumentException ex) {
+            return AuthenticationResponse.builder()
+                    .token("")
+                    .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                    .errorType(ErrorType.OTHER)
                     .statusCode(HttpStatus.FORBIDDEN.value())
                     .build();
         }
 
-        var user = repository.findByEmail(request.getEmail())
-                .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+        return handleGeneratingToken(request.getEmail());
+    }
 
+    private boolean isAuthRequestEmpty(AuthenticationRequest request) {
+        return request.getEmail().equals("") ||
+                request.getPassword().equals("");
+    }
+
+    private AuthenticationResponse getEmptyUserInput() {
         return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .errorType(ErrorType.NONE)
-                .statusCode(HttpStatus.OK.value())
-                .errorMessage("")
+                .token("")
+                .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorType(ErrorType.INVALID_INPUT)
                 .build();
     }
 
