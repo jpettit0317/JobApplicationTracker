@@ -4,12 +4,14 @@ import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.exceptions.UserExistsException;
 import com.jpettit.jobapplicationbackend.helpers.helper.AuthenticationServiceTestHelper;
+import com.jpettit.jobapplicationbackend.models.requests.AuthenticationRequest;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AuthenticationResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.UserRepository;
 import com.jpettit.jobapplicationbackend.services.AuthenticationService;
 import com.jpettit.jobapplicationbackend.services.JwtService;
+import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -17,6 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -25,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-
 class AuthenticationServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -35,6 +39,9 @@ class AuthenticationServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
 
     @InjectMocks
     private AuthenticationService sut;
@@ -127,5 +134,98 @@ class AuthenticationServiceTest {
 
         final boolean actualValue = sut.doesUserExist(user.get().getEmail());
         assertFalse(actualValue);
+    }
+
+    /*
+    Login tests
+     */
+
+    @Test
+    public void login_whenGivenLoginThatExistsAndCorrect_shouldReturnSuccessfulResponse() {
+        final User user = User.builder()
+                .email("johndoe@email.com")
+                .password("password94_;")
+                .build();
+        final AuthenticationRequest request = AuthenticationRequest.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .build();
+        final AuthenticationResponse expectedResponse = AuthenticationServiceTestHelper.validAuthResponse;
+        final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+
+        when(authenticationManager.authenticate(token)).thenReturn(AuthenticationServiceTestHelper.defaultAuth);
+        when(userRepository.findByEmail(ArgumentMatchers.anyString()))
+                .thenReturn(Optional.of(user));
+        when(jwtService.generateToken(ArgumentMatchers.any())).thenReturn("Token");
+
+        final AuthenticationResponse actualResponse = sut.login(request);
+        AuthenticationServiceTestHelper.assertAuthenticationResponsesAreEqual(actualResponse, expectedResponse);
+    }
+
+    @Test
+    public void login_whenGivenLoginThatThrowsAnAuthenticationException_shouldReturnFailureResponse() {
+        final User user = User.builder()
+                .email("johndoe@email.com")
+                .password("password94_;")
+                .build();
+        final AuthenticationRequest request = AuthenticationRequest.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .build();
+        final AuthenticationResponse expectedResponse = AuthenticationResponse.builder()
+                .token("")
+                .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                .errorType(ErrorType.INVALID_INPUT)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .build();
+        final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+
+        when(authenticationManager.authenticate(token)).thenThrow(new AuthenticationException("Invalid email or password.") {
+        });
+
+        final AuthenticationResponse actualResponse = sut.login(request);
+        AuthenticationServiceTestHelper.assertAuthenticationResponsesAreEqual(actualResponse, expectedResponse);
+    }
+
+    @Test
+    public void login_whenGivenLoginThatThrowsAnIllegalArgumentException_shouldReturnFailureResponse() {
+        final User user = User.builder()
+                .email("johndoe@email.com")
+                .password("password94_;")
+                .build();
+        final AuthenticationRequest request = AuthenticationRequest.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .build();
+        final AuthenticationResponse expectedResponse = AuthenticationResponse.builder()
+                .token("")
+                .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                .errorType(ErrorType.OTHER)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .build();
+        final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        final IllegalArgumentException illArgEx = new IllegalArgumentException("Illegal.");
+        when(authenticationManager.authenticate(token)).thenThrow(illArgEx);
+
+        final AuthenticationResponse actualResponse = sut.login(request);
+        AuthenticationServiceTestHelper.assertAuthenticationResponsesAreEqual(actualResponse, expectedResponse);
+    }
+
+    @Test
+    public void login_whenPassedInEmptyUser_ShouldReturnError() {
+        final AuthenticationRequest request = AuthenticationRequest.builder()
+                .email("")
+                .password("")
+                .build();
+        final AuthenticationResponse expectedResponse = AuthenticationResponse.builder()
+                .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                .errorType(ErrorType.INVALID_INPUT)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .token("")
+                .build();
+
+        final AuthenticationResponse actualResponse = sut.login(request);
+
+        AuthenticationServiceTestHelper.assertAuthenticationResponsesAreEqual(actualResponse, expectedResponse);
     }
 }
