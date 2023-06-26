@@ -6,9 +6,11 @@ import com.jayway.jsonpath.JsonPath;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.exceptions.UserExistsException;
+import com.jpettit.jobapplicationbackend.models.requests.AuthenticationRequest;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AuthenticationResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
+import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,18 @@ public class AuthenticationControllerTestVars {
                     .email(userJane.getEmail())
                     .password(userJane.getPassword())
                     .build();
+
+    public static final AuthenticationRequest jonDoeRequest = AuthenticationRequest.builder()
+            .email("jondoe@email.com")
+            .password("password94_")
+            .build();
+
+    public static final AuthenticationRequest emptyLoginRequest = AuthenticationRequest
+            .builder()
+            .email("")
+            .password("")
+            .build();
+
     public static final AuthenticationResponse alreadyExistingUserResponse =
             AuthenticationResponse
                     .builder()
@@ -59,6 +73,24 @@ public class AuthenticationControllerTestVars {
                     .errorMessage("")
                     .statusCode(HttpStatus.OK.value())
                     .errorType(ErrorType.NONE)
+                    .build();
+
+    public static final AuthenticationResponse wrongPasswordLoginResponse =
+            AuthenticationResponse
+                    .builder()
+                    .token("")
+                    .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorType(ErrorType.INVALID_INPUT)
+                    .build();
+
+    public static final AuthenticationResponse emptyLoginResponse =
+            AuthenticationResponse
+                    .builder()
+                    .token("")
+                    .errorMessage(ErrorMessages.AuthMessages.invalidInput)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorType(ErrorType.INVALID_INPUT)
                     .build();
 
     public static String createEmailErrorMessage(String email) {
