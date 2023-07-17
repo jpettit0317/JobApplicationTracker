@@ -27,6 +27,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:debug": "react-scripts --inspect-brk start --runInBand --no-cache --transformIgnorePatterns \"node_modules/(?!axios)/\"",
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
     "eject": "react-scripts eject",

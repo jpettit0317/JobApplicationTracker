@@ -7,6 +7,6 @@ public class Routes {
     }
     public static class PostRoutes {
         public static final String register = "/register";
-        public static final String login = "/authenticate";
+        public static final String login = "/login";
     }
 }
