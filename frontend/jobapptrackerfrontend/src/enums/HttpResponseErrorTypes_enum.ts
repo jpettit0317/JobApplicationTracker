@@ -1,5 +1,6 @@
 export enum HttpResponseErrorType {
     userExists = "USER_EXISTS",
     other = "OTHER",
-    none = "NONE"
-}
+    none = "NONE",
+    invalidInput = "INVALID_INPUT"
+};

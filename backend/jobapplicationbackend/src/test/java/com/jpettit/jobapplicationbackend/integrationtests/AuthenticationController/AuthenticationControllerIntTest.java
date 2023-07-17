@@ -1,4 +1,4 @@
-package com.jpettit.jobapplicationbackend.integrationtests;
+package com.jpettit.jobapplicationbackend.integrationtests.AuthenticationController;
 
 import com.jpettit.jobapplicationbackend.helpers.helper.AuthenticationControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
@@ -105,7 +105,6 @@ class AuthenticationControllerIntTest {
 
         setResponseString(getResponseFromPost(AuthenticationControllerTestVars
                         .registerURL, jsonMediaType, registerRequestAsString));
-
         setActualResponse(transformStringToResponse(responseString));
 
         AuthenticationControllerTestHelper.assertErrorResponsesAreEqual(responsePair);

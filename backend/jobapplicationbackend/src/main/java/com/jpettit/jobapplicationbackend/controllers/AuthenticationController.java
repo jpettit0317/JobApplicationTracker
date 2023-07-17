@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(Routes.BaseRoutes.authBaseRoute)
+@CrossOrigin(origins = CrossOriginAllowedUrls.port3000, methods = {RequestMethod.POST})
 @RequiredArgsConstructor
-@CrossOrigin(origins = CrossOriginAllowedUrls.port3000)
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
