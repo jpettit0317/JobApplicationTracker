@@ -77,6 +77,7 @@ public class AuthenticationService {
                     .errorMessage("")
                     .build();
         } catch(NoSuchElementException ex) {
+            System.out.println("No such element thrown.");
             return AuthenticationResponse.builder()
                     .token("")
                     .statusCode(HttpStatus.FORBIDDEN.value())

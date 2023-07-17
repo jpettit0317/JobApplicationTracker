@@ -19,6 +19,9 @@ public class AuthenticationControllerTestVars {
     public static final String userExistsErrorMessageTail = "already exists.";
     public static final String registerURL = Routes.BaseRoutes.authBaseRoute
             + Routes.PostRoutes.register;
+
+    public static final String loginURL = Routes.BaseRoutes.authBaseRoute + Routes.PostRoutes.login;
+
     public static final User userJane = User
             .builder()
             .firstname("Jane")
