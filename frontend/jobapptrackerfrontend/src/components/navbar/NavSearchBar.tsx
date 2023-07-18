@@ -20,10 +20,6 @@ export const NavSearchBar = (props: NavSearchBarProps) => {
         props.onSearchButtonPressed(searchTerm);
     }
 
-    const onLogoutPressed = () => {
-      console.log("Logging out.!!");
-    }
-
     return (
         <Navbar bg="light" expand="lg" data-testid={NavSearchBarTestIds.navSearchBarId}>
           <Container>
@@ -43,7 +39,7 @@ export const NavSearchBar = (props: NavSearchBarProps) => {
                   <NavDropdown.Item href="#action/3.4">
                     Separated link
                   </NavDropdown.Item>
-                  <NavDropdown.Item onClick={onLogoutPressed}>
+                  <NavDropdown.Item onClick={props.logoutUser} data-testid={NavSearchBarTestIds.logoutButton}>
                     Log Out
                   </NavDropdown.Item>
                 </NavDropdown>
