@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers(Routes.BaseRoutes.allAuthRoutes)
+                .requestMatchers(Routes.BaseRoutes.allAuthRoutes, Routes.BaseRoutes.allMainRoutes)
                 .permitAll()
                 .anyRequest()
                 .authenticated()

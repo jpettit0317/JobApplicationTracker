@@ -1,4 +1,5 @@
 export enum APIEndPoint {
     addUser = "http://localhost:8080/api/v1/auth/register",
-    loginUser = "http://localhost:8080/api/v1/auth/login"
+    loginUser = "http://localhost:8080/api/v1/auth/login",
+    addJobApp = "http://localhost:8080/api/v1/main/addJobApp"
 } 

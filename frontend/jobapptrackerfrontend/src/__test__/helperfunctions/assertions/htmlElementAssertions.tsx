@@ -18,6 +18,12 @@ export const assertElementIsInDocument = (element: HTMLElement | null) => {
     expect(element).toBeInTheDocument();
 }
 
+export const assertHTMLElementsAreNotInDocument = (elements: (HTMLElement | null)[]) => {
+   elements.forEach((value) => {
+        assertElementIsInDocument(value);
+   });
+}
+
 export const assertElementIsNotInDocument = (element: HTMLElement |
     null ) => {
         expect(element).not.toBeInTheDocument();
