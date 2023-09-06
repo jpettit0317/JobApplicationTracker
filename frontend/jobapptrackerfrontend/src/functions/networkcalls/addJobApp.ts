@@ -1,13 +1,11 @@
 import axios from "axios";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 import { HttpStatusCodes } from "../../enums/HttpStatusCodes_enum";
-import { HttpResponseBuilder } from "../../model/builders/HttpResponseBuilder";
 import { HttpResponse, createHttpResponse } from "../../model/httpresponses/HttpResponse";
 import { HttpResponseData } from "../../model/interfaces/init/HttpResponseData";
 import { JobApplication, isJobApplicationEmpty } from "../../model/interfaces/jobapp/JobApplication";
 import { JobInterview, isJobInterviewEmpty } from "../../model/interfaces/jobapp/JobInterview";
 import { getErrorTypeFromString } from "../parseErrors/getErrorTypeFromString";
-import { getToken } from "../session/getToken";
 import { AddJobAppReq } from "../../model/interfaces/requests/AddJobAppReq";
 
 export const addJobApp = async(jobApp: JobApplication, url: string, token: string): Promise<HttpResponse<string>> => {
@@ -82,15 +80,6 @@ const makeAddJobAppCall = async (url: string, token: string, jobApp: JobApplicat
 
     return createHttpResponse<string>(respData);
 }
-
-const printDate = (p: string) => {
-    console.log("New date is " + new Date(p).toUTCString());
-    console.log("New locale date is " + new Date(p).toLocaleDateString());
-}
-
-const printResponseJobApp = (jobApp: JobApplication) => {
-    console.log("The date is " + jobApp.dateApplied.toUTCString());
-};
 
 const handleErrorFromAddJobAppCall = (error: any): HttpResponse<string> => {
     const errorString = error.message as string;

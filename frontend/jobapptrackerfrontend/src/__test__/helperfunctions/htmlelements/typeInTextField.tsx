@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event";
 
-const typeInTextField = (element: HTMLElement | null, type: string = "") => {
+export const typeInTextField = (element: HTMLElement | null, type: string = "") => {
     if (type === "") {
         return;
     } else if (element === null) {

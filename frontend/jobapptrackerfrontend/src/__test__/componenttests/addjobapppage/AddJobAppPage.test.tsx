@@ -4,7 +4,6 @@ import { addJobApp } from "../../../functions/networkcalls/addJobApp";
 import { JobApplication } from "../../../model/interfaces/jobapp/JobApplication";
 import { JobInterview } from "../../../model/interfaces/jobapp/JobInterview";
 import { changeState, renderJSXElementWithRoute, waitForChanges } from "../../helperfunctions/setup/uitestsetup";
-import { screen } from "@testing-library/react";
 import {
     noInterviewJobApp,
     jobAppWithInterview,
@@ -18,17 +17,22 @@ import {
     jobInterviewUUID,
     errorJobInterview
 } from "../../helpervars/addjobappvars/addjobappvars";
-import { areHTMLElementsNull, assertElementIsInDocument, assertElementIsNotInDocument, assertElementsAreInDocument, assertElementsAreNotInDocument, assertHTMLElementsAreNotInDocument, failIfHTMLElementsAreNull } from "../../helperfunctions/assertions/htmlElementAssertions";
+import { 
+    assertElementIsInDocument,
+    assertElementsAreInDocument,
+    assertElementsAreNotInDocument,
+    assertHTMLElementsAreNotInDocument
+} from "../../helperfunctions/assertions/htmlElementAssertions";
 import { assertMockAddJobAppHasBeenCalledTimes } from "../../helperfunctions/assertions/addjobappassertions";
 import { getElement } from "../../helperfunctions/htmlelements/getElement";
 import { AddJobAppPageTestIds } from "../../../enums/addjobapptestids/AddJobAppPageTestIds_enum";
 import userEvent from "@testing-library/user-event";
 import { AddInterviewModalTestIds } from "../../../enums/jobinterviewtestids/AddInterviewModalTestIds_enum";
-import { get } from "http";
 import { JobInterviewCardTestIds } from "../../../enums/jobinterviewtestids/JobInterviewCardTestIds_enum";
 import { EditInterviewModalTestIds } from "../../../enums/jobinterviewtestids/EditInterviewModalTestIds_enum";
 import { TestElementField, assertFieldsHaveInputValue } from "../../helperfunctions/assertions/addjobinterviewmodaleassertions";
 import { AddJobAppAlertTestIds } from "../../../enums/addjobapptestids/AddJobAppAlertTestIds_enum";
+import { typeInTextField } from "../../helperfunctions/htmlelements/typeInTextField";
 
 describe("AddJobAppPage tests", () => {
     type TestElement = Document | Element | Window | Node;
@@ -42,10 +46,10 @@ describe("AddJobAppPage tests", () => {
         return date.toLocaleString();
     }
 
-    const renderJobAppPage = (jobApp: JobApplication | undefined = undefined) => {
+    const renderJobAppPage = () => {
         renderJSXElementWithRoute(
             [RoutePath.addJobApp],
-            <AddJobAppPage jobApp={jobApp} />
+            <AddJobAppPage />
         );
     }
     describe("Inital load tests", () => {
@@ -81,7 +85,7 @@ describe("AddJobAppPage tests", () => {
     });
     describe("AddInterview Modal tests", () => {
         test("when adding an interview should have a card display", () => {
-            renderJobAppPage(jobAppWithInterview2);
+            renderJobAppPage();
 
             const addInterviewButton = getElement(AddJobAppPageTestIds.addInterviewButton);
             const interview = jobInterview3; 
@@ -122,7 +126,7 @@ describe("AddJobAppPage tests", () => {
             
         });
         test("when adding an interview that is invalid, a card should not be displayed.", () => {
-            renderJobAppPage(noInterviewJobApp);
+            renderJobAppPage();
 
             const addInterviewButton = getElement(AddJobAppPageTestIds.addInterviewButton);
             const interview = errorJobInterview; 
@@ -167,13 +171,37 @@ describe("AddJobAppPage tests", () => {
     });
     describe("EditInterviewModal tests", () => {
         test("when editing an interview, should change interview", () => {
-            renderJobAppPage(jobAppWithInterview2);
+            renderJobAppPage();
+            
+            const interviews: JobInterview[] = [
+                errorJobInterview,
+                {
+                    ...jobInterviewUUID,
+                    id: jobAppWithInterview2.id
+                }
+            ];
+            
+            const addInterviewButton = getElement(AddJobAppPageTestIds.addInterviewButton);
+
+            changeState(() => {
+                userEvent.click(addInterviewButton!);
+            });
+            
+            const addTypeField = getElement(AddInterviewModalTestIds.interviewType);
+            const addLocationField = getElement(AddInterviewModalTestIds.locationField);
+            const addStartDateField = getElement(AddInterviewModalTestIds.startDateField);
+            const addEndDateField = getElement(AddInterviewModalTestIds.endDateField);
+            const addSubmitButton = getElement(AddInterviewModalTestIds.addInterviewButton);
+            
+            changeState(() => {
+                typeInTextField(addTypeField, interviews[0].type);
+                typeInTextField(addLocationField, interviews[0].location);
+                typeInTextField(addStartDateField, convertDateToLocaleString(interviews[0].startDate));
+                typeInTextField(addEndDateField, convertDateToLocaleString(interviews[0].endDate));
+                userEvent.click(addSubmitButton!);
+            });
 
             const editInterviewButton = getElement(getId(JobInterviewCardTestIds.editButtion, 0));
-            const interview: JobInterview = {
-                ...jobInterviewUUID,
-                jobappid: jobAppWithInterview2.id 
-            };
 
             changeState(() => {
                 userEvent.click(editInterviewButton!);
@@ -186,10 +214,11 @@ describe("AddJobAppPage tests", () => {
             const submitButton = getElement(EditInterviewModalTestIds.editInterviewButton);
 
             changeState(() => {
-                userEvent.type(typeField!, interview.type);
-                userEvent.type(locationField!, interview.location);
-                userEvent.type(startDateField!, interview.startDate.toLocaleString());
-                userEvent.type(endDateField!, interview.endDate.toLocaleString());
+                typeInTextField(typeField, interviews[1].type);
+                typeInTextField(locationField, interviews[1].location);
+                typeInTextField(startDateField, convertDateToLocaleString(interviews[1].startDate));
+                typeInTextField(endDateField, convertDateToLocaleString(interviews[1].endDate));
+                
                 userEvent.click(submitButton!);
             });
 
@@ -199,10 +228,10 @@ describe("AddJobAppPage tests", () => {
             const cardEndDate = getElement(getId(JobInterviewCardTestIds.endDateField, 0));
 
             const testElementFields: TestElementField[] = [
-                {field: cardTitle!, value: interview.type},
-                {field: cardLocation!, value: interview.location},
-                {field: cardStartDate!, value: interview.startDate.toLocaleString()},
-                {field: cardEndDate!, value: interview.endDate.toLocaleString()}
+                {field: cardTitle!, value: interviews[1].type},
+                {field: cardLocation!, value: interviews[1].location},
+                {field: cardStartDate!, value: interviews[1].startDate.toLocaleString()},
+                {field: cardEndDate!, value: interviews[1].endDate.toLocaleString()}
             ];
 
             waitForChanges(() => {
@@ -211,10 +240,34 @@ describe("AddJobAppPage tests", () => {
         });
         test("when editing an interview results in an invalid interview, " 
             + "should have error fields showing on EditInterviewModal", () => {
-            renderJobAppPage(jobAppWithInterview);
+            renderJobAppPage();
+
+            const addInterviewButton = getElement(AddJobAppPageTestIds.addInterviewButton);
+
+            const interviews = [
+                jobInterview3,
+                errorJobInterview
+            ];
+
+            changeState(() => {
+                userEvent.click(addInterviewButton!);
+            });
+            
+            const addTypeField = getElement(AddInterviewModalTestIds.interviewType);
+            const addLocationField = getElement(AddInterviewModalTestIds.locationField);
+            const addStartDateField = getElement(AddInterviewModalTestIds.startDateField);
+            const addEndDateField = getElement(AddInterviewModalTestIds.endDateField);
+            const addSubmitButton = getElement(AddInterviewModalTestIds.addInterviewButton);
+            
+            changeState(() => {
+                typeInTextField(addTypeField, interviews[0].type);
+                typeInTextField(addLocationField, interviews[0].location);
+                typeInTextField(addStartDateField, convertDateToLocaleString(interviews[0].startDate));
+                typeInTextField(addEndDateField, convertDateToLocaleString(interviews[0].endDate));
+                userEvent.click(addSubmitButton!);
+            });
 
             const editInterviewButton = getElement(getId(JobInterviewCardTestIds.editButtion, 0));
-            const interview = errorJobInterview;
 
             changeState(() => {
                 userEvent.click(editInterviewButton!);
@@ -227,10 +280,11 @@ describe("AddJobAppPage tests", () => {
             const submitButton = getElement(EditInterviewModalTestIds.editInterviewButton);
 
             changeState(() => {
-                userEvent.type(typeField!, interview.type);
-                userEvent.type(locationField!, interview.location);
-                userEvent.type(startDateField!, interview.startDate.toLocaleString());
-                userEvent.type(endDateField!, interview.endDate.toLocaleString());
+                typeInTextField(typeField, interviews[1].type);
+                typeInTextField(locationField, interviews[1].location);
+                typeInTextField(startDateField, convertDateToLocaleString(interviews[1].startDate));
+                typeInTextField(endDateField!, convertDateToLocaleString(interviews[1].endDate));
+                
                 userEvent.click(submitButton!);
             });
 
@@ -257,7 +311,7 @@ describe("AddJobAppPage tests", () => {
                 addJobApp: mockAddJobApp
             });
 
-            renderJobAppPage(jobAppWithInterview2);
+            renderJobAppPage();
             const submitJobAppButton = getElement(AddJobAppPageTestIds.submitJobAppButton);
 
             changeState(() => {
@@ -274,7 +328,7 @@ describe("AddJobAppPage tests", () => {
                 addJobApp: mockAddJobApp
             });
 
-            renderJobAppPage(errorJobAppWithInterview);
+            renderJobAppPage();
             const submitJobAppButton = getElement(AddJobAppPageTestIds.submitJobAppButton);
 
             changeState(() => {

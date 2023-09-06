@@ -1,7 +1,5 @@
 import { AddJobAppErrors } from "../../../model/interfaces/jobapp/AddJobAppErrors";
 import { JobApplication } from "../../../model/interfaces/jobapp/JobApplication";
-import { JobInterview } from "../../../model/interfaces/jobapp/JobInterview";
-
 
 type JobAppError = {
     error: string;

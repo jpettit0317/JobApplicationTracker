@@ -29,10 +29,6 @@ export const AddInterviewModal = (props: AddInterviewModalProps) => {
         isEndDateErrorState: false
     });
 
-    const getDateString = (date: Date): string => {
-        return date.toLocaleString();
-    }
-
     const onHide = () => {
         props.onHide();
     };

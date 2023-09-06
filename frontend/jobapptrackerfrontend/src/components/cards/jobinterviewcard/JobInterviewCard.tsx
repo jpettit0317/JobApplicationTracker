@@ -1,5 +1,4 @@
 import { Button, Card, Stack } from "react-bootstrap";
-import { JobInterview } from "../../../model/interfaces/jobapp/JobInterview";
 import { JobInterviewCardProps } from "./JobInterviewCardProps";
 import { JobInterviewCardTestIds } from "../../../enums/jobinterviewtestids/JobInterviewCardTestIds_enum";
 

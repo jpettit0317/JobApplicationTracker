@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { navBarTitle } from "../../constants/NavBarTitle";
 import { NavBar } from "../navbar/NavBar";
 import './AddJobAppPage.css';
@@ -20,42 +20,11 @@ import { convertDateToUTC } from "../../functions/helperfunctions/datefunctions/
 import { AddJobAppAlert } from "../alerts/alertcomponent/AddJobAppAlert";
 import { addJobApp } from "../../functions/networkcalls/addJobApp";
 import { AddJobAppPageTestIds } from "../../enums/addjobapptestids/AddJobAppPageTestIds_enum";
-import { AddJobAppPageProps } from "./AddJobAppPageProps";
 import { getToken } from "../../functions/session/getToken";
 
-export const AddJobAppPage = (props: AddJobAppPageProps) => {
+export const AddJobAppPage = () => {
     const submitButtonText = "Submit Job Application";
     const addInterviewButtonText = "Add Interview";
-
-    useEffect(() => {
-        setJobApp(initJobApp());
-    }, []);
-
-    const initJobApp = (): JobApplication => {
-        if (props.jobApp !== undefined && props.jobApp !== null) {
-            return {
-                company: props.jobApp!.company,
-                jobTitle: props.jobApp!.jobTitle,
-                description: props.jobApp!.description,
-                status: props.jobApp!.status,
-                id: props.jobApp!.id,
-                dateApplied: props.jobApp!.dateApplied,
-                dateModified: props.jobApp!.dateModified,
-                interviews: props.jobApp!.interviews
-            };
-        } else {
-            return {
-                company: "",
-                jobTitle: "",
-                description: "",
-                status: "",
-                id: "",
-                dateApplied: new Date(),
-                dateModified: new Date(),
-                interviews: []
-            }; 
-        }
-    }
 
     const [jobApp, setJobApp] = useState<JobApplication>({
         company: "",
@@ -199,8 +168,6 @@ export const AddJobAppPage = (props: AddJobAppPageProps) => {
 
     const onSubmitButtonPressed = (e: any) => {
         e.preventDefault();
-        console.log("The job app is " + JSON.stringify(jobApp));
-        console.log("The word count for description is " + jobApp.description.length);
 
         const newAddJobAppErrors = checkForJobAppErrors(jobApp);
         setJobAppErrors(newAddJobAppErrors);
@@ -246,7 +213,6 @@ export const AddJobAppPage = (props: AddJobAppPageProps) => {
     }
 
     const onAddInterviewButtonPressed = () => {
-        console.log("Add Interview button was pressed.");
         setisAddModalShowing(true);
     }
 
