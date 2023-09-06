@@ -17,12 +17,17 @@ export const JobAppListPage = () => {
         navigate(RoutePath.login);        
     }
 
+    const navigateToAddJobApp = () => {
+        navigate(RoutePath.addJobApp);
+    };
+
     return (
         <div>
             <NavSearchBar 
                 onSearchButtonPressed={onSearchButtonPressed}
                 title={navBarTitle}
                 logoutUser={logUserOut}
+                navigateToAddJobApp={navigateToAddJobApp}
             />
             <h1 data-testid={JobAppListPageTestIds.jobAppListPageHeader}>
                 Job App List

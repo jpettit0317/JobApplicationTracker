@@ -1,5 +1,7 @@
 package com.jpettit.jobapplicationbackend.models.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,5 +58,10 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String toJSONString() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
 }

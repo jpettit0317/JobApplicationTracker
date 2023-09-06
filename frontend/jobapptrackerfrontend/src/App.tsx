@@ -9,6 +9,7 @@ import { SignUpPage } from './components/signup/SignUpPage';
 import { RoutePath
  } from './enums/RoutePath_enum';
 import { JobAppListPage } from './components/jobapplist/JobAppListPage';
+import { AddJobAppPage } from './components/addJobApp/AddJobAppPage';
  
  function App() {
   const router = createBrowserRouter([
@@ -27,6 +28,10 @@ import { JobAppListPage } from './components/jobapplist/JobAppListPage';
     {
       path: RoutePath.jobapplist,
       element: <JobAppListPage />
+    },
+    {
+      path: RoutePath.addJobApp,
+      element: <AddJobAppPage />
     }
   ])
 
