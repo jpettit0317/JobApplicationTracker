@@ -16,6 +16,7 @@ describe("NavSearchBar tests", () => {
     });
 
     const mockLogout = jest.fn();
+    const mockNavigateToAddJobApp = jest.fn();
 
     const renderNavSearchBar = (props: NavSearchBarProps) => {
         render(
@@ -23,6 +24,7 @@ describe("NavSearchBar tests", () => {
             title={props.title}
             onSearchButtonPressed={props.onSearchButtonPressed}
             logoutUser={props.logoutUser}
+            navigateToAddJobApp={props.navigateToAddJobApp}
             />
         );
     }
@@ -34,7 +36,8 @@ describe("NavSearchBar tests", () => {
     const props: NavSearchBarProps = {
         title: "JobAppTracker",
         onSearchButtonPressed: mockOnSearchButtonPressed,
-        logoutUser: mockLogout
+        logoutUser: mockLogout,
+        navigateToAddJobApp: mockNavigateToAddJobApp
     };
 
     beforeEach(() => {

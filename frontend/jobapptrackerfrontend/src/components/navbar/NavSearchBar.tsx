@@ -20,6 +20,11 @@ export const NavSearchBar = (props: NavSearchBarProps) => {
         props.onSearchButtonPressed(searchTerm);
     }
 
+    const onAddJobAppPressed = () => {
+      console.log("Add button pressed.");
+      props.navigateToAddJobApp();
+    }
+
     return (
         <Navbar bg="light" expand="lg" data-testid={NavSearchBarTestIds.navSearchBarId}>
           <Container>
@@ -30,6 +35,9 @@ export const NavSearchBar = (props: NavSearchBarProps) => {
                 <NavDropdown title="Menu" id="basic-nav-dropdown" data-testid={NavSearchBarTestIds.navSearchDropDown}>
                   <NavDropdown.Item onClick={props.logoutUser} data-testid={NavSearchBarTestIds.logoutButton}>
                     Log Out
+                  </NavDropdown.Item>
+                  <NavDropdown.Item onClick={onAddJobAppPressed}>
+                    Add Job App
                   </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
