@@ -14,4 +14,9 @@ public class Routes {
 
         public static final String addJobApp = "/addJobApp";
     }
+    public static class GetRoutes {
+        public static final String getAllJobApps = "/getAllJobApps";
+        public static final String getNewJobApps = "/getNewJobApps";
+        public static final String getJobAppById = "/getJobAppById";
+    }
 }

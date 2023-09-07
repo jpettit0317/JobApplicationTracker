@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,30 +31,18 @@ public class JobInterviewData {
 
     private String location;
 
-    private Date startDate;
+    private ZonedDateTime startDate;
 
-    private Date endDate;
+    private ZonedDateTime endDate;
 
     public static JobInterviewData initFromInterview(final JobInterview interview, final UUID jobAppId) {
-        final Date utcStartDate = convertDateToUTC(interview.getStartDate());
-        final Date utcEndDate = convertDateToUTC(interview.getEndDate());
-
         return JobInterviewData.builder()
                 .id(null)
                 .jobAppId(jobAppId)
                 .type(interview.getType())
                 .location(interview.getLocation())
-                .startDate(utcStartDate)
-                .endDate(utcEndDate)
+                .startDate(interview.getStartDate())
+                .endDate(interview.getEndDate())
                 .build();
-    }
-
-    private static Date convertDateToUTC(final Date date) {
-        try {
-            return DateToUTConverter.convertDateToUTCDate(date,
-                    JobAppTimeZone.UTC, DateFormats.standardFormat);
-        } catch (ParseException parseException) {
-            return date;
-        }
     }
 }

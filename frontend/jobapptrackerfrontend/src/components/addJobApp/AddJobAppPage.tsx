@@ -20,11 +20,15 @@ import { convertDateToUTC } from "../../functions/helperfunctions/datefunctions/
 import { AddJobAppAlert } from "../alerts/alertcomponent/AddJobAppAlert";
 import { addJobApp } from "../../functions/networkcalls/addJobApp";
 import { AddJobAppPageTestIds } from "../../enums/addjobapptestids/AddJobAppPageTestIds_enum";
-import { getToken } from "../../functions/session/getToken";
+import { deleteTokenAndDate, getToken } from "../../functions/session/localStorage";
+import { useNavigate } from "react-router";
+import { RoutePath } from "../../enums/RoutePath_enum";
+import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 
 export const AddJobAppPage = () => {
     const submitButtonText = "Submit Job Application";
     const addInterviewButtonText = "Add Interview";
+    const navigate = useNavigate();
 
     const [jobApp, setJobApp] = useState<JobApplication>({
         company: "",
@@ -220,8 +224,9 @@ export const AddJobAppPage = () => {
         setIsLoading(true);
         console.log("The url is " + APIEndPoint.addJobApp);
         const token = getToken();
+        const url = APIEndPoint.addJobApp;
 
-        addJobApp(jobApp, token, APIEndPoint.addJobApp).then((response) => {
+        addJobApp(jobApp, url, token).then((response) => {
              handleAddJobApp(response);
         })
          .catch((reason: string) => {
@@ -249,6 +254,8 @@ export const AddJobAppPage = () => {
             handleSuccess(); 
         } else if (response === undefined) {
             handleUndefined();
+        } else if (response.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
+            handleTokenExpired();
         } else if (response.isError()) {
             handleError(response);
         }
@@ -276,6 +283,11 @@ export const AddJobAppPage = () => {
         setIsLoading(false);
         setAlertMessage(reasonForFailure);
         setIsAlertShowing(true); 
+    }
+
+    const handleTokenExpired = () => {
+        deleteTokenAndDate();
+        navigate(RoutePath.login);
     }
 
     const areThereErrors = (errors: AddJobAppErrors): boolean => {

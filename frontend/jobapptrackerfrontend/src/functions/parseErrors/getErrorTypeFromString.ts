@@ -5,7 +5,8 @@ export const getErrorTypeFromString = (input: string = ""): HttpResponseErrorTyp
         ["USER_EXISTS", HttpResponseErrorType.userExists],
         ["OTHER", HttpResponseErrorType.other],
         ["NONE", HttpResponseErrorType.none],
-        ["INVALID_INPUT", HttpResponseErrorType.invalidInput]
+        ["INVALID_INPUT", HttpResponseErrorType.invalidInput],
+        ["TOKEN_EXPIRED", HttpResponseErrorType.tokenExpired]
     ]);
 
     const result: HttpResponseErrorType | undefined = errorMap.get(input);

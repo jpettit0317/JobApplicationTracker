@@ -1,6 +1,7 @@
 import { Button, Card, Stack } from "react-bootstrap";
 import { JobAppCardProps } from "./JobAppCardProps";
 import { JobAppCardTestIds } from "../../../enums/jobappcardtestids/JobAppCardTestIds_enum";
+import { convertDateToLocalString } from "../../../functions/helperfunctions/datefunctions/convertDateToLocalString";
 
 export const JobAppCard = (props: JobAppCardProps) => {
     const onDeletePressed = () => {
@@ -15,11 +16,14 @@ export const JobAppCard = (props: JobAppCardProps) => {
         props.onView(props.index);
     };
     
-    const getDateString = (date: Date) => {
-        return date.toLocaleString();
+    const getDateString = (date: Date, locale: string = "en-US") => {
+        return convertDateToLocalString(date, locale); 
     };
 
+    console.log()
+
     const generateId = (id: string): string => {
+        console.log("Index is " + props.index);
         return `${id}_${props.index}`;
     };
 

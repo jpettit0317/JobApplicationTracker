@@ -13,6 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        time_zone: UTC
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 

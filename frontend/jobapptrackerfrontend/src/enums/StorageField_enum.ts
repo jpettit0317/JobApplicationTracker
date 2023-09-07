@@ -1,3 +1,4 @@
 export enum StorageField {
-    session = "session"
+    session = "session",
+    dateLastChecked = "dateLastChecked"
 };
