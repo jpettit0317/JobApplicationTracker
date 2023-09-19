@@ -139,6 +139,7 @@ export const JobAppListPage = () => {
             loadJobApps();
             setIsLoading(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const renderJobAppList = () => {
