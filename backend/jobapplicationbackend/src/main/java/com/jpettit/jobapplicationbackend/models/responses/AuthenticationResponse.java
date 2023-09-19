@@ -2,6 +2,7 @@ package com.jpettit.jobapplicationbackend.models.responses;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpettit.jobapplicationbackend.helpers.ObjectMapperHelper;
 import com.jpettit.jobapplicationbackend.models.interfaces.JSONStringable;
 import lombok.*;
 
@@ -19,9 +20,10 @@ public class AuthenticationResponse implements JSONStringable {
     @Override
     public String toJSONString() {
         try {
-            return new ObjectMapper().writeValueAsString(this);
+            return ObjectMapperHelper.createObjectMapper()
+                    .writeValueAsString(this);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return "";
         }
     }
 }

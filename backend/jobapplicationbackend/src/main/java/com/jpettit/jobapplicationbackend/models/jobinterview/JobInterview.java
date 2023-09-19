@@ -7,6 +7,8 @@ import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -15,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class JobInterview {
+public class JobInterview implements JSONStringable {
     private UUID id;
 
     private UUID jobAppId;
@@ -24,11 +26,17 @@ public class JobInterview {
 
     private String location;
 
-    private Date startDate;
+    private ZonedDateTime startDate;
 
-    private Date endDate;
+    private ZonedDateTime endDate;
 
-    public String toJSONString() throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(this);
+    @Override
+    public String toJSONString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

@@ -2,22 +2,33 @@ package com.jpettit.jobapplicationbackend.controllers;
 
 import com.jpettit.jobapplicationbackend.constants.CrossOriginAllowedUrls;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
-import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
-import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
+import com.jpettit.jobapplicationbackend.helpers.DateConverter;
+import com.jpettit.jobapplicationbackend.helpers.StringUtility;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
+import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
+import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
+import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 
 @RequestMapping(Routes.BaseRoutes.mainRoute)
 @CrossOrigin(origins = CrossOriginAllowedUrls.port3000, methods = {
@@ -37,37 +48,54 @@ public class JobAppController {
         return ResponseEntity.ok(jobAppService.addJobApp(request));
     }
 
-    private void logAddJobAppRequest(AddJobAppRequest addJobAppRequest) {
-        System.out.println("The request is " + addJobAppRequest.toString());
-    }
-
-    private void logDates(JobApplication jobApplication) {
-        System.out.println("Date applied is ");
-        logDate(jobApplication.getDateApplied());
-
-        for (JobInterview i : jobApplication.getInterviews()) {
-            System.out.println("Start date is ");
-            logDate(i.getStartDate());
-            System.out.println("End date is ");
-            logDate(i.getEndDate());
+    @GetMapping(value = Routes.GetRoutes.getAllJobApps)
+    public ResponseEntity<GetJobAppsResponse> getAllJobApps(@RequestParam(value = "token", defaultValue = "") String token) {
+        try {
+            return ResponseEntity.ok(jobAppService.getAllJobApps(token));
+        } catch (Exception e) {
+            e.printStackTrace();
+            final GetJobAppsResponse errorResponse = createGetAllJobAppsErrorResponse();
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
 
-    private void logDate(Date date) {
-        final SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-
-        System.out.println("The date is " + sdf.format(date));
+    @GetMapping(value = Routes.GetRoutes.getNewJobApps)
+    public ResponseEntity<GetJobAppsResponse> getNewJobApps(
+            @RequestParam(value = "token", defaultValue = "") String token,
+            @RequestParam(value = "lastDateChecked", defaultValue = "") String lastDateCheckedMilliseconds) {
+        try {
+            final GetNewJobAppRequest newJobAppReq = GetNewJobAppRequest.builder()
+                    .lastChecked(convertDateStringToDate(lastDateCheckedMilliseconds))
+                    .token(token)
+                    .build();
+            return ResponseEntity.ok(jobAppService.getNewJobApps(newJobAppReq));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(
+                    GetJobAppsResponse.builder()
+                            .jobApps(new ArrayList<>())
+                            .errorType(ErrorType.OTHER)
+                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .errorMessage(e.getMessage())
+                            .build()
+            );
+        }
     }
 
-    private void logLocalDateTime(JobApplication jobApp) {
-        System.out.println("Local date times");
-        final String dateAppliedString = jobApp.getDateApplied().toString();
-        System.out.println("Date applied: " + LocalDateTime.parse(dateAppliedString, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    private ZonedDateTime convertDateStringToDate(final String timeStamp) throws ParseException {
+        final String timeStampNoDoubleQuotes = stripDoubleQuotesOut(timeStamp);
+        return DateConverter.convertTimeStampToLocalDateTime(timeStampNoDoubleQuotes);
+    }
 
-        for (JobInterview i : jobApp.getInterviews()) {
-            System.out.println("Start Date: " + LocalDateTime.parse(i.getStartDate().toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-            System.out.println("End Date: " + LocalDateTime.parse(i.getEndDate().toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        }
+    private String stripDoubleQuotesOut(String input) {
+        return StringUtility.removeDoubleQuotesFromString(input);
+    }
+    private GetJobAppsResponse createGetAllJobAppsErrorResponse() {
+        return GetJobAppsResponse.builder()
+                .jobApps(new ArrayList<>())
+                .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .errorType(ErrorType.OTHER)
+                .build();
     }
 }

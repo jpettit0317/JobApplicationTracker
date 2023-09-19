@@ -3,7 +3,12 @@ package com.jpettit.jobapplicationbackend.helpers.helpervars;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
+import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,9 +16,14 @@ import java.util.UUID;
 
 public class SpringDataConverterHelperVars {
     private static final UUID jobAppId = UUID.randomUUID();
+    private static final ZoneId utcZone = ZoneId.of(JobAppTimeZone.UTC);
+    private static final ZonedDateTime maxDate = ZonedDateTime.of(2000, 1, 1,
+            1, 0, 0, 0, utcZone);
+    private static final ZonedDateTime minDate = ZonedDateTime.of(1970, 1, 1,
+            1, 0, 0, 0, utcZone);
     private static final JobInterview jobInterview = JobInterview.builder()
-            .endDate(new Date(1L))
-            .startDate(new Date(1L))
+            .endDate(maxDate)
+            .startDate(maxDate)
             .location("Online")
             .type("Technical")
             .jobAppId(jobAppId)
@@ -22,8 +32,8 @@ public class SpringDataConverterHelperVars {
     public static JobApplication jobApp = JobApplication.builder()
             .jobTitle("Junior Web Developer")
             .status("Pending")
-            .dateApplied(new Date(0L))
-            .dateModified(new Date(0L))
+            .dateApplied(minDate)
+            .dateModified(minDate)
             .description("")
             .company("Edward Jones")
             .id(jobAppId)
@@ -33,8 +43,8 @@ public class SpringDataConverterHelperVars {
     public static JobApplication noInterviewJobApp = JobApplication.builder()
             .jobTitle("Junior Java Developer")
             .status("Pending")
-            .dateApplied(new Date(0L))
-            .dateModified(new Date(0L))
+            .dateApplied(minDate)
+            .dateModified(minDate)
             .description("")
             .company("Edward Jones")
             .id(jobAppId)

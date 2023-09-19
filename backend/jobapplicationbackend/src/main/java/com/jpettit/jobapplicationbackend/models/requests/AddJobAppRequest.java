@@ -1,9 +1,9 @@
 package com.jpettit.jobapplicationbackend.models.requests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpettit.jobapplicationbackend.helpers.ObjectMapperHelper;
+import com.jpettit.jobapplicationbackend.models.interfaces.JSONStringable;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
-import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -15,12 +15,17 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @Data
-public class AddJobAppRequest {
+public class AddJobAppRequest implements JSONStringable {
     private JobApplication jobApp;
     private String token;
 
-    public String toJSONString() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
+    @Override
+    public String toJSONString() {
+        try {
+            return ObjectMapperHelper.createObjectMapper()
+                    .writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
     }
 }

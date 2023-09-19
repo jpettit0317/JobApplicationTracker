@@ -3,6 +3,7 @@ package com.jpettit.jobapplicationbackend.models.jobapplication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpettit.jobapplicationbackend.helpers.DateToUTConverter;
+import com.jpettit.jobapplicationbackend.models.interfaces.JSONStringable;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
@@ -11,13 +12,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JobApplication {
+public class JobApplication implements JSONStringable {
     private String company;
     private String jobTitle;
     private String description;
@@ -26,13 +29,17 @@ public class JobApplication {
     @Setter(AccessLevel.PRIVATE)
     private UUID id;
 
-    private Date dateApplied;
+    private ZonedDateTime dateApplied;
 
-    private Date dateModified;
+    private ZonedDateTime dateModified;
     private ArrayList<JobInterview> interviews;
 
-    public String toJSONString() throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(this);
+    public String toJSONString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     public boolean isJobAppValid() {
@@ -45,23 +52,11 @@ public class JobApplication {
     private boolean validateJobInterviews() {
         final ArrayList<JobInterview> jobInterviews = getInterviews();
 
-        try {
-            final Date dateApplied = DateToUTConverter.convertDateToUTCDate(getDateApplied(), JobAppTimeZone.UTC,
-                    DateFormats.standardFormat);
-
-            for (JobInterview jobInterview : jobInterviews) {
-                final Date jobInterviewStartDate = DateToUTConverter.convertDateToUTCDate(
-                        jobInterview.getStartDate(), JobAppTimeZone.UTC, DateFormats.standardFormat);
-
-                if (jobInterviewStartDate.before(dateApplied)) {
-                    return false;
-                }
+        for (JobInterview jobInterview : jobInterviews) {
+            if (jobInterview.getStartDate().isBefore(getDateApplied())) {
+                return false;
             }
-            return true;
-        } catch (ParseException ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
-            return false;
         }
+        return true;
     }
 }
