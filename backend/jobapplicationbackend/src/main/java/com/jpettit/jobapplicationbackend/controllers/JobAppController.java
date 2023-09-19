@@ -7,6 +7,7 @@ import com.jpettit.jobapplicationbackend.helpers.StringUtility;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
@@ -79,6 +80,24 @@ public class JobAppController {
                             .errorMessage(e.getMessage())
                             .build()
             );
+        }
+    }
+
+    @DeleteMapping(value = Routes.DeleteRoutes.deleteJobApp)
+    public DeleteJobAppResponse deleteJobApp(@RequestParam(value = "id", defaultValue = "") String id) {
+        try {
+            return DeleteJobAppResponse.builder()
+                    .statusCode(HttpStatus.OK.value())
+                    .errorMessage("")
+                    .errorType(ErrorType.NONE)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return DeleteJobAppResponse.builder()
+                    .errorMessage(ErrorMessages.DeleteJobAppMessages.couldNotDeleteJobApp)
+                    .errorType(ErrorType.OTHER)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .build();
         }
     }
 
