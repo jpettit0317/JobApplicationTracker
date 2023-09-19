@@ -86,21 +86,16 @@ export const JobAppListPage = () => {
             try {
                 const resp = await getAllJobApps(token, url);
                 if (resp === undefined) {
-                    console.log("Undefined All JObapps")
                     displayAlert("Something went wrong!!", true);
                 } else if (resp.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
-                    console.log("Deleting token from getAll")
                     deleteTokenAndGoBackToLogin();
                 } else if (resp.isErrorOfType(HttpResponseErrorType.other)) {
-                    console.log("Other erro getAll")
                     displayAlert(resp.errorMessage, true);
                 } else {
-                    console.log("Setting jobApps getAll")
                     setJobApps(resp.data); 
                     saveDateLastChecked(new Date());
                 }
             } catch (error) {
-                console.log("Error when loading all job apps " + error);
                 displayAlert("Something went wrong!!", true);
             }
         }
@@ -110,21 +105,16 @@ export const JobAppListPage = () => {
                 const resp = await getNewJobApps(token, url, dateLastChecked);
 
                 if (resp === undefined) {
-                    console.log("Undefined etNEw")
                     displayAlert("Something went wrong!!", true);
                 } else if (resp.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
-                    console.log("delte token getNew")
                     deleteTokenAndGoBackToLogin();
                 } else if (resp.isErrorOfType(HttpResponseErrorType.other)) {
-                    console.log("Display other alert getNew");
                     displayAlert(resp.errorMessage, true);
                 } else {
-                    console.log("Save getNew");
                     updateJobApps(resp.data);
                     saveDateLastChecked(new Date());
                 }
             } catch (error) {
-                console.log("Error when loading all job apps " + error);
                 displayAlert("Something went wrong!!", true);
             }
         }
@@ -146,7 +136,6 @@ export const JobAppListPage = () => {
 
         if (shouldLoadJobApps.current) {
             setIsLoading(true);
-            console.log("Loading")
             loadJobApps();
             setIsLoading(false);
         }

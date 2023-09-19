@@ -20,10 +20,7 @@ export const JobAppCard = (props: JobAppCardProps) => {
         return convertDateToLocalString(date, locale); 
     };
 
-    console.log()
-
     const generateId = (id: string): string => {
-        console.log("Index is " + props.index);
         return `${id}_${props.index}`;
     };
 

@@ -222,8 +222,6 @@ describe("JobAppListPage tests", () => {
                     editButton, viewButton, deleteButton);
             }
 
-            console.log("Ids after assigning " + JSON.stringify(ids));
-
             return ids;
         };
 
@@ -277,7 +275,6 @@ describe("JobAppListPage tests", () => {
             renderJobAppListPage();
 
             const presentIds = createIds(3);
-            console.log(JSON.stringify(presentIds));
 
             waitForChanges(() => {
                 assertElementsAreInDocument(presentIds);
