@@ -22,6 +22,7 @@ import {
 import { sortArray } from "../../functions/helperfunctions/sortArray";
 import { compareJobAppsDateAppliedDescending } from "../../functions/helperfunctions/comparefunctions/compareDateApplied";
 import { DeleteJobAppAlert } from "../alerts/deletejobappalert/DeleteJobAppAlert";
+import { deleteJobApp } from "../../functions/networkcalls/deleteJobApp";
 
 export const JobAppListPage = () => {
     const navigate = useNavigate();
@@ -56,9 +57,44 @@ export const JobAppListPage = () => {
         setIsDeleteAlertShowing(true);
     }
 
-    const onDeleteAlertPressed = () => {
-        if (deleteIdSelected !== "") {
-            console.log(`Deleting ${deleteIdSelected}`);
+    const removeFromJobApps = (id: string) => {
+        setIsLoading(false);
+        const newJobApps = jobApps.filter((jobApp) => jobApp.id !== id);
+        setJobApps(newJobApps);
+    }
+
+    const onDeleteAlertPressed = async () => {
+        const token = getToken();
+        if (deleteIdSelected === "") {
+            return;    
+        }
+        setIsLoading(true);
+
+        console.log(`Deleting ${deleteIdSelected}`);
+
+        try {
+            const resp = await deleteJobApp(APIEndPoint.deleteJobApp, deleteIdSelected, token);
+
+            if (resp === undefined) {
+                setIsAlertShowing(true);
+                setAlertMessage("Something went wrong!!");
+                setIsLoading(false);
+                setIsDeleteAlertShowing(false);
+                setDeleteIdSelected("");
+            } else if (resp.isError()) {
+                setIsAlertShowing(true);
+                setAlertMessage(resp.errorMessage); 
+                setIsLoading(false);
+                setIsDeleteAlertShowing(false);
+                setDeleteIdSelected("");
+            } else {
+                removeFromJobApps(deleteIdSelected);
+                setIsDeleteAlertShowing(false);
+                setDeleteIdSelected("");
+            }
+        } catch(error) {
+            setIsAlertShowing(true);
+            setAlertMessage("Something went wrong!!");
         }
     };
 

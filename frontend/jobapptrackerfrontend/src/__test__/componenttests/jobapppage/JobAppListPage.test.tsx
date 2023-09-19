@@ -3,29 +3,36 @@ import { changeState, waitForChanges } from "../../helperfunctions/setup/uitests
 import { getElement, getElementByText } from "../../helperfunctions/htmlelements/getElement";
 import { NavSearchBarTestIds } from "../../../components/navbar/testIds/NavSearchBarTestIds";
 import { JobAppListPageTestIds } from "../../../components/jobapplist/JobAppListPageTestIds";
-import { assertElementsAreInDocument, assertElementsAreNotInDocument, isHTMLElementNull } from "../../helperfunctions/assertions/htmlElementAssertions";
+import { assertElementIsInDocument, assertElementsAreInDocument, assertElementsAreNotInDocument, isHTMLElementNull } from "../../helperfunctions/assertions/htmlElementAssertions";
 import { renderJSXElementWithRoute } from "../../helperfunctions/setup/uitestsetup";
 import { RoutePath } from "../../../enums/RoutePath_enum";
 import userEvent from "@testing-library/user-event";
 import { LoginFormIds } from "../../../components/login/constants/LoginFormIds";
 import { fail } from "assert";
-import { getToken, getDateLastChecked, deleteTokenAndDate, saveToken, saveDateLastChecked } from "../../../functions/session/localStorage";
 import { createResolvingGetAllJobAppFunc, createResolvingGetNewJobAppFunc } from "../../helperfunctions/types/MockJestGetJobAppFunc_type";
 import { validGetNewJobAppResponse, validResponse } from "../../helpervars/jobapppagevars/jobappvars";
-import { createMockGetSavedLastDateCheckedFunc, createMockGetTokenFunc, createMockSaveLastDateChecked, createMockSaveToken } from "../../helperfunctions/types/MockLocalStorageFuncs_type";
-import { getAllJobApps } from "../../../functions/networkcalls/getAllJobApps";
+import { createMockGetSavedLastDateCheckedFunc, createMockGetTokenFunc } from "../../helperfunctions/types/MockLocalStorageFuncs_type";
 import { assertMockGetAllJobAppsHasBeenCalledTimes, assertMockGetNewJobAppsHasBeenCalledTimes } from "../../helperfunctions/assertions/jobapplistpageassertions";
 import { JobAppCardTestIds } from "../../../enums/jobappcardtestids/JobAppCardTestIds_enum";
+import { createRejectingDeleteJobApp, createResolvingDeleteJobApp } from "../../helperfunctions/types/MockJestDeleteJobAppFunc_type";
+import { DeleteJobAppTestIds } from "../../../enums/DeleteJobAppTestIds_enum";
+import { HttpResponseErrorType } from "../../../enums/HttpResponseErrorTypes_enum";
+import { HttpStatusCode } from "axios";
 
 describe("JobAppListPage tests", () => {
     const getAllJobAppsPath = "../../../functions/networkcalls/getAllJobApps";
     const getNewJobAppsPath = "../../../functions/networkcalls/getNewJobApps";
     const localStoragePath = "../../../functions/session/localStorage";
-
+    const deleteJobAppPath = "../../../functions/networkcalls/deleteJobApp"; 
+    
     const renderJobAppListPage = () => {
         renderJSXElementWithRoute([RoutePath.jobapplist], <JobAppListPage />);        
     };
     
+    const getId = (id: string = "", index: number): string => {
+        return `${id}_${index}`;
+    };
+
     describe("Render tests", () => {
         test("Default render", () => {
             const mockGetAllJobApps = createResolvingGetAllJobAppFunc(validResponse);
@@ -281,6 +288,86 @@ describe("JobAppListPage tests", () => {
                 assertMockGetAllJobAppsHasBeenCalledTimes(mockGetAllJobApps, 0);
                 assertMockGetNewJobAppsHasBeenCalledTimes(mockGetNewJobApps, 1);
             });
+        });
+    });
+    describe("Delete tests", () => {
+        test("when deleting a job app that job app should not be there", () => {
+            const mockGetAllJobApps = createResolvingGetAllJobAppFunc(validGetNewJobAppResponse);
+            jest.mock(getAllJobAppsPath, () => {
+                getAllJobApps: mockGetAllJobApps
+            });
+
+            const mockGetToken = createMockGetTokenFunc();
+            jest.mock(localStoragePath, () => {
+                getToken: mockGetToken
+            });
+
+            const mockDeleteJobApp = createResolvingDeleteJobApp();
+            jest.mock(deleteJobAppPath, () => {
+                deleteJobApp: mockDeleteJobApp
+            });
+
+            renderJobAppListPage();
+
+            const deleteButtonId = getId(JobAppCardTestIds.deleteButton, 0);
+            let deleteButton: HTMLElement | null = null;
+            let deleteButtonAlert: HTMLElement | null = null;
+
+            waitForChanges(() => {
+                assertElementsAreInDocument([deleteButtonId])
+                deleteButton = getElement(deleteButtonId);
+                userEvent.click(deleteButton!);
+            })
+            
+            waitForChanges(() => {
+                assertElementIsInDocument(deleteButton);
+                deleteButtonAlert = getElement(DeleteJobAppTestIds.deleteButton);
+                userEvent.click(deleteButtonAlert!);
+            })
+
+            waitForChanges(() => {
+                assertElementsAreNotInDocument([deleteButtonId]);
+            });
+        });
+
+        test("when deleting a job app and error occurs an alert should appear", () => {
+            const mockGetAllJobApps = createResolvingGetAllJobAppFunc(validGetNewJobAppResponse);
+            jest.mock(getAllJobAppsPath, () => {
+                getAllJobApps: mockGetAllJobApps
+            });
+
+            const mockGetToken = createMockGetTokenFunc();
+            jest.mock(localStoragePath, () => {
+                getToken: mockGetToken
+            });
+
+            const mockDeleteJobApp = createRejectingDeleteJobApp("Something went wrong!!", HttpResponseErrorType.other, HttpStatusCode.Forbidden); 
+            jest.mock(deleteJobAppPath, () => {
+                deleteJobApp: mockDeleteJobApp
+            });
+
+            renderJobAppListPage();
+
+            const deleteButtonId = getId(JobAppCardTestIds.deleteButton, 0);
+            let deleteButton: HTMLElement | null = null;
+            let deleteButtonAlert: HTMLElement | null = null;
+
+            waitForChanges(() => {
+                assertElementsAreInDocument([deleteButtonId])
+                deleteButton = getElement(deleteButtonId);
+                userEvent.click(deleteButton!);
+            })
+            
+            waitForChanges(() => {
+                assertElementIsInDocument(deleteButton);
+                deleteButtonAlert = getElement(DeleteJobAppTestIds.deleteButton);
+                userEvent.click(deleteButtonAlert!);
+            })
+
+            waitForChanges(() => {
+                const deleteAlert = DeleteJobAppTestIds.alert;
+                assertElementsAreInDocument([deleteAlert]);
+            }); 
         });
     });
 });

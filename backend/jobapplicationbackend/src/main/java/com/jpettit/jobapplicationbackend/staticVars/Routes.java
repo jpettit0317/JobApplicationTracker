@@ -19,4 +19,8 @@ public class Routes {
         public static final String getNewJobApps = "/getNewJobApps";
         public static final String getJobAppById = "/getJobAppById";
     }
+
+    public static class DeleteRoutes {
+        public static final String deleteJobApp = "/deleteJobApp";
+    }
 }
