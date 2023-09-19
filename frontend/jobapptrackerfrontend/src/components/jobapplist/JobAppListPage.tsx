@@ -21,10 +21,17 @@ import {
 } from "../../functions/session/localStorage";
 import { sortArray } from "../../functions/helperfunctions/sortArray";
 import { compareJobAppsDateAppliedDescending } from "../../functions/helperfunctions/comparefunctions/compareDateApplied";
+import { DeleteJobAppAlert } from "../alerts/deletejobappalert/DeleteJobAppAlert";
 
 export const JobAppListPage = () => {
     const navigate = useNavigate();
     const shouldLoadJobApps = useRef(true);
+    const [jobApps, setJobApps] = useState<JobApplication[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isAlertShowing, setIsAlertShowing] = useState<boolean>(false);
+    const [alertErrorMessage, setAlertMessage] = useState<string>("");
+    const [deleteIdSelected, setDeleteIdSelected] = useState<string>("");
+    const [isDeleteAlertShowing, setIsDeleteAlertShowing] = useState<boolean>(false);
 
     const onSearchButtonPressed = (searchTerm: string = "") => {
         console.log("The search term is ", searchTerm);
@@ -40,16 +47,23 @@ export const JobAppListPage = () => {
         navigate(RoutePath.addJobApp);
     };
 
-    const onEdit = (index: number) => {
-        console.log(`${index} card on edit was pressed.`);
+    const onEdit = (id: string) => {
+        console.log(`${id} card on edit was pressed.`);
     }
 
-    const onDelete = (index: number) => {
-        console.log(`${index} delete button was pressed.`);
+    const onDelete = (id: string) => {
+        setDeleteIdSelected(id);
+        setIsDeleteAlertShowing(true);
     }
 
-    const onView = (index: number) => {
-        console.log(`${index} view button was pressed.`);
+    const onDeleteAlertPressed = () => {
+        if (deleteIdSelected !== "") {
+            console.log(`Deleting ${deleteIdSelected}`);
+        }
+    };
+
+    const onView = (id: string) => {
+        console.log(`${id} view button was pressed.`);
     }
 
     const closeAlert = () => {
@@ -57,10 +71,10 @@ export const JobAppListPage = () => {
         setIsAlertShowing(false); 
     }
 
-    const [jobApps, setJobApps] = useState<JobApplication[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isAlertShowing, setIsAlertShowing] = useState<boolean>(false);
-    const [alertErrorMessage, setAlertMessage] = useState<string>("");
+    const closeDeleteJobAppAlert = () => {
+        setIsDeleteAlertShowing(false);
+        setDeleteIdSelected("");
+    }
 
     useEffect(() => {
         const updateJobApps = (newerJobApps: JobApplication[]) => {
@@ -185,6 +199,15 @@ export const JobAppListPage = () => {
                     size={30} 
                     ariaLabel={"Loading"} 
                     testId="JobAppListLoadingIndicator" />
+            }
+            {  isDeleteAlertShowing &&
+                <DeleteJobAppAlert 
+                    shouldShow={isDeleteAlertShowing}
+                    variant="warning"
+                    onClosePressed={closeDeleteJobAppAlert}
+                    onDeletePressed={onDeleteAlertPressed}
+                    idToDelete={deleteIdSelected}
+                /> 
             }
             <h5 data-testid={JobAppListPageTestIds.jobAppListPageHeader} style={ { padding: "20px"} }>
                 Job Application List

@@ -3,7 +3,7 @@ import { JobApplication } from "../../../model/interfaces/jobapp/JobApplication"
 export interface JobAppCardProps {
     index: number;
     jobApp: JobApplication;
-    onEdit: (index: number) => void;
-    onView: (index: number) => void;
-    onDelete: (index: number) => void;
+    onEdit: (id: string) => void;
+    onView: (id: string) => void;
+    onDelete: (id: string) => void;
 }

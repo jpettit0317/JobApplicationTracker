@@ -5,15 +5,15 @@ import { convertDateToLocalString } from "../../../functions/helperfunctions/dat
 
 export const JobAppCard = (props: JobAppCardProps) => {
     const onDeletePressed = () => {
-        props.onDelete(props.index);
+        props.onDelete(props.jobApp.id);
     };
 
     const onEditPressed = () => {
-        props.onEdit(props.index);
+        props.onEdit(props.jobApp.id);
     };
 
     const onViewPressed = () => {
-        props.onView(props.index);
+        props.onView(props.jobApp.id);
     };
     
     const getDateString = (date: Date, locale: string = "en-US") => {
