@@ -18,7 +18,7 @@ import { HttpResponse } from "../../model/httpresponses/HttpResponse";
 import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
 import { RoutePath } from "../../enums/RoutePath_enum";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
-import { saveToken } from "../../functions/session/saveToken";
+import { saveToken } from "../../functions/session/localStorage";
 
 export const LoginPage = () => {
     const navigate = useNavigate();

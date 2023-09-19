@@ -6,6 +6,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.exceptions.UserExistsException;
+import com.jpettit.jobapplicationbackend.helpers.ObjectMapperHelper;
 import com.jpettit.jobapplicationbackend.models.requests.AuthenticationRequest;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AuthenticationResponse;
@@ -121,7 +122,7 @@ public class AuthenticationControllerTestVars {
 
     public static String transformObjectToJSONString(Object obj) {
         try {
-            return new ObjectMapper().writeValueAsString(obj);
+            return ObjectMapperHelper.createObjectMapper().writeValueAsString(obj);
         } catch (JsonProcessingException jsonProcessingException) {
             System.out.println("Couldn't parse object.");
             return "";

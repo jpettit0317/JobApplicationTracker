@@ -14,7 +14,7 @@ import { HttpResponse } from "../../model/httpresponses/HttpResponse";
 import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { SignUpAlert } from "../alerts/SignUpAlert";
 import { addUser } from "../../functions/networkcalls/addUser";
-import { saveToken } from "../../functions/session/saveToken";
+import { saveToken } from "../../functions/session/localStorage";
 import { RoutePath } from "../../enums/RoutePath_enum";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 

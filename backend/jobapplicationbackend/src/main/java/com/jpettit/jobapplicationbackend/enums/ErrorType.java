@@ -5,4 +5,5 @@ public class ErrorType {
     public static final String OTHER = "OTHER";
     public static final String NONE = "NONE";
     public static final String INVALID_INPUT = "INVALID_INPUT";
+    public static final String TOKEN_EXPIRED = "TOKEN_EXPIRED";
 }

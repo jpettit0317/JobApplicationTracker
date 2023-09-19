@@ -8,7 +8,6 @@ import userEvent from "@testing-library/user-event";
 import { SignUp, SignUpConfirmPassword } from "../../../model/interfaces/signup/SignUp";
 import { HttpResponse } from "../../../model/httpresponses/HttpResponse";
 import { HttpResponseBuilder } from "../../../model/builders/HttpResponseBuilder";
-import { getToken } from "../../../functions/session/getToken";
 import { JobAppListPageTestIds } from "../../../components/jobapplist/JobAppListPageTestIds";
 import { HttpResponseErrorType } from "../../../enums/HttpResponseErrorTypes_enum";
 import { HttpStatusCodes } from "../../../enums/HttpStatusCodes_enum";

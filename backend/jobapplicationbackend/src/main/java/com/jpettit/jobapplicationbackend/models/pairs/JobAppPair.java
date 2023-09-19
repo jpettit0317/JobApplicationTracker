@@ -38,7 +38,7 @@ public class JobAppPair {
                 .creator(user)
                 .dateApplied(jobApp.getDateApplied())
                 .dateModified(jobApp.getDateModified())
-                .id(jobApp.getId())
+                .jobAppDataId(jobApp.getId())
                 .build();
     }
 
