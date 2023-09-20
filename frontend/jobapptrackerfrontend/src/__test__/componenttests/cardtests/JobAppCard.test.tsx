@@ -24,9 +24,9 @@ describe("JobAppCard tests", () => {
 
     describe("Initial load tests", () => {
         test("when loaded should have all elements", () => {
-            const mockDelete = jest.fn((index: number) => {});
-            const mockEdit = jest.fn((index: number) => {});
-            const mockView = jest.fn((index: number) => {});
+            const mockDelete = jest.fn((index: string) => {});
+            const mockEdit = jest.fn((index: string) => {});
+            const mockView = jest.fn((index: string) => {});
             
             const props: JobAppCardProps = {
                 onDelete: mockDelete,

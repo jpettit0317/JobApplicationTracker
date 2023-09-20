@@ -4,6 +4,7 @@ import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.exceptions.TokenExpiredException;
 import com.jpettit.jobapplicationbackend.helpers.SpringDataConverter;
+import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.JobAppServiceTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobApplicationTestTestVars;
@@ -12,6 +13,7 @@ import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
@@ -199,5 +201,57 @@ class JobAppServiceTest {
         JobAppServiceTestHelper.assertGetJobAppsAreEqual(pair);
     }
 
+    @Test
+    public void deleteJobApp_whenGivenValidData_shouldReturnSuccess() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
 
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getEmail());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(user);
+
+        final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorMessage("")
+                .errorType(ErrorType.NONE)
+                .build();
+        final DeleteJobAppResponse actual = sut.deleteJobApp(UUID.randomUUID(), token);
+
+        JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void deleteJobApp_whenGivenUserThatDoesNotExist_shouldReturnForbidden() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getEmail());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(Optional.empty());
+
+        final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                .errorType(ErrorType.OTHER)
+                .build();
+        final DeleteJobAppResponse actual = sut.deleteJobApp(UUID.randomUUID(), token);
+
+        JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void deleteJobApp_whenGivenExpiredToken_shouldReturnForbidden() {
+        final String token = JobApplicationTestTestVars.getUUID();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(true);
+
+        final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorMessage(ErrorMessages.OtherMessages.tokenExpiredError)
+                .errorType(ErrorType.TOKEN_EXPIRED)
+                .build();
+        final DeleteJobAppResponse actual = sut.deleteJobApp(UUID.randomUUID(), token);
+
+        JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+    }
 }
