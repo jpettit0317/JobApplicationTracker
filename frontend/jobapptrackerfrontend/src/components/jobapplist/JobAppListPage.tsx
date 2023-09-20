@@ -64,6 +64,7 @@ export const JobAppListPage = () => {
     }
 
     const onDeleteAlertPressed = async () => {
+        const token = getToken();
         if (deleteIdSelected === "") {
             return;    
         }
@@ -72,14 +73,20 @@ export const JobAppListPage = () => {
         console.log(`Deleting ${deleteIdSelected}`);
 
         try {
-            const resp = await deleteJobApp(APIEndPoint.deleteJobApp, deleteIdSelected);
+            const resp = await deleteJobApp(APIEndPoint.deleteJobApp, deleteIdSelected, token);
 
             if (resp === undefined) {
                 setIsAlertShowing(true);
                 setAlertMessage("Something went wrong!!");
+                setIsLoading(false);
+                setIsDeleteAlertShowing(false);
+                setDeleteIdSelected("");
             } else if (resp.isError()) {
                 setIsAlertShowing(true);
                 setAlertMessage(resp.errorMessage); 
+                setIsLoading(false);
+                setIsDeleteAlertShowing(false);
+                setDeleteIdSelected("");
             } else {
                 removeFromJobApps(deleteIdSelected);
                 setIsDeleteAlertShowing(false);

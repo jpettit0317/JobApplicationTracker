@@ -5,14 +5,14 @@ import { HttpResponse, createHttpResponse } from "../../model/httpresponses/Http
 import { HttpResponseData } from "../../model/interfaces/init/HttpResponseData";
 import { getErrorTypeFromString } from "../parseErrors/getErrorTypeFromString";
 
-export const deleteJobApp = (url: string, id: string): Promise<HttpResponse<string>> => {
-    if (url === "" || id === "") {
+export const deleteJobApp = (baseUrl: string, id: string, token: string): Promise<HttpResponse<string>> => {
+    if (baseUrl === "" || id === "") {
         return createBadResponse("URL or id is empty.");
     }
 
-    const deleteJobAppURL = getDeleteJobAppURL(url, id);
+    const deleteJobAppURL = getDeleteJobAppURL(baseUrl, id, token);
 
-    return makeDeleteJobAppCall(deleteJobAppURL, id);
+    return makeDeleteJobAppCall(deleteJobAppURL);
 }
 
 const createBadResponse = async (reason: string): Promise<HttpResponse<string>> => {
@@ -26,7 +26,7 @@ const createBadResponse = async (reason: string): Promise<HttpResponse<string>> 
     return createHttpResponse<string>(httpResponseData);
 }
 
-const makeDeleteJobAppCall = async (url: string, id: string): Promise<HttpResponse<string>> => {
+const makeDeleteJobAppCall = async (url: string): Promise<HttpResponse<string>> => {
     try {
         const resp = await axios.delete(url);
 
@@ -45,6 +45,6 @@ const makeDeleteJobAppCall = async (url: string, id: string): Promise<HttpRespon
     }
 }
 
-const getDeleteJobAppURL = (url: string, id: string): string => {
-    return `${url}?id=${id}`;
+const getDeleteJobAppURL = (url: string, id: string, token: string): string => {
+    return `${url}?id=${id}&token=${token}`;
 }
