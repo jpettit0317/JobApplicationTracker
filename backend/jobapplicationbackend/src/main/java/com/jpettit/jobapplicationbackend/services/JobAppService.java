@@ -39,7 +39,7 @@ public class JobAppService {
     private final JobInterviewDataRepository jobInterviewDataRepository;
 
     @Transactional
-    public DeleteJobAppResponse deleteJobApp(UUID id, String token) throws Exception {
+    public DeleteJobAppResponse deleteJobApp(UUID id, String token) {
         try {
             final String user = validateUser(token);
             final long numberOfInterviews = jobInterviewDataRepository.countByJobAppId(id);
