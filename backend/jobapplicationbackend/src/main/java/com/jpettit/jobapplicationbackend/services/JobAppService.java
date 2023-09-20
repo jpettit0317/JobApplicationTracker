@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.exceptions.NonExistantUserException;
 import com.jpettit.jobapplicationbackend.exceptions.TokenExpiredException;
-import com.jpettit.jobapplicationbackend.helpers.DateConverter;
 import com.jpettit.jobapplicationbackend.helpers.SpringDataConverter;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,7 +39,7 @@ public class JobAppService {
     private final JobInterviewDataRepository jobInterviewDataRepository;
 
     @Transactional
-    public DeleteJobAppResponse deleteJobApp(UUID id, String token) {
+    public DeleteJobAppResponse deleteJobApp(UUID id, String token) throws Exception {
         try {
             final String user = validateUser(token);
             final long numberOfInterviews = jobInterviewDataRepository.countByJobAppId(id);
