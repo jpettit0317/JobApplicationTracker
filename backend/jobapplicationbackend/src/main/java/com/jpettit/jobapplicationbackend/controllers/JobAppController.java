@@ -25,10 +25,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 
 @RequestMapping(Routes.BaseRoutes.mainRoute)
@@ -84,13 +81,11 @@ public class JobAppController {
     }
 
     @DeleteMapping(value = Routes.DeleteRoutes.deleteJobApp)
-    public DeleteJobAppResponse deleteJobApp(@RequestParam(value = "id", defaultValue = "") String id) {
+    public DeleteJobAppResponse deleteJobApp(
+            @RequestParam(value = "id", defaultValue = "") String id,
+            @RequestParam(value = "token", defaultValue = "") String token) {
         try {
-            return DeleteJobAppResponse.builder()
-                    .statusCode(HttpStatus.OK.value())
-                    .errorMessage("")
-                    .errorType(ErrorType.NONE)
-                    .build();
+            return jobAppService.deleteJobApp(UUID.fromString(id), token);
         } catch (Exception e) {
             e.printStackTrace();
             return DeleteJobAppResponse.builder()

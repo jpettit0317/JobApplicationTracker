@@ -13,6 +13,7 @@ import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
@@ -22,9 +23,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,6 +40,36 @@ public class JobAppService {
 
     private final JobInterviewDataRepository jobInterviewDataRepository;
 
+    @Transactional
+    public DeleteJobAppResponse deleteJobApp(UUID id, String token) {
+        try {
+            final String user = validateUser(token);
+            final long numberOfInterviews = jobInterviewDataRepository.countByJobAppId(id);
+
+            if (numberOfInterviews > 0L) {
+                jobInterviewDataRepository.removeByJobAppId(id);
+            }
+
+            jobAppDataRepository.removeByJobAppDataIdAndCreator(id, user);
+
+            return createResponse(HttpStatus.OK.value(), "", ErrorType.NONE);
+        } catch (TokenExpiredException | ExpiredJwtException e) {
+            return createResponse(HttpStatus.FORBIDDEN.value(),
+                    ErrorMessages.OtherMessages.tokenExpiredError, ErrorType.TOKEN_EXPIRED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createResponse(HttpStatus.FORBIDDEN.value(),
+                    ErrorMessages.OtherMessages.unexpectedError, ErrorType.OTHER);
+        }
+    }
+
+    private DeleteJobAppResponse createResponse(int statusCode, String errorMessage, String errorType) {
+        return DeleteJobAppResponse.builder()
+                .statusCode(statusCode)
+                .errorMessage(errorMessage)
+                .errorType(errorType)
+                .build();
+    }
     public GetJobAppsResponse getNewJobApps(GetNewJobAppRequest req) {
         try {
             validateUser(req.getToken());
