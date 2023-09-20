@@ -41,8 +41,6 @@ const makeGetNewJobAppsCall = async (url: string): Promise<HttpResponse<JobAppli
             errorType: errorType 
         };
 
-        console.log("Resp data is " + respData.data[0].dateApplied);
-        console.log("Date applied is " + JSON.stringify(respData.data[0].dateApplied));
         return createHttpResponse<JobApplication[]>(respData);
     } catch (error) {
         const respData: HttpResponseData<JobApplication[]> = {

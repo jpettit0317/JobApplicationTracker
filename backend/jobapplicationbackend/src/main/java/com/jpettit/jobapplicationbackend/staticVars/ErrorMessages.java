@@ -9,6 +9,10 @@ public class ErrorMessages {
         public static String unexpectedError = "Something went wrong!!";
     }
 
+    public static class DeleteJobAppMessages {
+        public static String couldNotDeleteJobApp = "Couldn't delete job app";
+    }
+
     public static class OtherMessages {
         public static String unexpectedError = "Something went wrong!!";
         public static String tokenExpiredError = "Token expired!";

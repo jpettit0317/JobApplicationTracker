@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobApplicationIntTestHelper;
-import com.jpettit.jobapplicationbackend.helpers.helper.JobApplicationTestVars;
-import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobControllerIntTestHelperVars;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
@@ -14,6 +12,7 @@ import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
@@ -40,10 +39,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(MockitoJUnitRunner.class)
@@ -74,8 +73,8 @@ class JobAppControllerIntTest {
     @BeforeEach
     void setUp() {
         addJobAppRequest = AddJobAppRequest.builder().build();
-        addUserToDatabase(JobControllerIntTestHelperVars.userJane);
-        addJobAppToDatabase(JobControllerIntTestHelperVars.userJane);
+        addUserToDatabase();
+        addJobAppToDatabase();
     }
 
     @AfterEach
@@ -97,14 +96,8 @@ class JobAppControllerIntTest {
     private String getWrongErrorToken() {
         return jwtService.generateToken(JobControllerIntTestHelperVars.userJon);
     }
-    private AddJobAppRequest createAddJobRequest(final JobApplication jobApp, final String token) {
-        return AddJobAppRequest.builder()
-                .jobApp(jobApp)
-                .token(token)
-                .build();
-    }
-
-    private void addUserToDatabase(final User user) {
+    private void addUserToDatabase() {
+        final User user = JobControllerIntTestHelperVars.userJane;
         try {
             final String registerRequestString = createRegisterRequest(user).toJSONString();
             final String registerResponse = getTokenFromPost(JobControllerIntTestHelperVars.addUserURL,
@@ -120,7 +113,8 @@ class JobAppControllerIntTest {
         }
     }
 
-    private void addJobAppToDatabase(User user) {
+    private void addJobAppToDatabase() {
+        final User user = JobControllerIntTestHelperVars.userJane;
         try {
             final JobApplication jobApp = JobControllerIntTestHelperVars.uuidJobApp;
             final JobInterview jobInterview = jobApp.getInterviews().get(0);
@@ -161,6 +155,11 @@ class JobAppControllerIntTest {
     private String getAllJobAppsResponse(final String url, final MediaType type) throws Exception {
         return mockMvc.perform(get(url).accept(type))
                 .andReturn().getResponse().getContentAsString();
+    }
+
+    private DeleteJobAppResponse getDeleteJobAppResponse(final String url, final MediaType type) throws Exception {
+        final String resp = mockMvc.perform(delete(url).accept(type)).andReturn().getResponse().getContentAsString();
+        return JobControllerIntTestHelperVars.getDeleteJobAppsResponse(resp);
     }
 
 
@@ -341,7 +340,49 @@ class JobAppControllerIntTest {
         }
     }
 
-    public static void logResponse(GetJobAppsResponse resp) {
-        System.out.println("response is " + resp.toJSONString());
+    @Test
+    public void deleteJobApp_whenGivenValidToken_shouldReturnSuccess() {
+        final String token = addJobAppRequest.getToken();
+        final UUID id = JobControllerIntTestHelperVars.uuidJobApp.getId();
+
+        final String deleteURL = JobControllerIntTestHelperVars.createDeleteJobAppURL(
+                JobControllerIntTestHelperVars.baseDeleteJobAppsURL, token, id
+        );
+
+        final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
+                .errorType(ErrorType.NONE)
+                .statusCode(HttpStatus.OK.value())
+                .errorMessage("")
+                .build();
+
+        try {
+            final DeleteJobAppResponse actual = getDeleteJobAppResponse(deleteURL, jsonMediaType);
+            JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+        } catch (Exception e) {
+            JobApplicationIntTestHelper.logErrorAndFail(e);
+        }
+    }
+
+    @Test
+    public void deleteJobApp_whenGivenInvalidToken_shouldReturnForbidden() {
+        final String token = getWrongErrorToken();
+        final UUID id = JobControllerIntTestHelperVars.uuidJobApp.getId();
+
+        final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
+                .errorType(ErrorType.OTHER)
+                .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .build();
+
+        final String deleteURL = JobControllerIntTestHelperVars.createDeleteJobAppURL(
+                JobControllerIntTestHelperVars.baseDeleteJobAppsURL, token, id
+        );
+
+        try {
+            final DeleteJobAppResponse actual = getDeleteJobAppResponse(deleteURL, jsonMediaType);
+            JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+        } catch (Exception e) {
+            JobApplicationIntTestHelper.logErrorAndFail(e);
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
@@ -59,6 +60,8 @@ public class JobControllerIntTestHelperVars {
 
     public static final String baseGetAllJobAppsURL = Routes.BaseRoutes.mainRoute + Routes.GetRoutes.getAllJobApps;
     public static final String baseGetNewJobAppsURL = Routes.BaseRoutes.mainRoute + Routes.GetRoutes.getNewJobApps;
+
+    public static final String baseDeleteJobAppsURL = Routes.BaseRoutes.mainRoute + Routes.DeleteRoutes.deleteJobApp;
 
     public static final RegisterRequest validRegisterRequest =
             RegisterRequest.builder()
@@ -156,6 +159,18 @@ public class JobControllerIntTestHelperVars {
                 .build();
     }
 
+    public static DeleteJobAppResponse getDeleteJobAppsResponse(String input) {
+        final String errorMessage = JsonPath.read(input, "$.errorMessage");
+        final String errorType = JsonPath.read(input, "$.errorType");
+        final int statusCode = JsonPath.read(input, "$.statusCode");
+
+        return DeleteJobAppResponse.builder()
+                .errorMessage(errorMessage)
+                .statusCode(statusCode)
+                .errorType(errorType)
+                .build();
+    }
+
     public static String createGetJobAppsURL(final String url, final String token) {
         return url +
                 "?token=" +
@@ -170,5 +185,10 @@ public class JobControllerIntTestHelperVars {
                 "?token=" +
                 token + "&" +
                 "lastDateChecked=" + dateLastCheckedString;
+    }
+
+    public static String createDeleteJobAppURL(final String url, final String token,
+                                               final UUID id) {
+        return url + "?id=" + id + "&token=" + token;
     }
 }

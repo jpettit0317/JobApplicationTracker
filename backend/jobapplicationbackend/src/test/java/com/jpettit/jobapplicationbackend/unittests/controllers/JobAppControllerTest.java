@@ -12,6 +12,7 @@ import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
@@ -175,6 +176,25 @@ class JobAppControllerTest {
                 .build();
 
         JobAppControllerTestHelper.assertGetJobAppsResponsesAreEqual(pair);
+    }
+
+    @Test
+    public void deleteJobApp_whenGivenValidRequest_shouldReturnSuccess() throws Exception {
+        final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorMessage("")
+                .errorType(ErrorType.NONE)
+                .build();
+
+        when(jobAppService.deleteJobApp(ArgumentMatchers.any(), ArgumentMatchers.anyString())).thenReturn(expected);
+
+        final DeleteJobAppResponse actual = callDeleteJobApp(UUID.randomUUID(), UUID.randomUUID().toString());
+
+        JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+    }
+
+    private DeleteJobAppResponse callDeleteJobApp(UUID id, String token) {
+        return sut.deleteJobApp(id.toString(), token);
     }
 
     private static GetJobAppsResponse createGetJobAppsResponse(String error, String errorType,

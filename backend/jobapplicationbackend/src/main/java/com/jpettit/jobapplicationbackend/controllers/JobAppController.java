@@ -7,6 +7,7 @@ import com.jpettit.jobapplicationbackend.helpers.StringUtility;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
@@ -24,10 +25,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 
 @RequestMapping(Routes.BaseRoutes.mainRoute)
@@ -79,6 +77,22 @@ public class JobAppController {
                             .errorMessage(e.getMessage())
                             .build()
             );
+        }
+    }
+
+    @DeleteMapping(value = Routes.DeleteRoutes.deleteJobApp)
+    public DeleteJobAppResponse deleteJobApp(
+            @RequestParam(value = "id", defaultValue = "") String id,
+            @RequestParam(value = "token", defaultValue = "") String token) {
+        try {
+            return jobAppService.deleteJobApp(UUID.fromString(id), token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return DeleteJobAppResponse.builder()
+                    .errorMessage(ErrorMessages.DeleteJobAppMessages.couldNotDeleteJobApp)
+                    .errorType(ErrorType.OTHER)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .build();
         }
     }
 
