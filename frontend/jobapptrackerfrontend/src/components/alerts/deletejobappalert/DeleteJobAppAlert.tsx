@@ -1,6 +1,6 @@
 import { DeleteJobAppProps } from "../alertProps/DeleteJobAppAlertProps";
 import { DeleteJobAppTestIds } from "../../../enums/DeleteJobAppTestIds_enum";
-import { Alert, Button, Stack } from "react-bootstrap";
+import { Alert, Button } from "react-bootstrap";
 
 export const DeleteJobAppAlert = (props: DeleteJobAppProps) => {
     const header = "Delete Job App";
