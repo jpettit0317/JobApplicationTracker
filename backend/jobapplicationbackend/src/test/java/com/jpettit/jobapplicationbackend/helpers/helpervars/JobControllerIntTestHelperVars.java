@@ -1,6 +1,8 @@
 package com.jpettit.jobapplicationbackend.helpers.helpervars;
 
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
@@ -10,9 +12,13 @@ import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -62,7 +68,40 @@ public class JobControllerIntTestHelperVars {
     public static final String baseGetNewJobAppsURL = Routes.BaseRoutes.mainRoute + Routes.GetRoutes.getNewJobApps;
 
     public static final String baseDeleteJobAppsURL = Routes.BaseRoutes.mainRoute + Routes.DeleteRoutes.deleteJobApp;
+    public static final String baseGetOneJobAppURL = Routes.BaseRoutes.mainRoute + Routes.GetRoutes.getJobAppById;
 
+    public static class JsonPaths {
+        public static class JobInterviewPaths {
+            static final String jobInterviewPath = "interviews";
+            static final String idPath = "id";
+            static final String jobInterviewJobAppIdPath = "jobAppId";
+            static final String typePath = "type";
+            static final String locationPath = "location";
+            static final String startDatePath = "startDate";
+            static final String endDatePath = "endDate";
+        }
+
+        public static class JobAppPaths {
+            static final String basePath = "jobApp";
+            static final String companyPath = "company";
+            static final String jobTitlePath = "jobTitle";
+            static final String descPath = "description";
+            static final String statusPath = "status";
+            static final String jobAppIdPath = "id";
+            static final String dateAppliedPath = "dateApplied";
+            static final String dateModifiedPath = "dateModified";
+        }
+
+        public static class ResponsePaths {
+            static final String responseErrorMessage = "errorMessage";
+            static final String errorTypePath = "errorType";
+            static final String statusCodePath = "statusCode";
+        }
+        public static String interviewsPath(int index, String att) {
+            final String jobInterviewPath = "$.jobApp.interviews";
+            return jobInterviewPath + "[" + Integer.toString(Math.abs(index)) + "]" + att;
+        }
+    }
     public static final RegisterRequest validRegisterRequest =
             RegisterRequest.builder()
                     .email(userJane.getEmail())
@@ -118,16 +157,43 @@ public class JobControllerIntTestHelperVars {
             .status(UUID.randomUUID().toString())
             .id(id)
             .dateModified(maxDate)
+            .dateApplied(maxDate)
             .interviews(new ArrayList<>(List.of(uuidJobInterview)))
+            .build();
+
+    public static final JobInterview testJobInterview = JobInterview.builder()
+            .id(UUID.randomUUID())
+            .jobAppId(UUID.randomUUID())
+            .location("Online")
+            .startDate(maxDate)
+            .endDate(maxDate)
+            .type("Technical")
+            .build();
+    public static final JobApplication testJobApp = JobApplication.builder()
+            .jobTitle("j")
+            .description("d")
+            .company("c")
+            .status("s")
+            .dateModified(maxDate)
+            .dateApplied(maxDate)
+            .interviews(new ArrayList<>(List.of(testJobInterview)))
+            .id(testJobInterview.getJobAppId())
             .build();
 
     public static JobAppData getJobAppDataFromJobApp(JobApplication jobApplication, final String creator) {
         return JobAppData.initFromJobApp(jobApplication, creator);
     }
 
-    public static JobInterviewData getJobInterviewDataFromJobInterview(JobInterview jobInterview) {
-        return JobInterviewData.initFromInterview(jobInterview, jobInterview.getJobAppId());
+    public static JobInterviewData getJobInterviewDataFromJobInterview(JobInterview jobInterview, final UUID jobAppId) {
+        return JobInterviewData.initFromInterview(jobInterview, jobAppId);
     }
+
+//    public static JobApplication createJobApplication(JobAppData data, ArrayList<JobInterviewData> interviewData) {
+//        return JobApplication.builder()
+//                .id(data.getJobAppDataId())
+//                .
+//                .build();
+//    }
 
     public static String getTokenFromResponse(String input) {
         return JsonPath.read(input, "$.token");
@@ -171,6 +237,94 @@ public class JobControllerIntTestHelperVars {
                 .build();
     }
 
+    public static GetOneJobAppResponse getOneJobAppResponse(JSONObject jsonObject) throws JSONException {
+        Configuration config = Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL);
+
+        final String errorMessage = jsonObject.getString(JsonPaths.ResponsePaths.responseErrorMessage);
+        final String errorType = jsonObject.getString(JsonPaths.ResponsePaths.errorTypePath);
+        final int statusCode = jsonObject.getInt(JsonPaths.ResponsePaths.statusCodePath);
+        final JobApplication jobApp = getJobApp(jsonObject);
+
+        return GetOneJobAppResponse.builder()
+                .errorMessage(errorMessage)
+                .errorType(errorType)
+                .statusCode(statusCode)
+                .jobApp(jobApp)
+                .build();
+    }
+
+    public static boolean isJobAppNull(JSONObject input) throws JSONException {
+        return input.isNull(JsonPaths.JobAppPaths.basePath);
+    }
+    public static JobApplication getJobApp(JSONObject jsonObject) throws JSONException {
+        if (isJobAppNull(jsonObject)) {
+            return null;
+        }
+        final JSONObject jobAppObj = jsonObject.getJSONObject(JsonPaths.JobAppPaths.basePath);
+
+        final String company = jobAppObj.getString(JsonPaths.JobAppPaths.companyPath);
+        final String jobTitle = jobAppObj.getString(JsonPaths.JobAppPaths.jobTitlePath);
+        final String description = jobAppObj.getString(JsonPaths.JobAppPaths.descPath);
+        final String status = jobAppObj.getString(JsonPaths.JobAppPaths.statusPath);
+        final UUID id = convertStringToUUID(jobAppObj, JsonPaths.JobAppPaths.jobAppIdPath);
+        final ZonedDateTime dateApplied = convertStringToDate(jobAppObj, JsonPaths.JobAppPaths.dateAppliedPath);
+        final ZonedDateTime dateModified = convertStringToDate(jobAppObj, JsonPaths.JobAppPaths.dateModifiedPath);
+        final ArrayList<JobInterview> jobInterview = getJobInterview(jobAppObj);
+
+        return JobApplication.builder()
+                .jobTitle(jobTitle)
+                .company(company)
+                .description(description)
+                .status(status)
+                .id(id)
+                .dateApplied(dateApplied)
+                .dateModified(dateModified)
+                .interviews(jobInterview)
+                .build();
+    }
+
+    public static ArrayList<JobInterview> getJobInterview(final JSONObject jsonObject) throws JSONException {
+        ArrayList<JobInterview> jobInterviews = new ArrayList<>();
+        final JSONArray jsonArray = jsonObject.getJSONArray(JsonPaths.JobInterviewPaths.jobInterviewPath);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            final JSONObject obj = jsonArray.getJSONObject(i);
+            jobInterviews.add(createJobInterview(obj));
+        }
+        return  jobInterviews;
+    }
+
+    private static JobInterview createJobInterview(final JSONObject jsonObject) throws JSONException {
+        final UUID id = convertStringToUUID(jsonObject, JsonPaths.JobInterviewPaths.idPath);
+        final UUID jobAppId = convertStringToUUID(jsonObject, JsonPaths.JobInterviewPaths.jobInterviewJobAppIdPath);
+        final String type = jsonObject.getString(JsonPaths.JobInterviewPaths.typePath);
+        final String location = jsonObject.getString(JsonPaths.JobInterviewPaths.locationPath);
+        final ZonedDateTime startDate = convertStringToDate(jsonObject, JsonPaths.JobInterviewPaths.startDatePath);
+        final ZonedDateTime endDate = convertStringToDate(jsonObject, JsonPaths.JobInterviewPaths.endDatePath);
+
+        return JobInterview.builder()
+                .id(id)
+                .jobAppId(jobAppId)
+                .type(type)
+                .location(location)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+    }
+    private static String readInputToString(final String input, final Configuration config, final String path) {
+        return JsonPath.parse(input, config).read(path);
+    }
+
+    private static UUID convertStringToUUID(final JSONObject jsonObject, final String path) throws JSONException {
+        return UUID.fromString(jsonObject.getString(path));
+    }
+
+    private static ZonedDateTime convertStringToDate(final JSONObject jsonObject, final String path) throws JSONException {
+        final String dateString = jsonObject.getString(path);
+        final Instant instant = Instant.parse(dateString);
+        return ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+    }
+
     public static String createGetJobAppsURL(final String url, final String token) {
         return url +
                 "?token=" +
@@ -189,6 +343,10 @@ public class JobControllerIntTestHelperVars {
 
     public static String createDeleteJobAppURL(final String url, final String token,
                                                final UUID id) {
+        return url + "?id=" + id + "&token=" + token;
+    }
+
+    public static String createGetJobAppById(final String url, final String token, final UUID id) {
         return url + "?id=" + id + "&token=" + token;
     }
 }

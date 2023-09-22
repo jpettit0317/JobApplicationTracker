@@ -469,7 +469,8 @@ export const AddJobAppPage = () => {
                             <tr>
                                 {jobApp.interviews.map((jobInterview, index) => (
                                     <td key={index}>
-                                        <JobInterviewCard 
+                                        <JobInterviewCard
+                                            shouldShowButtons={true} 
                                             jobAppDate={new Date()} 
                                             jobInterview={jobInterview}
                                             onDeleteButtonPressed={onDeleteButtonPressed}

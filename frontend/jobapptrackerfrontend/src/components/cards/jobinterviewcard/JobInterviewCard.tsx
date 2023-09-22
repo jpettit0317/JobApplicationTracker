@@ -36,20 +36,22 @@ export const JobInterviewCard = (props: JobInterviewCardProps) => {
                     <Card.Text data-testid={generateId(JobInterviewCardTestIds.endDateField)}>
                         End Date: {getDateString(props.jobInterview.endDate)}
                     </Card.Text>
-                    <Stack direction="vertical" gap={2}>
-                        <Button variant="primary" onClick={onEditButtonPressed} 
-                        data-testid={generateId(JobInterviewCardTestIds.editButtion)}
-                        >
-                            Edit
-                        </Button>
-                        <Button variant="secondary" 
-                            style={ { backgroundColor: "red", color: "white" } } 
-                            onClick={onDeletePressed}
-                            data-testid={generateId(JobInterviewCardTestIds.deleteButton)}
-                        >
-                            Delete
-                        </Button>
-                    </Stack>
+                    { props.shouldShowButtons &&
+                        <Stack direction="vertical" gap={2}>
+                            <Button variant="primary" onClick={onEditButtonPressed} 
+                            data-testid={generateId(JobInterviewCardTestIds.editButtion)}
+                            >
+                                Edit
+                            </Button>
+                            <Button variant="secondary" 
+                                style={ { backgroundColor: "red", color: "white" } } 
+                                onClick={onDeletePressed}
+                                data-testid={generateId(JobInterviewCardTestIds.deleteButton)}
+                            >
+                                Delete
+                            </Button>
+                        </Stack>
+                    }
                 </Card.Body>
         </Card>  
     );

@@ -14,6 +14,10 @@ import java.util.UUID;
 public interface JobInterviewDataRepository extends JpaRepository<JobInterviewData, UUID> {
     Optional<JobInterviewData> findJobInterviewDataById(UUID id);
 
+    List<JobInterviewData> findJobInterviewDataByJobAppId(UUID id);
+
+    List<JobInterviewData> findByJobAppId(UUID id);
+
     long countByJobAppId(
             @Param(DatabaseFields.JobInterviewFields.jobAppId) UUID jobAppId);
 

@@ -4,11 +4,14 @@ import com.jpettit.jobapplicationbackend.constants.CrossOriginAllowedUrls;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.helpers.DateConverter;
 import com.jpettit.jobapplicationbackend.helpers.StringUtility;
+import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
@@ -77,6 +80,28 @@ public class JobAppController {
                             .errorMessage(e.getMessage())
                             .build()
             );
+        }
+    }
+
+    @GetMapping(value = Routes.GetRoutes.getJobAppById)
+    public GetOneJobAppResponse getJobAppById(
+            @RequestParam(value = "id", defaultValue = "") String id,
+            @RequestParam(value = "token", defaultValue = "") String token) {
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .token(token)
+                .id(UUID.fromString(id))
+                .build();
+
+        try {
+            return jobAppService.getJobAppById(req);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return GetOneJobAppResponse.builder()
+                    .jobApp(null)
+                    .errorType(ErrorType.OTHER)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                    .build();
         }
     }
 

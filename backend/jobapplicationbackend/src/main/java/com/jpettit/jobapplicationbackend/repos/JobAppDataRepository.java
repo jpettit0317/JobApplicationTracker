@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface JobAppDataRepository extends JpaRepository<JobAppData, UUID> {
-    Optional<JobAppData> findByJobAppDataId(UUID jobAppDataId);
+    Optional<JobAppData> findByJobAppDataIdAndCreator(UUID jobAppDataId, String creator);
     List<JobAppData> findByCreator(String creator);
 
     List<JobAppData> findByDateModifiedAfter(ZonedDateTime dateLastChecked);

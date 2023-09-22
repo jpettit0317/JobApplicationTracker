@@ -11,9 +11,11 @@ import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
 import com.jpettit.jobapplicationbackend.repos.UserRepository;
@@ -21,11 +23,14 @@ import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -149,6 +154,44 @@ public class JobAppService {
         }
 
         return jobApps;
+    }
+
+    public GetOneJobAppResponse getJobAppById(GetOneJobAppRequest req) {
+        try {
+            final String username = validateUser(req.getToken());
+            final ArrayList<JobInterviewData> dataInterviews =
+                    new ArrayList<>(jobInterviewDataRepository
+                            .findJobInterviewDataByJobAppId(req.getId()));
+            final Optional<JobAppData> data = jobAppDataRepository
+                    .findByJobAppDataIdAndCreator(req.getId(), username);
+
+            if (data.isPresent()) {
+                final JobApplication jobApp = SpringDataConverter
+                        .createJobAppFromJobInterviewDataAndJobAppData(data.get(), dataInterviews);
+
+                return GetOneJobAppResponse.builder()
+                        .errorType(ErrorType.NONE)
+                        .statusCode(HttpStatus.OK.value())
+                        .errorMessage("")
+                        .jobApp(jobApp)
+                        .build();
+            } else {
+                return GetOneJobAppResponse.builder()
+                        .errorMessage(ErrorMessages.OtherMessages.jobAppDoesnotExistError)
+                        .statusCode(HttpStatus.NOT_FOUND.value())
+                        .errorType(ErrorType.OTHER)
+                        .jobApp(null)
+                        .build();
+            }
+
+        } catch (NonExistantUserException | TokenExpiredException e) {
+            return GetOneJobAppResponse.builder()
+                    .jobApp(null)
+                    .errorMessage(ErrorMessages.OtherMessages.tokenExpiredError)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorType(ErrorType.TOKEN_EXPIRED)
+                    .build();
+        }
     }
 
     private AddJobAppResponse createErrorResponse(final HttpStatus status, final String errorType) {

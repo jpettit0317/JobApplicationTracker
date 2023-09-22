@@ -36,15 +36,17 @@ public class JobInterviewData {
     @Column(name = DatabaseFields.JobInterviewFields.location)
     private String location;
 
-    @Column(name = DatabaseFields.JobInterviewFields.startDate)
+    @Column(name = DatabaseFields.JobInterviewFields.startDate,
+            columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime startDate;
 
-    @Column(name = DatabaseFields.JobInterviewFields.endDate)
+    @Column(name = DatabaseFields.JobInterviewFields.endDate,
+            columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime endDate;
 
     public static JobInterviewData initFromInterview(final JobInterview interview, final UUID jobAppId) {
         return JobInterviewData.builder()
-                .id(null)
+                .id(interview.getId())
                 .jobAppId(jobAppId)
                 .type(interview.getType())
                 .location(interview.getLocation())

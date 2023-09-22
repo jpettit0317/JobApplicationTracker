@@ -35,10 +35,12 @@ public class JobAppData {
     @Column(name = DatabaseFields.JobAppFields.creator)
     private String creator;
 
-    @Column(name = DatabaseFields.JobAppFields.dateApplied)
+    @Column(name = DatabaseFields.JobAppFields.dateApplied,
+            columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime dateApplied;
 
-    @Column(name = DatabaseFields.JobAppFields.dateModified)
+    @Column(name = DatabaseFields.JobAppFields.dateModified,
+            columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime dateModified;
 
     @Id
@@ -55,6 +57,7 @@ public class JobAppData {
                 .creator(creator)
                 .dateApplied(jobApplication.getDateApplied())
                 .dateModified(jobApplication.getDateModified())
+                .jobAppDataId(jobApplication.getId())
                 .build();
     }
 }

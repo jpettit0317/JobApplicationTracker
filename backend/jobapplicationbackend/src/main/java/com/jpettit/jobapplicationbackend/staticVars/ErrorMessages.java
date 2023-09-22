@@ -14,7 +14,9 @@ public class ErrorMessages {
     }
 
     public static class OtherMessages {
+        public static String jobAppDoesnotExistError = "Job app doesn't exist.";
         public static String unexpectedError = "Something went wrong!!";
         public static String tokenExpiredError = "Token expired!";
     }
+
 }

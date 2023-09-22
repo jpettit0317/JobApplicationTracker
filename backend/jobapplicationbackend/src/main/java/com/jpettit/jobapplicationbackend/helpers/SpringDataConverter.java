@@ -42,4 +42,34 @@ public class SpringDataConverter {
                 .dateModified(dataJobApp.getDateModified())
                 .build();
     }
+
+    public static JobInterview convertJobInterviewDataToJobInterview(JobInterviewData interviewData) {
+        return JobInterview.builder()
+                .type(interviewData.getType())
+                .id(interviewData.getId())
+                .jobAppId(interviewData.getJobAppId())
+                .startDate(interviewData.getStartDate())
+                .endDate(interviewData.getEndDate())
+                .location(interviewData.getLocation())
+                .build();
+    }
+
+    public static JobApplication createJobAppFromJobInterviewDataAndJobAppData(JobAppData dataJobApp, ArrayList<JobInterviewData> jobInterviewData) {
+        ArrayList<JobInterview> jobInterviews = new ArrayList<>();
+
+        for (JobInterviewData i : jobInterviewData) {
+            jobInterviews.add(convertJobInterviewDataToJobInterview(i));
+        }
+
+        return JobApplication.builder()
+                .company(dataJobApp.getCompany())
+                .dateApplied(dataJobApp.getDateApplied())
+                .jobTitle(dataJobApp.getJobTitle())
+                .interviews(jobInterviews)
+                .dateModified(dataJobApp.getDateModified())
+                .description(dataJobApp.getDescription())
+                .status(dataJobApp.getStatus())
+                .id(dataJobApp.getJobAppDataId())
+                .build();
+    }
 }

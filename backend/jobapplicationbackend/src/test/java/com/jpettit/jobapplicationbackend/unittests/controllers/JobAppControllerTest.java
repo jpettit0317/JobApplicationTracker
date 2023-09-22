@@ -11,9 +11,11 @@ import com.jpettit.jobapplicationbackend.helpers.helpervars.JobApplicationTestTe
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -33,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -191,6 +194,57 @@ class JobAppControllerTest {
         final DeleteJobAppResponse actual = callDeleteJobApp(UUID.randomUUID(), UUID.randomUUID().toString());
 
         JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() throws Exception {
+        final JobApplication jobApp = JobApplication.builder()
+                .jobTitle("Entry Level Software Engineer")
+                .company("US Bank")
+                .status("Accepted")
+                .interviews(new ArrayList<>())
+                .description("")
+                .dateModified(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")))
+                .dateApplied(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")))
+                .build();
+        final GetOneJobAppResponse expectedResponse = GetOneJobAppResponse.builder()
+                .jobApp(jobApp)
+                .errorType(ErrorType.NONE)
+                .statusCode(HttpStatus.OK.value())
+                .errorMessage("")
+                .build();
+
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .token(UUID.randomUUID().toString())
+                .id(UUID.randomUUID())
+                .build();
+
+        when(jobAppService.getJobAppById(ArgumentMatchers.any())).thenReturn(expectedResponse);
+
+        final GetOneJobAppResponse actual = sut.getJobAppById(req.getId().toString(), req.getToken());
+
+        JobAppControllerTestHelper.assertGetOneJobAppResponsesAreEqual(expectedResponse, actual);
+    }
+
+    @Test
+    public void getOneJobAppById_whenThrows_shouldReturnForbidden() {
+        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
+                .jobApp(null)
+                .errorType(ErrorType.OTHER)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                .build();
+
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .token(UUID.randomUUID().toString())
+                .id(UUID.randomUUID())
+                .build();
+
+        when(jobAppService.getJobAppById(ArgumentMatchers.any())).thenReturn(expected);
+
+        final GetOneJobAppResponse actual = sut.getJobAppById(req.getId().toString(), req.getToken());
+
+        JobAppControllerTestHelper.assertGetOneJobAppErrorResponsesAreEqual(expected, actual);
     }
 
     private DeleteJobAppResponse callDeleteJobApp(UUID id, String token) {
