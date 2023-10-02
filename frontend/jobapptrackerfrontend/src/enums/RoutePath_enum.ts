@@ -3,5 +3,7 @@ export enum RoutePath {
     login = "/login",
     signup = "/signup",
     jobapplist = "/jobapplist",
-    addJobApp = "/addJobApp"
+    addJobApp = "/addJobApp",
+    viewJobApp = "/viewJobApp/",
+    viewJobAppPath = "/viewJobApp/:id"
 }

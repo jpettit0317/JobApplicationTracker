@@ -7,4 +7,5 @@ export interface JobInterviewCardProps {
     onEditButtonPressed: (id: string) => void;
     index: number;
     id: string;
+    shouldShowButtons: boolean;
 };

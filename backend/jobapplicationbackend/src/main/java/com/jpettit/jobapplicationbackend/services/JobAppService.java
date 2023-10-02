@@ -1,6 +1,5 @@
 package com.jpettit.jobapplicationbackend.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.exceptions.NonExistantUserException;
 import com.jpettit.jobapplicationbackend.exceptions.TokenExpiredException;
@@ -11,9 +10,11 @@ import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
 import com.jpettit.jobapplicationbackend.repos.UserRepository;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -91,22 +93,22 @@ public class JobAppService {
             final String user = validateUser(req.getToken());
 
             if (!req.getJobApp().isJobAppValid()) {
-                return createErrorResponse(HttpStatus.FORBIDDEN, ErrorType.OTHER);
+                return createErrorResponse(HttpStatus.FORBIDDEN);
             }
 
             addJobAppToDatabase(req.getJobApp(), user);
         } catch (NonExistantUserException e) {
-            return createErrorResponse(HttpStatus.NOT_FOUND, ErrorType.OTHER);
+            return createErrorResponse(HttpStatus.NOT_FOUND);
         } catch (TokenExpiredException e) {
             return createTokenExpiredResponse();
         } catch (Exception e) {
-            return createErrorResponse(HttpStatus.FORBIDDEN, ErrorType.OTHER);
+            return createErrorResponse(HttpStatus.FORBIDDEN);
         }
 
         return createAddSuccessfulResponse();
     }
 
-    private void addJobAppToDatabase(final JobApplication jobApp, final String creator) throws JsonProcessingException {
+    private void addJobAppToDatabase(final JobApplication jobApp, final String creator) {
         final String jobAppString = jobApp.toJSONString();
         System.out.println("Job App string is " + jobAppString);
         final UUID jobAppId = saveJobApp(jobApp, creator);
@@ -151,11 +153,49 @@ public class JobAppService {
         return jobApps;
     }
 
-    private AddJobAppResponse createErrorResponse(final HttpStatus status, final String errorType) {
+    public GetOneJobAppResponse getJobAppById(GetOneJobAppRequest req) {
+        try {
+            final String username = validateUser(req.getToken());
+            final ArrayList<JobInterviewData> dataInterviews =
+                    new ArrayList<>(jobInterviewDataRepository
+                            .findJobInterviewDataByJobAppId(req.getId()));
+            final Optional<JobAppData> data = jobAppDataRepository
+                    .findByJobAppDataIdAndCreator(req.getId(), username);
+
+            if (data.isPresent()) {
+                final JobApplication jobApp = SpringDataConverter
+                        .createJobAppFromJobInterviewDataAndJobAppData(data.get(), dataInterviews);
+
+                return GetOneJobAppResponse.builder()
+                        .errorType(ErrorType.NONE)
+                        .statusCode(HttpStatus.OK.value())
+                        .errorMessage("")
+                        .jobApp(jobApp)
+                        .build();
+            } else {
+                return GetOneJobAppResponse.builder()
+                        .errorMessage(ErrorMessages.OtherMessages.jobAppDoesnotExistError)
+                        .statusCode(HttpStatus.NOT_FOUND.value())
+                        .errorType(ErrorType.OTHER)
+                        .jobApp(null)
+                        .build();
+            }
+
+        } catch (NonExistantUserException | TokenExpiredException e) {
+            return GetOneJobAppResponse.builder()
+                    .jobApp(null)
+                    .errorMessage(ErrorMessages.OtherMessages.tokenExpiredError)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorType(ErrorType.TOKEN_EXPIRED)
+                    .build();
+        }
+    }
+
+    private AddJobAppResponse createErrorResponse(final HttpStatus status) {
         return AddJobAppResponse.builder()
                 .errorMessage(ErrorMessages.AddJobAppMessages.unexpectedError)
                 .statusCode(status.value())
-                .errorType(errorType)
+                .errorType(ErrorType.OTHER)
                 .build();
     }
 
@@ -208,15 +248,12 @@ public class JobAppService {
                 .build();
     }
 
-    private GetJobAppsResponse createValidJobAppsResponse(final HttpStatus status,
-                                                          final String error,
-                                                          final String errorMessage,
-                                                          final ArrayList<JobApplication> list) {
+    private GetJobAppsResponse createValidJobAppsResponse(final ArrayList<JobApplication> list) {
         return GetJobAppsResponse.builder()
                 .jobApps(list)
-                .statusCode(status.value())
-                .errorType(error)
-                .errorMessage(errorMessage)
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .errorMessage("")
                 .build();
     }
     public GetJobAppsResponse getAllJobApps(final String token) {
@@ -224,7 +261,7 @@ public class JobAppService {
             final String username = validateUser(token);
             final ArrayList<JobApplication> jobApps = convertJobAppDataToJobApps(username);
 
-            return createValidJobAppsResponse(HttpStatus.OK, ErrorType.NONE, "", jobApps);
+            return createValidJobAppsResponse(jobApps);
         } catch (NonExistantUserException e) {
             e.printStackTrace();
             return createGetAllJobsAppsErrorResponse(HttpStatus.NOT_FOUND,

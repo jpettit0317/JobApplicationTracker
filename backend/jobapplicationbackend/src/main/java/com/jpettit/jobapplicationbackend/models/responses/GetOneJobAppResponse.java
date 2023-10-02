@@ -12,7 +12,16 @@ import lombok.*;
 @Builder
 public class GetOneJobAppResponse implements JSONStringable {
     @Setter(AccessLevel.PRIVATE)
-    private JobApplication jobApplication;
+    private JobApplication jobApp;
+
+    @Setter(AccessLevel.PRIVATE)
+    private String errorMessage;
+
+    @Setter(AccessLevel.PRIVATE)
+    private String errorType;
+
+    @Setter(AccessLevel.PRIVATE)
+    private int statusCode;
 
     @Override
     public String toJSONString() {
