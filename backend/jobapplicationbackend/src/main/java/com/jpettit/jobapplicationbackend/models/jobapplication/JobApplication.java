@@ -2,17 +2,10 @@ package com.jpettit.jobapplicationbackend.models.jobapplication;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jpettit.jobapplicationbackend.helpers.DateToUTConverter;
 import com.jpettit.jobapplicationbackend.models.interfaces.JSONStringable;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
-import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
-import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
-import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
-import jakarta.persistence.*;
 import lombok.*;
 
-import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 

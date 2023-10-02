@@ -1,14 +1,9 @@
 package com.jpettit.jobapplicationbackend.helpers.helpervars;
 
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
 import com.jpettit.jobapplicationbackend.enums.Role;
-import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
-import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
-import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
@@ -21,12 +16,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +35,6 @@ public class JobControllerIntTestHelperVars {
     public static final ZonedDateTime minDate = ZonedDateTime.of(1970, 1, 1, 0,
             1, 1, 1, utcZone);
 
-    public static final ZonedDateTime today = ZonedDateTime.now();
     public static final User userJane = User.builder()
             .firstname("Jane")
             .lastname("Doe")
@@ -97,19 +89,7 @@ public class JobControllerIntTestHelperVars {
             static final String errorTypePath = "errorType";
             static final String statusCodePath = "statusCode";
         }
-        public static String interviewsPath(int index, String att) {
-            final String jobInterviewPath = "$.jobApp.interviews";
-            return jobInterviewPath + "[" + Integer.toString(Math.abs(index)) + "]" + att;
-        }
     }
-    public static final RegisterRequest validRegisterRequest =
-            RegisterRequest.builder()
-                    .email(userJane.getEmail())
-                    .firstname(userJane.getFirstname())
-                    .lastname(userJane.getLastname())
-                    .password(userJane.getPassword())
-                    .build();
-
 
     public static final JobApplication noInterviewJobApp = JobApplication.builder()
             .company("Google")
@@ -131,7 +111,7 @@ public class JobControllerIntTestHelperVars {
             .id(oneInterviewJobAppId)
             .dateApplied(minDate)
             .dateModified(minDate)
-            .interviews(new ArrayList<JobInterview>(List.of(JobInterview.builder()
+            .interviews(new ArrayList<>(List.of(JobInterview.builder()
                             .id(UUID.randomUUID())
                             .jobAppId(oneInterviewJobAppId)
                             .type("Technical")
@@ -160,40 +140,6 @@ public class JobControllerIntTestHelperVars {
             .dateApplied(maxDate)
             .interviews(new ArrayList<>(List.of(uuidJobInterview)))
             .build();
-
-    public static final JobInterview testJobInterview = JobInterview.builder()
-            .id(UUID.randomUUID())
-            .jobAppId(UUID.randomUUID())
-            .location("Online")
-            .startDate(maxDate)
-            .endDate(maxDate)
-            .type("Technical")
-            .build();
-    public static final JobApplication testJobApp = JobApplication.builder()
-            .jobTitle("j")
-            .description("d")
-            .company("c")
-            .status("s")
-            .dateModified(maxDate)
-            .dateApplied(maxDate)
-            .interviews(new ArrayList<>(List.of(testJobInterview)))
-            .id(testJobInterview.getJobAppId())
-            .build();
-
-    public static JobAppData getJobAppDataFromJobApp(JobApplication jobApplication, final String creator) {
-        return JobAppData.initFromJobApp(jobApplication, creator);
-    }
-
-    public static JobInterviewData getJobInterviewDataFromJobInterview(JobInterview jobInterview, final UUID jobAppId) {
-        return JobInterviewData.initFromInterview(jobInterview, jobAppId);
-    }
-
-//    public static JobApplication createJobApplication(JobAppData data, ArrayList<JobInterviewData> interviewData) {
-//        return JobApplication.builder()
-//                .id(data.getJobAppDataId())
-//                .
-//                .build();
-//    }
 
     public static String getTokenFromResponse(String input) {
         return JsonPath.read(input, "$.token");
@@ -238,8 +184,6 @@ public class JobControllerIntTestHelperVars {
     }
 
     public static GetOneJobAppResponse getOneJobAppResponse(JSONObject jsonObject) throws JSONException {
-        Configuration config = Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL);
-
         final String errorMessage = jsonObject.getString(JsonPaths.ResponsePaths.responseErrorMessage);
         final String errorType = jsonObject.getString(JsonPaths.ResponsePaths.errorTypePath);
         final int statusCode = jsonObject.getInt(JsonPaths.ResponsePaths.statusCodePath);
@@ -253,7 +197,7 @@ public class JobControllerIntTestHelperVars {
                 .build();
     }
 
-    public static boolean isJobAppNull(JSONObject input) throws JSONException {
+    public static boolean isJobAppNull(JSONObject input) {
         return input.isNull(JsonPaths.JobAppPaths.basePath);
     }
     public static JobApplication getJobApp(JSONObject jsonObject) throws JSONException {
@@ -310,9 +254,6 @@ public class JobControllerIntTestHelperVars {
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
-    }
-    private static String readInputToString(final String input, final Configuration config, final String path) {
-        return JsonPath.parse(input, config).read(path);
     }
 
     private static UUID convertStringToUUID(final JSONObject jsonObject, final String path) throws JSONException {

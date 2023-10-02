@@ -4,7 +4,6 @@ import com.jpettit.jobapplicationbackend.constants.CrossOriginAllowedUrls;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.helpers.DateConverter;
 import com.jpettit.jobapplicationbackend.helpers.StringUtility;
-import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
@@ -13,20 +12,13 @@ import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
-import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
-import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -121,7 +113,7 @@ public class JobAppController {
         }
     }
 
-    private ZonedDateTime convertDateStringToDate(final String timeStamp) throws ParseException {
+    private ZonedDateTime convertDateStringToDate(final String timeStamp) {
         final String timeStampNoDoubleQuotes = stripDoubleQuotesOut(timeStamp);
         return DateConverter.convertTimeStampToLocalDateTime(timeStampNoDoubleQuotes);
     }

@@ -1,15 +1,9 @@
 package com.jpettit.jobapplicationbackend.models.jobapplication;
 
-import com.jpettit.jobapplicationbackend.helpers.DateConverter;
-import com.jpettit.jobapplicationbackend.helpers.DateToUTConverter;
 import com.jpettit.jobapplicationbackend.staticVars.DatabaseFields;
-import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
-import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 

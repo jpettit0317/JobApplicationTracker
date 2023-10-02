@@ -1,16 +1,12 @@
 package com.jpettit.jobapplicationbackend.unittests.services;
 
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
-import com.jpettit.jobapplicationbackend.enums.Role;
-import com.jpettit.jobapplicationbackend.exceptions.TokenExpiredException;
-import com.jpettit.jobapplicationbackend.helpers.SpringDataConverter;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.JobAppServiceTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobApplicationTestTestVars;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
-import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
@@ -34,11 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -303,7 +294,6 @@ class JobAppServiceTest {
     @Test
     public void getJobAppById_whenGivenAnExpiredToken_shouldReturnForbidden() {
         final String token = JobApplicationTestTestVars.getUUID();
-        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
         final JobApplication jobApp = JobApplicationTestTestVars.jobApp;
 
         final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
