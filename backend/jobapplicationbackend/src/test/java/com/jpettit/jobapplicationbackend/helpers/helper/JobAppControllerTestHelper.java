@@ -41,22 +41,43 @@ public class JobAppControllerTestHelper {
     }
 
     private static void assertJobAppsAreEqual(JobApplication expected, JobApplication actual) {
-        assertEquals(expected.getJobTitle(), actual.getJobTitle());
-        assertEquals(expected.getCompany(), actual.getCompany());
-        assertEquals(expected.getStatus(), actual.getStatus());
-        assertEquals(expected.getDateApplied(), actual.getDateApplied());
-        assertEquals(expected.getDateModified(), actual.getDateModified());
-        assertEquals(expected.getDescription(), actual.getDescription());
+        final String errorMessage = getJobAppErrorMessage(actual, expected);
+
+        assertEquals(expected.getJobTitle(), actual.getJobTitle(), errorMessage);
+        assertEquals(expected.getCompany(), actual.getCompany(), errorMessage);
+        assertEquals(expected.getStatus(), actual.getStatus(), errorMessage);
+        assertEquals(expected.getDateApplied(), actual.getDateApplied(), errorMessage);
+        assertEquals(expected.getDateModified(), actual.getDateModified(), errorMessage);
+        assertEquals(expected.getDescription(), actual.getDescription(), errorMessage);
         assertJobInterviewsAreEqual(expected.getInterviews(), actual.getInterviews());
     }
 
     private static void assertJobInterviewsAreEqual(ArrayList<JobInterview> expected, ArrayList<JobInterview> actual) {
-        assertEquals(expected.size(), actual.size());
+        final int expectedSize = expected.size();
+        final int actualSize = actual.size();
+        final String sizeErrorMessage = getJobInterviewSizeErrorMessage(expectedSize, actualSize);
+
+        assertEquals(expectedSize, actualSize, sizeErrorMessage);
+
         for (int i = 0; i < expected.size(); i++) {
-            assertEquals(expected.get(i), actual.get(i));
+            final JobInterview actualInterview = actual.get(i);
+            final JobInterview expectedInterview = expected.get(i);
+            final String errorMessage = getJobInterviewErrorMessage(actualInterview, expectedInterview);
+            assertEquals(expectedInterview, actualInterview, errorMessage);
         }
     }
-    public static String getOneJobAppResponsesErrorMessages(GetOneJobAppResponse expected, GetOneJobAppResponse actual) {
-        return "Expected " + expected.toJSONString() + " got " + actual.toJSONString() + " instead.";
+
+    public static String getJobAppErrorMessage(final JobApplication actualJobApp, final JobApplication expectedJobApp) {
+        return "Expected " + expectedJobApp.toJSONString() + " got " + actualJobApp.toJSONString() + " instead.";
+    }
+
+    public static String getJobInterviewErrorMessage(final JobInterview actualJobInterview,
+                                                     final JobInterview expectedJobInterview) {
+        return "Expected " + expectedJobInterview.toJSONString()
+                + " got " + actualJobInterview.toJSONString() + " instead.";
+    }
+
+    public static String getJobInterviewSizeErrorMessage(final int expectedSize, final int actualSize) {
+        return "Expected " + expectedSize + " got " + actualSize + " instead.";
     }
 }
