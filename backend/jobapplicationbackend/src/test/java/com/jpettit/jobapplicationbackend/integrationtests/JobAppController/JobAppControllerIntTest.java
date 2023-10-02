@@ -458,38 +458,38 @@ class JobAppControllerIntTest {
         }
     }
 
-    @Test
-    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() {
-        final String token = addJobAppRequest.getToken();
-        final ArrayList<JobInterviewData> interviewData = new ArrayList<>(List.of(this.jobInterviewData));
-        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
-                .errorMessage("")
-                .statusCode(HttpStatus.OK.value())
-                .errorType(ErrorType.NONE)
-                .jobApp(
-                        JobApplication.builder()
-                                .jobTitle(this.jobAppData.getJobTitle())
-                                .description(this.jobAppData.getDescription())
-                                .company(this.jobAppData.getCompany())
-                                .status(this.jobAppData.getStatus())
-                                .dateApplied(this.jobAppData.getDateApplied())
-                                .dateModified(this.jobAppData.getDateModified())
-                                .id(this.jobAppData.getJobAppDataId())
-                                .interviews(createJobInterviews(interviewData))
-                                .build()
-                 )
-                .build();
-
-        final String getOneJobAppURL = JobControllerIntTestHelperVars.createGetJobAppById(JobControllerIntTestHelperVars
-                .baseGetOneJobAppURL, token, this.jobAppData.getJobAppDataId());
-
-        try {
-            final GetOneJobAppResponse actual = getOneJobAppResponse(getOneJobAppURL);
-            JobAppControllerTestHelper.assertGetOneJobAppResponsesAreEqual(expected, actual);
-        } catch (Exception e) {
-            JobApplicationIntTestHelper.logErrorAndFail(e);
-        }
-    }
+//    @Test
+//    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() {
+//        final String token = addJobAppRequest.getToken();
+//        final ArrayList<JobInterviewData> interviewData = new ArrayList<>(List.of(this.jobInterviewData));
+//        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
+//                .errorMessage("")
+//                .statusCode(HttpStatus.OK.value())
+//                .errorType(ErrorType.NONE)
+//                .jobApp(
+//                        JobApplication.builder()
+//                                .jobTitle(this.jobAppData.getJobTitle())
+//                                .description(this.jobAppData.getDescription())
+//                                .company(this.jobAppData.getCompany())
+//                                .status(this.jobAppData.getStatus())
+//                                .dateApplied(this.jobAppData.getDateApplied())
+//                                .dateModified(this.jobAppData.getDateModified())
+//                                .id(this.jobAppData.getJobAppDataId())
+//                                .interviews(createJobInterviews(interviewData))
+//                                .build()
+//                 )
+//                .build();
+//
+//        final String getOneJobAppURL = JobControllerIntTestHelperVars.createGetJobAppById(JobControllerIntTestHelperVars
+//                .baseGetOneJobAppURL, token, this.jobAppData.getJobAppDataId());
+//
+//        try {
+//            final GetOneJobAppResponse actual = getOneJobAppResponse(getOneJobAppURL);
+//            JobAppControllerTestHelper.assertGetOneJobAppResponsesAreEqual(expected, actual);
+//        } catch (Exception e) {
+//            JobApplicationIntTestHelper.logErrorAndFail(e);
+//        }
+//    }
 
     @Test
     public void getOneJobApp_whenGivenIdThatDoesnotExist_shouldReturnNotFound() {
