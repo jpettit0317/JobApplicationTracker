@@ -235,7 +235,9 @@ class JobAppControllerIntTest {
     }
 
     private GetOneJobAppResponse getOneJobAppResponse(final String url) throws Exception {
+        System.out.println("Before get");
         final String resp = mockMvc.perform(get(url).accept(jsonMediaType)).andReturn().getResponse().getContentAsString();
+        System.out.println("After get " + resp);
         final JSONObject respObject = new JSONObject(resp);
         return JobControllerIntTestHelperVars.getOneJobAppResponse(respObject);
     }
@@ -475,7 +477,7 @@ class JobAppControllerIntTest {
                                 .id(this.jobAppData.getJobAppDataId())
                                 .interviews(createJobInterviews(interviewData))
                                 .build()
-                )
+                 )
                 .build();
 
         final String getOneJobAppURL = JobControllerIntTestHelperVars.createGetJobAppById(JobControllerIntTestHelperVars
