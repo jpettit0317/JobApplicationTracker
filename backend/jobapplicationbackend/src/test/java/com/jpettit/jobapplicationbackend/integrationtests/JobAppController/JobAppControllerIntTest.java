@@ -504,7 +504,7 @@ class JobAppControllerIntTest {
                  )
                 .build();
 
-        final UUID id = expected.getJobApp().getId();
+        final UUID id = this.jobAppData.getJobAppDataId();
         final String getOneJobAppURL = JobControllerIntTestHelperVars
                 .createGetJobAppById(JobControllerIntTestHelperVars
                         .baseGetOneJobAppURL, token, id);
