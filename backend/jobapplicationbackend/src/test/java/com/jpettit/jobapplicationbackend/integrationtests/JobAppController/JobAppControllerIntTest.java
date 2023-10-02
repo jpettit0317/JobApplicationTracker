@@ -6,6 +6,8 @@ import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelp
 import com.jpettit.jobapplicationbackend.helpers.helper.JobApplicationIntTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobControllerIntTestHelperVars;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
+import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
+import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
@@ -74,6 +76,8 @@ class JobAppControllerIntTest {
 
     private JobAppData jobAppData;
 
+    private JobInterviewData jobInterviewData;
+
     @BeforeEach
     void setUp() {
         addJobAppRequest = AddJobAppRequest.builder().build();
@@ -85,6 +89,7 @@ class JobAppControllerIntTest {
     void tearDown() {
         addJobAppRequest = null;
         jobAppData = null;
+        jobInterviewData = null;
         removeAllUsersFromDatabase();
         removeAllJobAppDataFromDatabase();
     }
@@ -146,7 +151,7 @@ class JobAppControllerIntTest {
     }
 
     private void saveJobAppData(final JobAppData jobAppData, final JobInterviewData interviewData) {
-        jobAppDataRepository.save(jobAppData);
+        this.jobAppData = getJobAppData(jobAppDataRepository.save(jobAppData));
 
         final JobInterviewData data = JobInterviewData.builder()
                 .id(interviewData.getId())
@@ -156,7 +161,43 @@ class JobAppControllerIntTest {
                 .location(interviewData.getLocation())
                 .type(interviewData.getType())
                 .build();
-        jobInterviewDataRepository.save(data);
+        setJobInterview(jobInterviewDataRepository.save(data));
+    }
+
+    private JobAppData getJobAppData(JobAppData jobApp) {
+        final ZoneId UTC = ZoneId.of("UTC");
+        final ZonedDateTime newDateApplied = ZonedDateTime.ofInstant(jobApp
+                .getDateApplied().toInstant(), UTC);
+        final ZonedDateTime newDateModified = ZonedDateTime.ofInstant(jobApp
+                .getDateModified().toInstant(), UTC);
+
+        return JobAppData.builder()
+                .jobAppDataId(jobApp.getJobAppDataId())
+                .jobTitle(jobApp.getJobTitle())
+                .creator(jobApp.getCreator())
+                .dateApplied(newDateApplied)
+                .dateModified(newDateModified)
+                .description(jobApp.getDescription())
+                .company(jobApp.getCompany())
+                .status(jobApp.getStatus())
+                .build();
+    }
+
+    private void setJobInterview(JobInterviewData data) {
+        final ZoneId UTC = ZoneId.of("UTC");
+        final ZonedDateTime startDate = ZonedDateTime.ofInstant(data
+                .getStartDate().toInstant(), UTC);
+        final ZonedDateTime endDate = ZonedDateTime.ofInstant(data
+                .getEndDate().toInstant(), UTC);
+
+        this.jobInterviewData = JobInterviewData.builder()
+                .jobAppId(data.getJobAppId())
+                .type(data.getType())
+                .location(data.getLocation())
+                .id(data.getId())
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
     }
 
     private RegisterRequest createRegisterRequest(final User user) {
@@ -415,38 +456,38 @@ class JobAppControllerIntTest {
         }
     }
 
-//    @Test
-//    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() {
-//        final String token = addJobAppRequest.getToken();
-//        final ArrayList<JobInterviewData> interviewData = new ArrayList<>(List.of(this.jobInterviewData));
-//        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
-//                .errorMessage("")
-//                .statusCode(HttpStatus.OK.value())
-//                .errorType(ErrorType.NONE)
-//                .jobApp(
-//                        JobApplication.builder()
-//                                .jobTitle(this.jobAppData.getJobTitle())
-//                                .description(this.jobAppData.getDescription())
-//                                .company(this.jobAppData.getCompany())
-//                                .status(this.jobAppData.getStatus())
-//                                .dateApplied(this.jobAppData.getDateApplied())
-//                                .dateModified(this.jobAppData.getDateModified())
-//                                .id(this.jobAppData.getJobAppDataId())
-//                                .interviews(createJobInterviews(interviewData))
-//                                .build()
-//                )
-//                .build();
-//
-//        final String getOneJobAppURL = JobControllerIntTestHelperVars.createGetJobAppById(JobControllerIntTestHelperVars
-//                .baseGetOneJobAppURL, token, this.jobAppData.getJobAppDataId());
-//
-//        try {
-//            final GetOneJobAppResponse actual = getOneJobAppResponse(getOneJobAppURL);
-//            JobAppControllerTestHelper.assertGetOneJobAppResponsesAreEqual(expected, actual);
-//        } catch (Exception e) {
-//            JobApplicationIntTestHelper.logErrorAndFail(e);
-//        }
-//    }
+    @Test
+    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() {
+        final String token = addJobAppRequest.getToken();
+        final ArrayList<JobInterviewData> interviewData = new ArrayList<>(List.of(this.jobInterviewData));
+        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
+                .errorMessage("")
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .jobApp(
+                        JobApplication.builder()
+                                .jobTitle(this.jobAppData.getJobTitle())
+                                .description(this.jobAppData.getDescription())
+                                .company(this.jobAppData.getCompany())
+                                .status(this.jobAppData.getStatus())
+                                .dateApplied(this.jobAppData.getDateApplied())
+                                .dateModified(this.jobAppData.getDateModified())
+                                .id(this.jobAppData.getJobAppDataId())
+                                .interviews(createJobInterviews(interviewData))
+                                .build()
+                )
+                .build();
+
+        final String getOneJobAppURL = JobControllerIntTestHelperVars.createGetJobAppById(JobControllerIntTestHelperVars
+                .baseGetOneJobAppURL, token, this.jobAppData.getJobAppDataId());
+
+        try {
+            final GetOneJobAppResponse actual = getOneJobAppResponse(getOneJobAppURL);
+            JobAppControllerTestHelper.assertGetOneJobAppResponsesAreEqual(expected, actual);
+        } catch (Exception e) {
+            JobApplicationIntTestHelper.logErrorAndFail(e);
+        }
+    }
 
     @Test
     public void getOneJobApp_whenGivenIdThatDoesnotExist_shouldReturnNotFound() {
@@ -470,5 +511,24 @@ class JobAppControllerIntTest {
         } catch (Exception e) {
             JobApplicationIntTestHelper.logErrorAndFail(e);
         }
+    }
+
+    private ArrayList<JobInterview> createJobInterviews(ArrayList<JobInterviewData> data) {
+        ArrayList<JobInterview> jobInterviews = new ArrayList<>();
+
+        for (JobInterviewData i : data) {
+            jobInterviews.add(
+                    JobInterview.builder()
+                            .jobAppId(jobAppData.getJobAppDataId())
+                            .type(i.getType())
+                            .location(i.getLocation())
+                            .id(i.getId())
+                            .startDate(i.getStartDate())
+                            .endDate(i.getEndDate())
+                            .build()
+            );
+        }
+
+        return jobInterviews;
     }
 }
