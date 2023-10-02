@@ -26,6 +26,8 @@ public class JobAppControllerTestHelper {
     }
 
     public static void assertGetOneJobAppResponsesAreEqual(GetOneJobAppResponse expected, GetOneJobAppResponse actual) {
+        System.out.println("The responses are Expected: " + expected.toJSONString());
+        System.out.println("Actual is " + actual.toJSONString());
         assertEquals(expected.getStatusCode(), actual.getStatusCode());
         assertEquals(expected.getErrorMessage(), actual.getErrorMessage());
         assertEquals(expected.getErrorType(), actual.getErrorType());
