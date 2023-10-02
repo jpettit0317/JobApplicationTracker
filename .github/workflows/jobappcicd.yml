@@ -57,4 +57,4 @@ jobs:
         cache: gradle
     - name: Build project and test
       working-directory: backend/jobapplicationbackend
-      run: gradlew clean build
+      run: ./gradlew clean build
