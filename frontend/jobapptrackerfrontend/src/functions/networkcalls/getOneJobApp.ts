@@ -2,7 +2,7 @@ import { HttpResponse, createHttpResponse } from "../../model/httpresponses/Http
 import { HttpResponseData } from "../../model/interfaces/init/HttpResponseData";
 import { JobApplication, createJobApp } from "../../model/interfaces/jobapp/JobApplication";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
-import axios, { HttpStatusCode } from "axios";
+import axios from "axios";
 import { HttpStatusCodes } from "../../enums/HttpStatusCodes_enum";
 import { getErrorTypeFromString } from "../parseErrors/getErrorTypeFromString";
 
