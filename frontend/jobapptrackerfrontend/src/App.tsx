@@ -10,8 +10,9 @@ import { RoutePath
  } from './enums/RoutePath_enum';
 import { JobAppListPage } from './components/jobapplist/JobAppListPage';
 import { AddJobAppPage } from './components/addJobApp/AddJobAppPage';
+import { ViewJobAppPage } from './components/viewJobApp/ViewJobAppPage';
  
- function App() {
+const App = () => {
   const router = createBrowserRouter([
     {
       path: RoutePath.home,
@@ -32,8 +33,12 @@ import { AddJobAppPage } from './components/addJobApp/AddJobAppPage';
     {
       path: RoutePath.addJobApp,
       element: <AddJobAppPage />
+    },
+    {
+      path: RoutePath.viewJobAppPath,
+      element: <ViewJobAppPage id=""/> 
     }
-  ])
+  ]);
 
   return (
     <div className="App">

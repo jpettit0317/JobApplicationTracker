@@ -6,6 +6,7 @@ import com.jpettit.jobapplicationbackend.helpers.DateConverter;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
+import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
@@ -144,6 +145,32 @@ public class JobApplicationTestTestVars {
                         .id(id).build());
     }
 
+    public static JobAppData getJobAppData(JobApplication jobApp, final String creator) {
+        return createJobAppData(jobApp, creator);
+    }
+
+    public static JobAppData createJobAppData(JobApplication jobApp, final String creator) {
+        return JobAppData.builder()
+                .company(jobApp.getCompany())
+                .jobTitle(jobApp.getJobTitle())
+                .description(jobApp.getDescription())
+                .status(jobApp.getStatus())
+                .creator(creator)
+                .dateApplied(jobApp.getDateApplied())
+                .dateModified(jobApp.getDateModified())
+                .jobAppDataId(jobApp.getId())
+                .build();
+
+    }
+    public static ArrayList<JobInterviewData> getJobInterviewData(UUID id, ArrayList<JobInterview> jobInterviews) {
+        ArrayList<JobInterviewData> jobInterviewData = new ArrayList<>();
+
+        for (JobInterview i : jobInterviews) {
+            jobInterviewData.add(JobInterviewData.initFromInterview(i, id));
+        }
+
+        return jobInterviewData;
+    }
     public static LocalDateTime convertToLocalTimezone(LocalDateTime date, TimeZone timeZone) {
         return DateConverter.convertDateToLocalTimezone(date, timeZone);
     }

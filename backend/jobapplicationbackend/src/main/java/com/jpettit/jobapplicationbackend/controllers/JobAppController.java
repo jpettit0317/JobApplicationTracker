@@ -6,24 +6,19 @@ import com.jpettit.jobapplicationbackend.helpers.DateConverter;
 import com.jpettit.jobapplicationbackend.helpers.StringUtility;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
-import com.jpettit.jobapplicationbackend.staticVars.DateFormats;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
-import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -80,6 +75,28 @@ public class JobAppController {
         }
     }
 
+    @GetMapping(value = Routes.GetRoutes.getJobAppById)
+    public GetOneJobAppResponse getJobAppById(
+            @RequestParam(value = "id", defaultValue = "") String id,
+            @RequestParam(value = "token", defaultValue = "") String token) {
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .token(token)
+                .id(UUID.fromString(id))
+                .build();
+
+        try {
+            return jobAppService.getJobAppById(req);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return GetOneJobAppResponse.builder()
+                    .jobApp(null)
+                    .errorType(ErrorType.OTHER)
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                    .build();
+        }
+    }
+
     @DeleteMapping(value = Routes.DeleteRoutes.deleteJobApp)
     public DeleteJobAppResponse deleteJobApp(
             @RequestParam(value = "id", defaultValue = "") String id,
@@ -96,7 +113,7 @@ public class JobAppController {
         }
     }
 
-    private ZonedDateTime convertDateStringToDate(final String timeStamp) throws ParseException {
+    private ZonedDateTime convertDateStringToDate(final String timeStamp) {
         final String timeStampNoDoubleQuotes = stripDoubleQuotesOut(timeStamp);
         return DateConverter.convertTimeStampToLocalDateTime(timeStampNoDoubleQuotes);
     }

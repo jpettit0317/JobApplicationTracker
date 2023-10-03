@@ -3,13 +3,9 @@ package com.jpettit.jobapplicationbackend.models.jobinterview;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpettit.jobapplicationbackend.models.interfaces.JSONStringable;
-import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
-import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 

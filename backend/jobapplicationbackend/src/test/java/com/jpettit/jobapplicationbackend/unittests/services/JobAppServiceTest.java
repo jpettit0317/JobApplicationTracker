@@ -1,20 +1,20 @@
 package com.jpettit.jobapplicationbackend.unittests.services;
 
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
-import com.jpettit.jobapplicationbackend.enums.Role;
-import com.jpettit.jobapplicationbackend.exceptions.TokenExpiredException;
-import com.jpettit.jobapplicationbackend.helpers.SpringDataConverter;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.JobAppServiceTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobApplicationTestTestVars;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
+import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
+import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
@@ -30,8 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -253,5 +251,125 @@ class JobAppServiceTest {
         final DeleteJobAppResponse actual = sut.deleteJobApp(UUID.randomUUID(), token);
 
         JobAppControllerTestHelper.assertDeleteResponsesAreEqual(expected, actual);
+    }
+
+    /*
+    View Job App tests
+     */
+    @Test
+    public void getJobAppById_whenGivenValidRequest_shouldReturnOk() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
+        final JobApplication jobAppl = JobApplicationTestTestVars.jobApp;
+
+        final JobAppData jobAppData = JobApplicationTestTestVars.getJobAppData(jobAppl, "noname@email.com");
+        final ArrayList<JobInterviewData> jobInterviewData = JobApplicationTestTestVars
+                .getJobInterviewData(jobAppData.getJobAppDataId(), jobAppl.getInterviews());
+
+        final GetOneJobAppResponse expectedResp = GetOneJobAppResponse.builder()
+                .errorMessage("")
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .jobApp(jobAppl)
+                .build();
+
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .id(jobAppl.getId())
+                .token(token)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getEmail());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(user);
+        when(jobAppDataRepository.findByJobAppDataIdAndCreator(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+                .thenReturn(Optional.of(jobAppData));
+        when(jobInterviewDataRepository.findJobInterviewDataByJobAppId(ArgumentMatchers.any()))
+                .thenReturn(jobInterviewData.stream().toList());
+
+        final GetOneJobAppResponse actual = sut.getJobAppById(req);
+
+        assertEquals(expectedResp, actual);
+    }
+
+    @Test
+    public void getJobAppById_whenGivenAnExpiredToken_shouldReturnForbidden() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final JobApplication jobApp = JobApplicationTestTestVars.jobApp;
+
+        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
+                .errorMessage(ErrorMessages.OtherMessages.tokenExpiredError)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorType(ErrorType.TOKEN_EXPIRED)
+                .jobApp(null)
+                .build();
+
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .id(jobApp.getId())
+                .token(token)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(true);
+
+        final GetOneJobAppResponse actual = sut.getJobAppById(req);
+
+        JobAppControllerTestHelper.assertGetOneJobAppErrorResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void getJobAppById_whenGivenUserThatDoesNotExist_shouldReturnForbidden() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
+        final JobApplication jobApp = JobApplicationTestTestVars.jobApp;
+
+        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
+                .errorMessage(ErrorMessages.OtherMessages.tokenExpiredError)
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorType(ErrorType.TOKEN_EXPIRED)
+                .jobApp(null)
+                .build();
+
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .id(jobApp.getId())
+                .token(token)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getUsername());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(Optional.empty());
+
+        final GetOneJobAppResponse actual = sut.getJobAppById(req);
+
+        JobAppControllerTestHelper.assertGetOneJobAppErrorResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void getJobAppById_whenJobAppDataReturnsEmpty_shouldReturnNotFound() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
+        final JobApplication jobApp = JobApplicationTestTestVars.jobApp;
+        final ArrayList<JobInterviewData> data = new ArrayList<>();
+
+        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
+                .errorMessage(ErrorMessages.OtherMessages.jobAppDoesnotExistError)
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .errorType(ErrorType.OTHER)
+                .jobApp(null)
+                .build();
+
+        final GetOneJobAppRequest req = GetOneJobAppRequest.builder()
+                .id(jobApp.getId())
+                .token(token)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getUsername());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(user);
+        when(jobInterviewDataRepository.findJobInterviewDataByJobAppId(ArgumentMatchers.any())).thenReturn(data);
+        when(jobAppDataRepository.findByJobAppDataIdAndCreator(ArgumentMatchers.any(), ArgumentMatchers.anyString()))
+                .thenReturn(Optional.empty());
+
+        final GetOneJobAppResponse actual = sut.getJobAppById(req);
+
+        JobAppControllerTestHelper.assertGetOneJobAppErrorResponsesAreEqual(expected, actual);
     }
 }

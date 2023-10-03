@@ -12,15 +12,11 @@ import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
 import { JobAppAlert } from "../alerts/JobAppAlert";
 import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
-import { getNewJobApps } from "../../functions/networkcalls/getNewJobApps";
 import { 
     deleteTokenAndDate,
     getToken,
-    getDateLastChecked,
-    saveDateLastChecked
+    saveDateLastChecked,
 } from "../../functions/session/localStorage";
-import { sortArray } from "../../functions/helperfunctions/sortArray";
-import { compareJobAppsDateAppliedDescending } from "../../functions/helperfunctions/comparefunctions/compareDateApplied";
 import { DeleteJobAppAlert } from "../alerts/deletejobappalert/DeleteJobAppAlert";
 import { deleteJobApp } from "../../functions/networkcalls/deleteJobApp";
 
@@ -65,12 +61,11 @@ export const JobAppListPage = () => {
 
     const onDeleteAlertPressed = async () => {
         const token = getToken();
+        
         if (deleteIdSelected === "") {
             return;    
         }
         setIsLoading(true);
-
-        console.log(`Deleting ${deleteIdSelected}`);
 
         try {
             const resp = await deleteJobApp(APIEndPoint.deleteJobApp, deleteIdSelected, token);
@@ -99,7 +94,8 @@ export const JobAppListPage = () => {
     };
 
     const onView = (id: string) => {
-        console.log(`${id} view button was pressed.`);
+        const viewJobAppPagePath = `${RoutePath.viewJobApp}${id}`;
+        navigate(viewJobAppPagePath); 
     }
 
     const closeAlert = () => {
@@ -113,15 +109,6 @@ export const JobAppListPage = () => {
     }
 
     useEffect(() => {
-        const updateJobApps = (newerJobApps: JobApplication[]) => {
-            if (newerJobApps.length !== 0) {
-                const sortedJobApps = sortArray<JobApplication>(newerJobApps,
-                    compareJobAppsDateAppliedDescending);
-                const newJobApps = sortedJobApps.concat(jobApps);
-                setJobApps(newJobApps);
-            }
-        }
-
         const displayAlert = (alertErrorMessage: string = "", shouldShowAlert: boolean) => {
             setIsAlertShowing(shouldShowAlert);
             setAlertMessage(alertErrorMessage);
@@ -129,6 +116,7 @@ export const JobAppListPage = () => {
 
         const deleteTokenAndGoBackToLogin = () => {
             deleteTokenAndDate(); 
+
             navigate(RoutePath.login);
         };
 
@@ -142,26 +130,7 @@ export const JobAppListPage = () => {
                 } else if (resp.isErrorOfType(HttpResponseErrorType.other)) {
                     displayAlert(resp.errorMessage, true);
                 } else {
-                    setJobApps(resp.data); 
-                    saveDateLastChecked(new Date());
-                }
-            } catch (error) {
-                displayAlert("Something went wrong!!", true);
-            }
-        }
-
-        const loadNewJobApps = async (token: string, url: string, dateLastChecked: string) => {
-            try {
-                const resp = await getNewJobApps(token, url, dateLastChecked);
-
-                if (resp === undefined) {
-                    displayAlert("Something went wrong!!", true);
-                } else if (resp.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
-                    deleteTokenAndGoBackToLogin();
-                } else if (resp.isErrorOfType(HttpResponseErrorType.other)) {
-                    displayAlert(resp.errorMessage, true);
-                } else {
-                    updateJobApps(resp.data);
+                    setJobApps(resp.data);
                     saveDateLastChecked(new Date());
                 }
             } catch (error) {
@@ -170,21 +139,14 @@ export const JobAppListPage = () => {
         }
 
         const loadJobApps = () => {
-            const savedDateLastChecked = getDateLastChecked();
-            const token = getToken();
-
-            if (savedDateLastChecked !== "") {
-                const url = APIEndPoint.getNewJobApps;
-                loadNewJobApps(token, url, savedDateLastChecked);
-            } else {
-                const url = APIEndPoint.getAllJobApps;
-                loadAllJobApps(token, url);
-            }
-            shouldLoadJobApps.current = false;
+            const token = getToken();    
+            const url = APIEndPoint.getAllJobApps;
+            loadAllJobApps(token, url);
         }
-        
 
         if (shouldLoadJobApps.current) {
+            shouldLoadJobApps.current = false;
+
             setIsLoading(true);
             loadJobApps();
             setIsLoading(false);
