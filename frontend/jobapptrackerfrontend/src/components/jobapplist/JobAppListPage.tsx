@@ -45,7 +45,9 @@ export const JobAppListPage = () => {
     };
 
     const onEdit = (id: string) => {
-        console.log(`${id} card on edit was pressed.`);
+        shouldLoadJobApps.current = true;
+        const editPath = `${RoutePath.editJobApp}${id}`;
+        navigate(editPath);
     }
 
     const onDelete = (id: string) => {

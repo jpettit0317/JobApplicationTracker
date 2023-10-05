@@ -1,9 +1,11 @@
 
 export const formatDateForDatePicker = (date: Date): string => {
-    return removeDoubleQuotes(getNewDateString(getDateString(date), 7));
+    return removeDoubleQuotes(getNewDateString(getDateString(date), 9));
 }
 
 const getNewDateString = (dateString: string, charsToRemove: number): string => {
+    const str = dateString.slice(0, -charsToRemove);
+    console.log("The string is " + str);
     return dateString.slice(0, -charsToRemove);
 }
 
@@ -12,5 +14,5 @@ const removeDoubleQuotes = (input: string): string => {
 }
 
 const getDateString = (date: Date): string => {
-    return JSON.stringify(date); 
+    return new Date(date).toLocaleDateString(); 
 }

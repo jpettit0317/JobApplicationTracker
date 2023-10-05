@@ -5,5 +5,6 @@ export enum APIEndPoint {
     getAllJobApps = "http://localhost:8080/api/v1/main/getAllJobApps",
     getNewJobApps = "http://localhost:8080/api/v1/main/getNewJobApps",
     deleteJobApp = "http://localhost:8080/api/v1/main/deleteJobApp",
-    getJobAppById = "http://localhost:8080/api/v1/main/getJobAppById" 
+    getJobAppById = "http://localhost:8080/api/v1/main/getJobAppById",
+    editJobApp = "http://localhost:8080/api/v1/main/editJobApp" 
 } 
