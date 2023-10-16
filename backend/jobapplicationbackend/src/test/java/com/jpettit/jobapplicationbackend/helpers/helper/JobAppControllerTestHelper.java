@@ -3,10 +3,7 @@ package com.jpettit.jobapplicationbackend.helpers.helper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
@@ -81,5 +78,19 @@ public class JobAppControllerTestHelper {
 
     public static String getJobInterviewSizeErrorMessage(final int expectedSize, final int actualSize) {
         return "Expected " + expectedSize + " got " + actualSize + " instead.";
+    }
+
+    public static void assertEditJobAppResponsesAreEqual(final EditJobAppResponse expected,
+                                                         final EditJobAppResponse actual) {
+        final String errorMessage = getEditJobAppResponseErrorMessage(expected, actual);
+        assertEquals(expected, actual, errorMessage);
+    }
+
+    private static String getEditJobAppResponseErrorMessage(final EditJobAppResponse expected,
+                                                            final EditJobAppResponse actual) {
+        final String expString = expected.toJSONString();
+        final String actString = actual.toJSONString();
+
+        return "Expected " + expString + " got " + actString + " instead.";
     }
 }

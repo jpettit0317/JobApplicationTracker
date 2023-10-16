@@ -164,7 +164,12 @@ export const LoginPage = () => {
                     closeButtonPressed={onAlertCloseButtonPressed}
                 />
             }
-            <NavBar title={navBarTitle}/>
+            <NavBar 
+                title={navBarTitle}
+                navigateToAddJobApp={() => {}}
+                logoutUser={() => {}}
+                shouldShowDropDown={false}
+            />
             <Container className="loginformcontainer">
                 { isLoading &&
                     <LoadingIndicator 

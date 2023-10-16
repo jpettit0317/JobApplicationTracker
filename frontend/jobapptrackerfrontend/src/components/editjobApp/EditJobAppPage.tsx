@@ -27,6 +27,8 @@ import './EditJobAppPage.css';
 
 import { getOneJobApp } from "../../functions/networkcalls/getOneJobApp";
 import { editJobApp } from "../../functions/networkcalls/editJobApp";
+import { formatDateForDatePicker } from "../../functions/helperfunctions/datefunctions/formatDateForDatePicker";
+import { EditJobAppPageTestIds } from "../../enums/editjobapptestids/EditJobAppTestids_enum";
 
 export const EditJobAppPage = () => {
     const { id } = useParams();
@@ -78,6 +80,8 @@ export const EditJobAppPage = () => {
         location: ""
     });
 
+    const [oldDateApplied, setOldDateApplied] = useState<Date>(new Date());
+
     const header = "Edit Job Application";
 
     useEffect(() => {
@@ -95,6 +99,7 @@ export const EditJobAppPage = () => {
                     navigate(RoutePath.login);
                 } else {
                     setJobApp(resp.data);
+                    setOldDateApplied(resp.data.dateApplied);
                     console.log("The job app is " + JSON.stringify(resp.data));
                     console.log("The job app with locale string is " + new Date(resp.data.dateApplied).toLocaleString());
                 }
@@ -320,6 +325,16 @@ export const EditJobAppPage = () => {
         deleteInterview(index);
     };
 
+    const logUserOut = () => {
+        deleteTokenAndDate();
+        navigate(RoutePath.login);        
+    }
+
+    const navigateToAddJobApp = () => {
+        shouldLoadAgain.current = true;
+        navigate(RoutePath.addJobApp);
+    };
+
     return (
         <div>
             { isAlertShowing &&
@@ -348,7 +363,12 @@ export const EditJobAppPage = () => {
                     onHide={closeEditModal}
                 />
             }
-            <NavBar title={navBarTitle} />
+            <NavBar 
+                title={navBarTitle} 
+                logoutUser={logUserOut} 
+                navigateToAddJobApp={navigateToAddJobApp} 
+                shouldShowDropDown
+            />
             <Container className="signupformcontainer">
                 { isLoading &&
                      <LoadingIndicator 
@@ -359,7 +379,7 @@ export const EditJobAppPage = () => {
                     />
                 }
                 <Form className="Auth-form">
-                    <h4 data-testid={AddJobAppPageTestIds.header}>
+                    <h4 data-testid={EditJobAppPageTestIds.header}>
                         {header}
                     </h4>
                     <FloatingLabel
@@ -377,12 +397,12 @@ export const EditJobAppPage = () => {
                         value={jobApp.jobTitle}
                         isInvalid={jobAppErrors.isJobTitleInErrorState}
                         style={ {color: "black"} }
-                        data-testid={AddJobAppPageTestIds.jobTitle}
+                        data-testid={EditJobAppPageTestIds.jobTitle}
                         />
                         { jobAppErrors.isJobTitleInErrorState &&
                             <FormControlFeedback type="invalid" 
                                 text={jobAppErrors.jobTitleError}
-                                data-testid={AddJobAppPageTestIds.jobTitleError}
+                                data-testid={EditJobAppPageTestIds.jobTitleError}
                             />
                         }
                     </FloatingLabel>
@@ -401,12 +421,12 @@ export const EditJobAppPage = () => {
                         value={jobApp.company}
                         isInvalid={jobAppErrors.isCompanyInErrorState}
                         style={ {color: "black"} }
-                        data-testid={AddJobAppPageTestIds.companyField}
+                        data-testid={EditJobAppPageTestIds.companyField}
                         />
                         { jobAppErrors.isCompanyInErrorState &&
                             <FormControlFeedback type="invalid"
                                 text={jobAppErrors.companyError}
-                                data-testid={AddJobAppPageTestIds.companyError}
+                                data-testid={EditJobAppPageTestIds.companyError}
                             />
                         }
                     </FloatingLabel>
@@ -426,7 +446,7 @@ export const EditJobAppPage = () => {
                         value={jobApp.description}
                         isInvalid={jobAppErrors.isDescriptionInErrorState}
                         style={ {color: "black", minHeight: "100px"} }
-                        data-testid={AddJobAppPageTestIds.descriptionField}
+                        data-testid={EditJobAppPageTestIds.descriptionField}
                         />
                     </FloatingLabel>
                     <FloatingLabel
@@ -444,15 +464,32 @@ export const EditJobAppPage = () => {
                         value={jobApp.status}
                         isInvalid={jobAppErrors.isStatusErrorInErrorState}
                         style={ {color: "black"} }
-                        data-testid={AddJobAppPageTestIds.statusField}
+                        data-testid={EditJobAppPageTestIds.statusField}
                         />
                         { jobAppErrors.isStatusErrorInErrorState &&
                             <FormControlFeedback 
                                 type="invalid"
                                 text={jobAppErrors.statusError}
-                                data-testid={AddJobAppPageTestIds.statusFieldError}
+                                data-testid={EditJobAppPageTestIds.statusFieldError}
                             />
                         }
+                    </FloatingLabel>
+                    <FloatingLabel
+                    label="Old Date Applied"
+                    controlId="floatingInput"
+                    className="mb-3"
+                    style={ {color: "black"} }
+                    >
+                        <Form.Control
+                            readOnly
+                            value={formatDateForDatePicker(oldDateApplied)} 
+                            className="me-2"
+                            type="input" 
+                            name="olddateapplied"
+                            style={ { color: "black" } } 
+                            isInvalid={jobAppErrors.isDateAppliedInErrorState}
+                            data-testid={EditJobAppPageTestIds.oldDateApplied}
+                        />
                     </FloatingLabel>
                     <FloatingLabel
                     label="Date Applied*"
@@ -464,12 +501,12 @@ export const EditJobAppPage = () => {
                              placeholder="Date Applied" onChange={onDateChanged} 
                              style={ { color: "black" } } 
                              isInvalid={jobAppErrors.isDateAppliedInErrorState}
-                             data-testid={AddJobAppPageTestIds.dateAppliedField}
+                             data-testid={EditJobAppPageTestIds.dateAppliedField}
                         />
                         { jobAppErrors.isDateAppliedInErrorState &&
                             <Form.Control.Feedback 
                             type="invalid"
-                            data-testid={AddJobAppPageTestIds.dateAppliedError}
+                            data-testid={EditJobAppPageTestIds.dateAppliedError}
                             >
                                 {jobAppErrors.dateAppliedError}
                             </Form.Control.Feedback>
@@ -488,7 +525,7 @@ export const EditJobAppPage = () => {
                                             onEditButtonPressed={onEditButtonPressed}
                                             index={index}
                                             id={jobApp.id}
-                                            data-testid={AddJobAppPageTestIds.jobInterviewCard + index}
+                                            data-testid={EditJobAppPageTestIds.jobInterviewCard + index}
                                         />
                                     </td>
                                 ))} 
@@ -497,11 +534,11 @@ export const EditJobAppPage = () => {
                     </Table> 
                     <Stack gap={2} direction="horizontal" style={ { marginTop: "10px", padding: "1px" } }>
                         <Button onClick={onSubmitButtonPressed} style={ { width: "100%" } } 
-                            data-testid={AddJobAppPageTestIds.submitJobAppButton}>
+                            data-testid={EditJobAppPageTestIds.submitJobAppButton}>
                                 {submitButtonText}
                         </Button>
                         <Button onClick={onAddInterviewButtonPressed} style={ { width: "100%" } } 
-                            data-testid={AddJobAppPageTestIds.addInterviewButton}>
+                            data-testid={EditJobAppPageTestIds.addInterviewButton}>
                                 {addInterviewButtonText}
                         </Button>
                     </Stack>

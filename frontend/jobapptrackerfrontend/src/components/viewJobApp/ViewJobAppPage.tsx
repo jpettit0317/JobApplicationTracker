@@ -38,16 +38,25 @@ export const ViewJobAppPage = (props: ViewJobAppProps) => {
         setIsAlertShowing(false);
     }
 
-    const getDateString = (date: Date): string => {
-        return formatDateForDatePicker(date);
+    const getDateString = (date: Date, locale: string = "en-US"): string => {
+        return formatDateForDatePicker(date, locale);
     }
+
+    const logUserOut = () => {
+        deleteTokenAndDate();
+        navigate(RoutePath.login);        
+    }
+
+    const navigateToAddJobApp = () => {
+        navigate(RoutePath.addJobApp);
+    };
 
     useEffect(() => {
         const getJobAppById = async(baseURL: string, token: string) => {
             try {
                 const resp = await getOneJobApp(baseURL, token, id);
 
-                if (resp === undefined) {
+                if (resp === undefined || resp.statusCode === 0) {
                     setIsLoading(false);
                     setAlertMessage("Something went wrong!!");
                     setIsAlertShowing(true);
@@ -56,6 +65,7 @@ export const ViewJobAppPage = (props: ViewJobAppProps) => {
                     navigate(RoutePath.login);
                 } else {
                     setJobApp(resp.data);
+                    console.log("The date is " + resp.data.dateApplied);
                 }
             } catch (error) {
                 setIsLoading(false);
@@ -88,7 +98,12 @@ export const ViewJobAppPage = (props: ViewJobAppProps) => {
                     variant="danger"
                 />
             }
-            <NavBar title={navBarTitle} />
+            <NavBar 
+                title={navBarTitle}
+                logoutUser={logUserOut}
+                navigateToAddJobApp={navigateToAddJobApp}
+                shouldShowDropDown
+            />
             <Container className="signupformcontainer">
                 { isLoading &&
                      <LoadingIndicator 
@@ -175,7 +190,7 @@ export const ViewJobAppPage = (props: ViewJobAppProps) => {
                     style={ {color: "black"} }
                     >
                         <Form.Control className="me-2" name="dateapplied"
-                            type="datetime-local"
+                            type="text"
                             placeholder="Date Applied"
                             value={getDateString(jobApp.dateApplied)}
                             style={ { color: "black" } }

@@ -113,12 +113,7 @@ public class JobAppController {
     @PutMapping(value = Routes.EditRoutes.editJobApp)
     public EditJobAppResponse editJobApp(@RequestBody EditJobAppRequest req) {
         System.out.println("The edit job app response is " + req.toJSONString());
-
-        return EditJobAppResponse.builder()
-                .statusCode(HttpStatus.OK.value())
-                .errorMessage("")
-                .errorType(ErrorType.NONE)
-                .build();
+        return jobAppService.editJobApp(req);
     }
 
     private ZonedDateTime convertDateStringToDate(final String timeStamp) {

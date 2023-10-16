@@ -200,7 +200,12 @@ export const SignUpPage = () => {
                     closeButtonPressed={closeAlert}
                 />
             }
-            <NavBar title={navBarTitle} />
+            <NavBar 
+                title={navBarTitle}
+                navigateToAddJobApp={() => {}}
+                logoutUser={() => {}}
+                shouldShowDropDown={false}
+            />
             <Container className="signupformcontainer">
                 { isLoading &&
                      <LoadingIndicator 

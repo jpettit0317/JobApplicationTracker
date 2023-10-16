@@ -122,6 +122,7 @@ export const AddJobAppPage = () => {
     }
 
     const onDateChanged = (e: any) => {
+        console.log("New date is " + e.target.value as string);
         const date = convertDateToUTC(e.target.value as string); 
         console.log("Date is " + date.toString());
 
@@ -309,6 +310,11 @@ export const AddJobAppPage = () => {
         deleteInterview(index);
     };
 
+    const logUserOut = () => {
+        deleteTokenAndDate();
+        navigate(RoutePath.login);        
+    }
+
     return (
         <div>
             { isAlertShowing &&
@@ -337,7 +343,12 @@ export const AddJobAppPage = () => {
                     onHide={closeEditModal}
                 />
             }
-            <NavBar title={navBarTitle} />
+            <NavBar 
+                title={navBarTitle}
+                logoutUser={logUserOut}
+                navigateToAddJobApp={() => {}}
+                shouldShowDropDown
+            />
             <Container className="signupformcontainer">
                 { isLoading &&
                      <LoadingIndicator 

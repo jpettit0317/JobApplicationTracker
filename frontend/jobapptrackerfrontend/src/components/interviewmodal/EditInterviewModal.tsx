@@ -5,14 +5,18 @@ import { InterviewModalErrors } from "./InterviewModalErrors";
 import { EditInterviewModalProps } from "./EditInterviewModalProps";
 import { checkForInterviewErrors } from "../../functions/interviewModalError/checkForInterviewErrors";
 import { EditInterviewModalTestIds } from "../../enums/jobinterviewtestids/EditInterviewModalTestIds_enum";
+import { formatDateForDatePicker } from "../../functions/helperfunctions/datefunctions/formatDateForDatePicker";
 
 export const EditInterviewModal = (props: EditInterviewModalProps) => {
     const [jobInterivew, setJobInterview] = useState<JobInterview>({
         ...props.jobInterview
     });
 
+    const oldStartDate = props.jobInterview.startDate;
+    const oldEndDate = props.jobInterview.endDate;
+
     const getDateString = (input: Date) => {
-        return input.toLocaleString();
+        return formatDateForDatePicker(input);
     }
 
     const [editInterviewErrors, setEditInterviewErrors] = useState<InterviewModalErrors>({
@@ -151,15 +155,28 @@ export const EditInterviewModal = (props: EditInterviewModalProps) => {
                         /> 
                     </FloatingLabel> 
                     <FloatingLabel
+                        label="Old Start Date"
+                        className="mb-3"
+                        style = { { color: "black" } }
+                    >
+                        <Form.Control 
+                            type="input" 
+                            name="oldstartdate"
+                            value={getDateString(oldStartDate)}
+                            required
+                            readOnly
+                        />
+                    </FloatingLabel>
+                    <FloatingLabel
                         label="Starting Date*"
                         className="mb-3"
                         style={ { color: "black" } }
+                        
                     >
                         <Form.Control 
                             type="datetime-local" 
                             name="startdate"
                             onChange={onStartDateChanged}
-                            value={getDateString(jobInterivew.startDate)}
                             required
                             isInvalid={editInterviewErrors.isStartDateInErrorState}
                             data-testid={EditInterviewModalTestIds.startDateField}
@@ -171,6 +188,19 @@ export const EditInterviewModal = (props: EditInterviewModalProps) => {
                         }
                     </FloatingLabel> 
                     <FloatingLabel
+                        label="Old End Date"
+                        className="mb-3"
+                        style = { { color: "black" } }
+                    >
+                        <Form.Control 
+                            type="input" 
+                            name="oldenddate"
+                            value={getDateString(oldEndDate)}
+                            required
+                            readOnly
+                        />
+                    </FloatingLabel>
+                    <FloatingLabel
                         label="Ending Date*"
                         className="mb-3"
                         style={ { color: "black" } }
@@ -179,7 +209,6 @@ export const EditInterviewModal = (props: EditInterviewModalProps) => {
                                 type="datetime-local" 
                                 name="enddate"
                                 id="editenddate"
-                                value={getDateString(jobInterivew.endDate)}
                                 onChange={onEndDateChanged}
                                 required
                                 isInvalid={editInterviewErrors.isEndDateErrorState}
