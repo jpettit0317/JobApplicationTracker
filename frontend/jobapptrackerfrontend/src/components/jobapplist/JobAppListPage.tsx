@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router";
 import { navBarTitle } from "../../constants/NavBarTitle";
-import { NavSearchBar } from "../navbar/NavSearchBar";
 import { JobAppListPageTestIds } from "./JobAppListPageTestIds";
 import { RoutePath } from "../../enums/RoutePath_enum";
 import { JobApplication } from "../../model/interfaces/jobapp/JobApplication";
@@ -19,6 +18,7 @@ import {
 } from "../../functions/session/localStorage";
 import { DeleteJobAppAlert } from "../alerts/deletejobappalert/DeleteJobAppAlert";
 import { deleteJobApp } from "../../functions/networkcalls/deleteJobApp";
+import { NavBar } from "../navbar/NavBar";
 
 export const JobAppListPage = () => {
     const navigate = useNavigate();
@@ -29,10 +29,6 @@ export const JobAppListPage = () => {
     const [alertErrorMessage, setAlertMessage] = useState<string>("");
     const [deleteIdSelected, setDeleteIdSelected] = useState<string>("");
     const [isDeleteAlertShowing, setIsDeleteAlertShowing] = useState<boolean>(false);
-
-    const onSearchButtonPressed = (searchTerm: string = "") => {
-        console.log("The search term is ", searchTerm);
-    };
 
     const logUserOut = () => {
         deleteTokenAndDate();
@@ -180,11 +176,11 @@ export const JobAppListPage = () => {
 
     return (
         <div>
-            <NavSearchBar 
-                onSearchButtonPressed={onSearchButtonPressed}
+            <NavBar 
                 title={navBarTitle}
                 logoutUser={logUserOut}
                 navigateToAddJobApp={navigateToAddJobApp}
+                shouldShowDropDown
             />
             { isAlertShowing &&
                 <JobAppAlert alertMessage={alertErrorMessage} 

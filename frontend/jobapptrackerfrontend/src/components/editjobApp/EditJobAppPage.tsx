@@ -19,7 +19,6 @@ import { RoutePath } from "../../enums/RoutePath_enum";
 import { navBarTitle } from "../../constants/NavBarTitle";
 import { Button, Container, FloatingLabel, Form, Stack, Table } from "react-bootstrap";
 import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
-import { AddJobAppPageTestIds } from "../../enums/addjobapptestids/AddJobAppPageTestIds_enum";
 import { FormControlFeedback } from "../formcontrolhelper/FormControlFeedback";
 import { JobInterviewCard } from "../cards/jobinterviewcard/JobInterviewCard";
 
