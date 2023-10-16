@@ -85,7 +85,6 @@ export const EditJobAppPage = () => {
     const header = "Edit Job Application";
 
     useEffect(() => {
-        console.log("The id is " + id);
         const getJobAppById = async(baseURL: string, token: string) => {
             try {
                 const resp = await getOneJobApp(baseURL, token, id);
@@ -100,8 +99,6 @@ export const EditJobAppPage = () => {
                 } else {
                     setJobApp(resp.data);
                     setOldDateApplied(resp.data.dateApplied);
-                    console.log("The job app is " + JSON.stringify(resp.data));
-                    console.log("The job app with locale string is " + new Date(resp.data.dateApplied).toLocaleString());
                 }
             } catch (error) {
                 setIsLoading(false);

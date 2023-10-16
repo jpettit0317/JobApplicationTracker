@@ -65,7 +65,6 @@ export const ViewJobAppPage = (props: ViewJobAppProps) => {
                     navigate(RoutePath.login);
                 } else {
                     setJobApp(resp.data);
-                    console.log("The date is " + resp.data.dateApplied);
                 }
             } catch (error) {
                 setIsLoading(false);
