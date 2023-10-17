@@ -5,5 +5,7 @@ export enum RoutePath {
     jobapplist = "/jobapplist",
     addJobApp = "/addJobApp",
     viewJobApp = "/viewJobApp/",
-    viewJobAppPath = "/viewJobApp/:id"
+    editJobApp = "/editJobApp/",
+    viewJobAppPath = "/viewJobApp/:id",
+    editJobAppPath = "/editJobApp/:id"
 }

@@ -2,26 +2,17 @@ package com.jpettit.jobapplicationbackend.unittests.controllers;
 
 import com.jpettit.jobapplicationbackend.controllers.JobAppController;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
-import com.jpettit.jobapplicationbackend.exceptions.NonExistantUserException;
-import com.jpettit.jobapplicationbackend.exceptions.TokenExpiredException;
-import com.jpettit.jobapplicationbackend.helpers.StringUtility;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.helperpair.HelperPair;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobApplicationTestTestVars;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
-import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.EditJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Header;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,14 +23,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.mockito.Mockito.when;
@@ -123,7 +111,7 @@ class JobAppControllerTest {
      */
 
     @Test
-    public void getAllJobApps_whenPassedValidRequest_shouldReturnSuccess() throws NonExistantUserException, TokenExpiredException {
+    public void getAllJobApps_whenPassedValidRequest_shouldReturnSuccess() {
         final ResponseEntity<GetJobAppsResponse> expectedResponse = ResponseEntity.ok(
                createGetJobAppsResponse("", ErrorType.NONE, HttpStatus.OK.value(), new ArrayList<>())
         );
@@ -143,8 +131,7 @@ class JobAppControllerTest {
     public void getAllJobApps_whenPassedValidRequest_shouldReturnFailure() {
         final RuntimeException e = new RuntimeException(ErrorMessages.OtherMessages.unexpectedError);
         final ResponseEntity<GetJobAppsResponse> expectedResponse =
-                createJobAppsResponse(HttpStatus.NOT_FOUND,
-                        createGetJobAppsResponse(ErrorMessages.OtherMessages.unexpectedError, ErrorType.OTHER,
+                createJobAppsResponse(createGetJobAppsResponse(ErrorMessages.OtherMessages.unexpectedError, ErrorType.OTHER,
                                 HttpStatus.NOT_FOUND.value(), new ArrayList<>()));
 
         when(jobAppService.getAllJobApps(ArgumentMatchers.anyString())).thenThrow(e);
@@ -164,10 +151,6 @@ class JobAppControllerTest {
         final ResponseEntity<GetJobAppsResponse> expectedResponse = ResponseEntity.ok(
                 createGetJobAppsResponse("", ErrorType.NONE, HttpStatus.OK.value(), new ArrayList<>())
         );
-        final GetNewJobAppRequest req = GetNewJobAppRequest.builder()
-                .token(UUID.randomUUID().toString())
-                .lastChecked(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC")))
-                .build();
 
         when(jobAppService.getNewJobApps(ArgumentMatchers.any())).thenReturn(expectedResponse.getBody());
 
@@ -182,7 +165,7 @@ class JobAppControllerTest {
     }
 
     @Test
-    public void deleteJobApp_whenGivenValidRequest_shouldReturnSuccess() throws Exception {
+    public void deleteJobApp_whenGivenValidRequest_shouldReturnSuccess() {
         final DeleteJobAppResponse expected = DeleteJobAppResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .errorMessage("")
@@ -197,7 +180,7 @@ class JobAppControllerTest {
     }
 
     @Test
-    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() throws Exception {
+    public void getOneJobAppById_whenGivenValidRequest_shouldReturnSuccess() {
         final JobApplication jobApp = JobApplication.builder()
                 .jobTitle("Entry Level Software Engineer")
                 .company("US Bank")
@@ -247,6 +230,26 @@ class JobAppControllerTest {
         JobAppControllerTestHelper.assertGetOneJobAppErrorResponsesAreEqual(expected, actual);
     }
 
+    @Test
+    public void editJobApp_whenValidRequestIsPassedIn_ShouldReturnSuccess() {
+        final EditJobAppResponse expectedResponse = EditJobAppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .errorMessage("")
+                .build();
+
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .token(UUID.randomUUID().toString())
+                .updatedJobApp(JobApplication.builder().build())
+                .build();
+
+        when(jobAppService.editJobApp(ArgumentMatchers.any())).thenReturn(expectedResponse);
+
+        final EditJobAppResponse actualResponse = sut.editJobApp(req);
+
+        JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expectedResponse, actualResponse);
+    }
+
     private DeleteJobAppResponse callDeleteJobApp(UUID id, String token) {
         return sut.deleteJobApp(id.toString(), token);
     }
@@ -261,7 +264,7 @@ class JobAppControllerTest {
                 .build();
     }
 
-    private static ResponseEntity<GetJobAppsResponse> createJobAppsResponse(HttpStatus statusCode, GetJobAppsResponse resp) {
-        return new ResponseEntity<>(resp, statusCode);
+    private static ResponseEntity<GetJobAppsResponse> createJobAppsResponse(final GetJobAppsResponse resp) {
+        return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
     }
 }

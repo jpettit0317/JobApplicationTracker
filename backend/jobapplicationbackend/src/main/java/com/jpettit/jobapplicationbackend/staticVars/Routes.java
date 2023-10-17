@@ -23,4 +23,8 @@ public class Routes {
     public static class DeleteRoutes {
         public static final String deleteJobApp = "/deleteJobApp";
     }
+
+    public static class EditRoutes {
+        public static final String editJobApp = "/editJobApp";
+    }
 }

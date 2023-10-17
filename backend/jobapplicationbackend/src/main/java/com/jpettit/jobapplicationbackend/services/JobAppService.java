@@ -9,12 +9,10 @@ import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.EditJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
 import com.jpettit.jobapplicationbackend.repos.UserRepository;
@@ -26,9 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -273,6 +269,158 @@ public class JobAppService {
         }
     }
 
+    public EditJobAppResponse editJobApp(final EditJobAppRequest req) {
+        try {
+            final String username = validateUser(req.getToken());
+            final UUID id = req.getUpdatedJobApp().getId();
+
+            JobAppData jobAppData = getJobAppByIdAndUser(id, username);
+            ArrayList<JobInterviewData> jobInterviews = getJobInterviews(id);
+
+            final JobApplication updatedJobApp = req.getUpdatedJobApp();
+
+            if (updatedJobApp.checkIfSavedJobAppIsEqual(jobAppData, jobInterviews, username)) {
+                return createEditJobAppResponse(HttpStatus.OK.value(), ErrorType.NONE, "");
+            }
+
+            return saveJobApp(req.getUpdatedJobApp(), jobInterviews, username);
+        } catch (TokenExpiredException | ExpiredJwtException e) {
+            e.printStackTrace();
+            return createEditJobAppResponse(HttpStatus.FORBIDDEN.value(),
+                    ErrorType.TOKEN_EXPIRED, ErrorMessages.OtherMessages.tokenExpiredError);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createEditJobAppResponse(HttpStatus.NOT_FOUND.value(),
+                    ErrorType.OTHER, ErrorMessages.OtherMessages.unexpectedError);
+        }
+    }
+
+    public JobAppData getJobAppByIdAndUser(final UUID id, final String creator) throws Exception {
+        final Optional<JobAppData> jobApp = jobAppDataRepository
+                .findByJobAppDataIdAndCreator(id, creator);
+
+        if (jobApp.isPresent()) {
+            return jobApp.get();
+        } else {
+            throw new Exception(ErrorMessages.OtherMessages.unexpectedError);
+        }
+    }
+
+    public ArrayList<JobInterviewData> getJobInterviews(final UUID jobAppId) {
+        return new ArrayList<>(jobInterviewDataRepository
+                .findJobInterviewDataByJobAppId(jobAppId));
+    }
+    private EditJobAppResponse createEditJobAppResponse(int code, String errorType, String message) {
+        return EditJobAppResponse.builder()
+                .errorType(errorType)
+                .errorMessage(message)
+                .statusCode(code)
+                .build();
+    }
+
+    private EditJobAppResponse saveJobApp(JobApplication jobApp,
+                                          ArrayList<JobInterviewData> jobInterviews, final String creator) {
+        final JobAppData newJobAppData = JobAppData.initFromJobApp(jobApp, creator);
+        final ArrayList<UUID> idsToRemove = getIdsToRemove(jobInterviews, jobApp);
+        final ArrayList<JobInterviewData> interviewsToAdd = getJobInterviewDataToAdd(jobInterviews
+                , jobApp, idsToRemove);
+
+        try  {
+            jobAppDataRepository.save(newJobAppData);
+
+            if (!idsToRemove.isEmpty()) {
+                jobInterviewDataRepository.deleteAllById(idsToRemove);
+            }
+
+            if (!interviewsToAdd.isEmpty()) {
+                jobInterviewDataRepository.saveAll(interviewsToAdd);
+            }
+
+            return createEditJobAppResponse(HttpStatus.OK.value(), ErrorType.NONE, "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createEditJobAppResponse(HttpStatus.FORBIDDEN.value(),
+                    ErrorType.OTHER, ErrorMessages.OtherMessages.unexpectedError);
+        }
+    }
+
+    private ArrayList<UUID> getIdsToRemove(ArrayList<JobInterviewData> list, JobApplication jobApp) {
+        final HashSet<UUID> dataIds = initUUIDSetFromJobInterviewData(list);
+        final HashSet<UUID> jobInterviewIds = initUUIDSetFromJobApp(jobApp);
+
+        return getArrayOfRemainingIds(dataIds, jobInterviewIds);
+    }
+
+    private ArrayList<UUID> getArrayOfRemainingIds(HashSet<UUID> saveIds, final HashSet<UUID> newJobInterviews) {
+        saveIds.removeAll(newJobInterviews);
+
+        final UUID[] remainingIds = new UUID[saveIds.size()];
+        final UUID[] remainingIds2 = saveIds.toArray(remainingIds);
+
+        return new ArrayList<>(List.of(remainingIds2));
+    }
+
+    private HashSet<UUID> initUUIDSetFromJobInterviewData(final ArrayList<JobInterviewData> data) {
+        HashSet<UUID> result = new HashSet<>();
+
+        for (JobInterviewData i : data) {
+            if (i.getId() != null && i.getJobAppId() != null) {
+                result.add(i.getId());
+            }
+        }
+
+        return result;
+    }
+
+    private HashSet<UUID> initUUIDSetFromJobApp(final JobApplication jobApp) {
+        HashSet<UUID> result = new HashSet<>();
+
+        for (JobInterview i : jobApp.getInterviews()) {
+            if (i.getId() != null && i.getJobAppId() != null) {
+                result.add(i.getId());
+            }
+        }
+
+        return result;
+    }
+    private ArrayList<JobInterviewData> getJobInterviewDataToAdd(
+            ArrayList<JobInterviewData> data, JobApplication jobApp, ArrayList<UUID> idsToRemove) {
+        ArrayList<JobInterviewData> interviewsToAdd = new ArrayList<>();
+        final HashSet<UUID> idsToRemoveSet = new HashSet<>(idsToRemove);
+        HashSet<UUID> addedIds = new HashSet<>();
+        final UUID jobAppId = jobApp.getId();
+
+        for (JobInterview i : jobApp.getInterviews()) {
+            if (!idsToRemoveSet.contains(i.getId())) {
+                final JobInterviewData newJobInterview = createJobInterviewData(i, jobAppId);
+                interviewsToAdd.add(newJobInterview);
+
+                if (i.getId() != null) {
+                    addedIds.add(i.getId());
+                }
+            }
+        }
+
+        for (JobInterviewData i : data) {
+            if (shouldAddToAddInterviews(i.getId(), idsToRemoveSet, addedIds)) {
+                interviewsToAdd.add(i);
+            }
+        }
+
+        return interviewsToAdd;
+    }
+
+    private boolean shouldAddToAddInterviews(final UUID id, final HashSet<UUID> idsToRemove, final HashSet<UUID> addedIds) {
+        return !idsToRemove.contains(id) && !addedIds.contains(id);
+    }
+
+    private JobInterviewData createOldJobInterviewData(JobInterview jobInterview, UUID jobAppId) {
+        return JobInterviewData.initFromInterview(jobInterview, jobAppId);
+    }
+
+    private JobInterviewData createJobInterviewData(JobInterview jobInterview, UUID jobAppId) {
+        return createOldJobInterviewData(jobInterview, jobAppId);
+    }
     private ArrayList<JobApplication> convertJobAppDataToJobApps(final String username) {
         final ArrayList<JobAppData> data =
                 new ArrayList<>(jobAppDataRepository.findByCreator(username));
