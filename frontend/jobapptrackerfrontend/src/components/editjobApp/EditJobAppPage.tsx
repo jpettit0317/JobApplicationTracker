@@ -310,9 +310,7 @@ export const EditJobAppPage = () => {
             errors.statusError !== "";
     }
 
-    const onEditButtonPressed = (id: string) => {
-        const index = jobApp.interviews.findIndex((interview) => interview.id === id);
-        
+    const onEditButtonPressed = (index: number) => {
         setSelectedEditInterview(jobApp.interviews[index]);
         setIsEditModalShowing(true);
     }

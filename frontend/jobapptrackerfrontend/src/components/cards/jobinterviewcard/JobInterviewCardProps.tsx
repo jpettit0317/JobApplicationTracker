@@ -4,7 +4,7 @@ export interface JobInterviewCardProps {
     jobAppDate: Date;
     jobInterview: JobInterview;
     onDeleteButtonPressed: (index: number) => void;
-    onEditButtonPressed: (id: string) => void;
+    onEditButtonPressed: (index: number) => void;
     index: number;
     id: string;
     shouldShowButtons: boolean;
