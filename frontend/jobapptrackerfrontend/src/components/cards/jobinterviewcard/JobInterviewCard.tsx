@@ -8,7 +8,7 @@ export const JobInterviewCard = (props: JobInterviewCardProps) => {
     };
 
     const onEditButtonPressed = () => {
-        props.onEditButtonPressed(props.jobInterview.id);
+        props.onEditButtonPressed(props.index);
     };
 
     const getDateString = (inputDate: Date): string => {
