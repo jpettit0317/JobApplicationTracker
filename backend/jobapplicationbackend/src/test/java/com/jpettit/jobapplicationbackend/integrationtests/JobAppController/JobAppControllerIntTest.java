@@ -2,6 +2,7 @@ package com.jpettit.jobapplicationbackend.integrationtests.JobAppController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jpettit.jobapplicationbackend.enums.ErrorType;
+import com.jpettit.jobapplicationbackend.helpers.SpringDataConverter;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobAppControllerTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helper.JobApplicationIntTestHelper;
 import com.jpettit.jobapplicationbackend.helpers.helpervars.JobControllerIntTestHelperVars;
@@ -10,11 +11,9 @@ import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.EditJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.RegisterRequest;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
@@ -234,6 +233,19 @@ class JobAppControllerIntTest {
         return JobControllerIntTestHelperVars.getDeleteJobAppsResponse(resp);
     }
 
+    private EditJobAppResponse getEditJobAppResponse(final EditJobAppRequest req) throws Exception {
+        final String editURL = JobControllerIntTestHelperVars.baseEditJobAppURL;
+        final String resp = mockMvc.perform(put(editURL)
+                .accept(jsonMediaType)
+                .contentType(jsonMediaType)
+                .content(req.toJSONString()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        return JobControllerIntTestHelperVars.createEditJobAppResponseFromString(resp);
+    }
+
     private GetOneJobAppResponse getOneJobAppResponse(final String url) throws Exception {
         System.out.println("Before get");
         final String resp = mockMvc.perform(get(url).accept(jsonMediaType)).andReturn().getResponse().getContentAsString();
@@ -319,7 +331,6 @@ class JobAppControllerIntTest {
         try {
             final String response = getAllJobAppsResponse(getAllJobAppsURL, jsonMediaType);
             final GetJobAppsResponse actual = JobControllerIntTestHelperVars.getJobAppsResponse(response);
-            System.out.println("The acutal response is " + actual.toJSONString());
             JobApplicationIntTestHelper.assertGetAllJobAppsResponseAreEqual(actual, expectedResponse);
         } catch (Exception e) {
             JobApplicationIntTestHelper.logErrorAndFail(e);
@@ -482,58 +493,95 @@ class JobAppControllerIntTest {
         }
     }
 
-//    @Test
-//    public void getOneJobApp_whenGivenValidRequest_shouldReturnSuccess() {
-//        final String token = addJobAppRequest.getToken();
-//        final ArrayList<JobInterviewData> interviewData = new ArrayList<>(List.of(this.jobInterviewData));
-//        final GetOneJobAppResponse expected = GetOneJobAppResponse.builder()
-//                .errorMessage("")
-//                .statusCode(HttpStatus.OK.value())
-//                .errorType(ErrorType.NONE)
-//                .jobApp(
-//                        JobApplication.builder()
-//                                .jobTitle(this.jobAppData.getJobTitle())
-//                                .description(this.jobAppData.getDescription())
-//                                .company(this.jobAppData.getCompany())
-//                                .status(this.jobAppData.getStatus())
-//                                .dateApplied(this.jobAppData.getDateApplied())
-//                                .dateModified(this.jobAppData.getDateModified())
-//                                .id(this.jobAppData.getJobAppDataId())
-//                                .interviews(createJobInterviews(interviewData))
-//                                .build()
-//                 )
-//                .build();
-//
-//        final UUID id = this.jobAppData.getJobAppDataId();
-//        final String getOneJobAppURL = JobControllerIntTestHelperVars
-//                .createGetJobAppById(JobControllerIntTestHelperVars
-//                        .baseGetOneJobAppURL, token, id);
-//
-//        try {
-//            final GetOneJobAppResponse actual = getOneJobAppResponse(getOneJobAppURL);
-//            JobAppControllerTestHelper
-//                    .assertGetOneJobAppResponsesAreEqual(expected, actual);
-//        } catch (Exception e) {
-//            JobApplicationIntTestHelper.logErrorAndFail(e);
-//        }
-//    }
+    @Test
+    public void editJobApp_whenGivenValidRequest_shouldReturnSuccess() {
+        JobApplication newJobApp = getNewJobAppForEdit();
+        newJobApp.setJobTitle(UUID.randomUUID().toString());
+        newJobApp.setCompany(UUID.randomUUID().toString());
 
-    private ArrayList<JobInterview> createJobInterviews(ArrayList<JobInterviewData> data) {
-        ArrayList<JobInterview> jobInterviews = new ArrayList<>();
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .updatedJobApp(newJobApp)
+                .token(addJobAppRequest.getToken())
+                .build();
 
-        for (JobInterviewData i : data) {
-            jobInterviews.add(
-                    JobInterview.builder()
-                            .jobAppId(jobAppData.getJobAppDataId())
-                            .type(i.getType())
-                            .location(i.getLocation())
-                            .id(i.getId())
-                            .startDate(i.getStartDate())
-                            .endDate(i.getEndDate())
-                            .build()
-            );
+        final EditJobAppResponse expected = EditJobAppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .errorMessage("")
+                .build();
+
+        try {
+           final EditJobAppResponse actual = getEditJobAppResponse(req);
+           JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expected, actual);
+        } catch (Exception e) {
+            JobApplicationIntTestHelper.logErrorAndFail(e);
         }
+    }
 
-        return jobInterviews;
+    @Test
+    public void editJobApp_whenGivenSameJobApp_shouldReturnSuccess() {
+        final JobApplication unchangedJobApp = getNewJobAppForEdit();
+
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .updatedJobApp(unchangedJobApp)
+                .token(addJobAppRequest.getToken())
+                .build();
+
+        final EditJobAppResponse expected = EditJobAppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .errorMessage("")
+                .build();
+
+        try {
+            final EditJobAppResponse actual = getEditJobAppResponse(req);
+            JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expected, actual);
+        } catch (Exception e) {
+            JobApplicationIntTestHelper.logErrorAndFail(e);
+        }
+    }
+
+    @Test
+    public void editJobApp_whenGivenInvalidToken_ShouldReturnNotFound() {
+        final JobApplication jobApp = getNewJobAppForEdit();
+        jobApp.setJobTitle(UUID.randomUUID().toString());
+
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .updatedJobApp(jobApp)
+                .token(UUID.randomUUID().toString())
+                .build();
+
+        final EditJobAppResponse expected = EditJobAppResponse.builder()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .errorMessage(ErrorMessages.OtherMessages.unexpectedError)
+                .errorType(ErrorType.OTHER)
+                .build();
+
+        try {
+           final EditJobAppResponse actual = getEditJobAppResponse(req);
+           JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expected, actual);
+        } catch (Exception e) {
+            JobApplicationIntTestHelper.logErrorAndFail(e);
+        }
+    }
+
+    private JobApplication getNewJobAppForEdit() {
+        final UUID jobAppId = this.jobAppData.getJobAppDataId();
+        final JobInterview jobInterview = SpringDataConverter.convertJobInterviewDataToJobInterview(this.jobInterviewData);
+
+        return createJobApp(jobAppId, jobInterview);
+    }
+
+    private JobApplication createJobApp(final UUID id, final JobInterview jobInterview) {
+        return JobApplication.builder()
+                .jobTitle(this.jobAppData.getJobTitle())
+                .company(this.jobAppData.getCompany())
+                .description(this.jobAppData.getDescription())
+                .status(this.jobAppData.getStatus())
+                .dateApplied(this.jobAppData.getDateApplied())
+                .dateModified(this.jobAppData.getDateModified())
+                .interviews(new ArrayList<>(List.of(jobInterview)))
+                .id(id)
+                .build();
     }
 }

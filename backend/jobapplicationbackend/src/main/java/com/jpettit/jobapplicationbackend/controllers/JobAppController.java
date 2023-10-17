@@ -5,12 +5,10 @@ import com.jpettit.jobapplicationbackend.enums.ErrorType;
 import com.jpettit.jobapplicationbackend.helpers.DateConverter;
 import com.jpettit.jobapplicationbackend.helpers.StringUtility;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.EditJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import com.jpettit.jobapplicationbackend.services.JobAppService;
 import com.jpettit.jobapplicationbackend.staticVars.ErrorMessages;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
@@ -28,8 +26,7 @@ import java.util.*;
         RequestMethod.POST,
         RequestMethod.GET,
         RequestMethod.DELETE,
-        RequestMethod.PUT,
-        RequestMethod.PATCH
+        RequestMethod.PUT
 })
 @RequiredArgsConstructor
 @RestController
@@ -111,6 +108,12 @@ public class JobAppController {
                     .statusCode(HttpStatus.FORBIDDEN.value())
                     .build();
         }
+    }
+
+    @PutMapping(value = Routes.EditRoutes.editJobApp)
+    public EditJobAppResponse editJobApp(@RequestBody EditJobAppRequest req) {
+        System.out.println("The edit job app response is " + req.toJSONString());
+        return jobAppService.editJobApp(req);
     }
 
     private ZonedDateTime convertDateStringToDate(final String timeStamp) {

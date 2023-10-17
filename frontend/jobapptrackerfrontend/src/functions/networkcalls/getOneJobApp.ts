@@ -36,7 +36,7 @@ const makeGetOneJobAppCall = async (url: string): Promise<HttpResponse<JobApplic
 
         const data: HttpResponseData<JobApplication> = {
             errorMessage: resp.data.errorMessage as string,
-            status: resp.data.status as number,
+            status: resp.data.statusCode as number,
             errorType: errorType,
             data: resp.data.jobApp as JobApplication 
         };

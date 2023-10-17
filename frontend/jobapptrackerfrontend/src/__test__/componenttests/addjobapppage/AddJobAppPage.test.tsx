@@ -1,17 +1,10 @@
 import { AddJobAppPage } from "../../../components/addJobApp/AddJobAppPage";
 import { RoutePath } from "../../../enums/RoutePath_enum";
-import { addJobApp } from "../../../functions/networkcalls/addJobApp";
-import { JobApplication } from "../../../model/interfaces/jobapp/JobApplication";
 import { JobInterview } from "../../../model/interfaces/jobapp/JobInterview";
 import { changeState, renderJSXElementWithRoute, waitForChanges } from "../../helperfunctions/setup/uitestsetup";
 import {
-    noInterviewJobApp,
-    jobAppWithInterview,
-    errorJobAppWithInterview,
-    createRejectingMockFunction,
     createResolvingMockFunction,
     validHttpResponse,
-    invalidHttpResponse,
     jobInterview3,
     jobAppWithInterview2,
     jobInterviewUUID,
@@ -43,7 +36,7 @@ describe("AddJobAppPage tests", () => {
     };
 
     const convertDateToLocaleString = (date: Date): string => {
-        return date.toLocaleString();
+        return new Date(date).toISOString(); 
     }
 
     const renderJobAppPage = () => {
@@ -282,8 +275,8 @@ describe("AddJobAppPage tests", () => {
             changeState(() => {
                 typeInTextField(typeField, interviews[1].type);
                 typeInTextField(locationField, interviews[1].location);
-                typeInTextField(startDateField, convertDateToLocaleString(interviews[1].startDate));
-                typeInTextField(endDateField!, convertDateToLocaleString(interviews[1].endDate));
+                typeInTextField(startDateField, interviews[1].startDate.toLocaleString());
+                typeInTextField(endDateField!, interviews[1].endDate.toLocaleString());
                 
                 userEvent.click(submitButton!);
             });

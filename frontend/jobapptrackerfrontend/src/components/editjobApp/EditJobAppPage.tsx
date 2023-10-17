@@ -1,34 +1,42 @@
-import { useState } from "react"
-import { navBarTitle } from "../../constants/NavBarTitle";
-import { NavBar } from "../navbar/NavBar";
-import './AddJobAppPage.css';
-import { Button, Container, FloatingLabel, Form, Stack, Table} from "react-bootstrap";
-import { FormControlFeedback } from "../formcontrolhelper/FormControlFeedback";
-import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
-import { HttpResponse } from "../../model/httpresponses/HttpResponse";
-import { APIEndPoint } from "../../enums/APIEndPoint_enum";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { JobApplication } from "../../model/interfaces/jobapp/JobApplication";
 import { AddJobAppErrors } from "../../model/interfaces/jobapp/AddJobAppErrors";
 import { JobInterview } from "../../model/interfaces/jobapp/JobInterview";
-import { JobInterviewCard } from "../cards/jobinterviewcard/JobInterviewCard";
-import { AddInterviewModal } from "../interviewmodal/AddInterviewModal";
-import { compareStartDates } from "../../functions/helperfunctions/comparefunctions/compareJobInterviews";
-import { sortArray } from "../../functions/helperfunctions/sortArray";
-import { EditInterviewModal } from "../interviewmodal/EditInterviewModal";
-import { checkForJobAppErrors } from "../../functions/helperfunctions/addjobappfunctions/checkForJobAppErrors";
 import { convertDateToUTC } from "../../functions/helperfunctions/datefunctions/convertDateToUTC";
-import { AddJobAppAlert } from "../alerts/alertcomponent/AddJobAppAlert";
-import { addJobApp } from "../../functions/networkcalls/addJobApp";
-import { AddJobAppPageTestIds } from "../../enums/addjobapptestids/AddJobAppPageTestIds_enum";
+import { sortArray } from "../../functions/helperfunctions/sortArray";
+import { compareStartDates } from "../../functions/helperfunctions/comparefunctions/compareJobInterviews";
+import { checkForJobAppErrors } from "../../functions/helperfunctions/addjobappfunctions/checkForJobAppErrors";
+import { APIEndPoint } from "../../enums/APIEndPoint_enum";
 import { deleteTokenAndDate, getToken } from "../../functions/session/localStorage";
-import { useNavigate } from "react-router";
-import { RoutePath } from "../../enums/RoutePath_enum";
+import { HttpResponse } from "../../model/httpresponses/HttpResponse";
 import { HttpResponseErrorType } from "../../enums/HttpResponseErrorTypes_enum";
+import { AddJobAppAlert } from "../alerts/alertcomponent/AddJobAppAlert";
+import { AddInterviewModal } from "../interviewmodal/AddInterviewModal";
+import { EditInterviewModal } from "../interviewmodal/EditInterviewModal";
+import { NavBar } from "../navbar/NavBar";
+import { RoutePath } from "../../enums/RoutePath_enum";
+import { navBarTitle } from "../../constants/NavBarTitle";
+import { Button, Container, FloatingLabel, Form, Stack, Table } from "react-bootstrap";
+import { LoadingIndicator } from "../loadingindicator/LoadingIndicator";
+import { FormControlFeedback } from "../formcontrolhelper/FormControlFeedback";
+import { JobInterviewCard } from "../cards/jobinterviewcard/JobInterviewCard";
 
-export const AddJobAppPage = () => {
-    const submitButtonText = "Submit Job Application";
+import './EditJobAppPage.css';
+
+import { getOneJobApp } from "../../functions/networkcalls/getOneJobApp";
+import { editJobApp } from "../../functions/networkcalls/editJobApp";
+import { formatDateForDatePicker } from "../../functions/helperfunctions/datefunctions/formatDateForDatePicker";
+import { EditJobAppPageTestIds } from "../../enums/editjobapptestids/EditJobAppTestids_enum";
+
+export const EditJobAppPage = () => {
+    const { id } = useParams();
+    const submitButtonText = "Submit";
     const addInterviewButtonText = "Add Interview";
+   
     const navigate = useNavigate();
+
+    const shouldLoadAgain = useRef<boolean>(true);
 
     const [jobApp, setJobApp] = useState<JobApplication>({
         company: "",
@@ -71,7 +79,46 @@ export const AddJobAppPage = () => {
         location: ""
     });
 
-    const header = "Add Job Application";
+    const [oldDateApplied, setOldDateApplied] = useState<Date>(new Date());
+
+    const header = "Edit Job Application";
+
+    useEffect(() => {
+        const getJobAppById = async(baseURL: string, token: string) => {
+            try {
+                const resp = await getOneJobApp(baseURL, token, id);
+
+                if (resp === undefined) {
+                    setIsLoading(false);
+                    setAlertMessage("Something went wrong!!");
+                    setIsAlertShowing(true);
+                } else if (resp.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
+                    deleteTokenAndDate();
+                    navigate(RoutePath.login);
+                } else {
+                    setJobApp(resp.data);
+                    setOldDateApplied(resp.data.dateApplied);
+                }
+            } catch (error) {
+                setIsLoading(false);
+                setAlertMessage("Something went wrong!!");
+                setIsAlertShowing(true);
+            }
+        };
+        
+        if (shouldLoadAgain.current) {
+            shouldLoadAgain.current = false;
+            setIsLoading(true);
+
+            const token = getToken();
+            const url = APIEndPoint.getJobAppById;
+            
+            getJobAppById(url, token); 
+            
+            setIsLoading(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const onJobTitleChange = (e: any) => {
         setJobApp({
@@ -122,9 +169,7 @@ export const AddJobAppPage = () => {
     }
 
     const onDateChanged = (e: any) => {
-        console.log("New date is " + e.target.value as string);
         const date = convertDateToUTC(e.target.value as string); 
-        console.log("Date is " + date.toString());
 
         setJobApp({
             ...jobApp,
@@ -181,58 +226,38 @@ export const AddJobAppPage = () => {
             return;
         }
         
-        addJobApplicationToBackend();
-    }
-
-    const clearForm = () => {
-        clearErrors();
-        clearJobApp();
-    };
-
-    const clearJobApp = () => {
-        setJobApp({
-            company: "",
-            jobTitle: "",
-            description: "",
-            status: "",
-            id: "",
-            dateApplied: new Date(),
-            dateModified: new Date(),
-            interviews: [] 
-        });
-    };
-
-    const clearErrors = () => {
-        setJobAppErrors({
-            companyError: "",
-            jobTitleError: "",
-            descriptionError: "",
-            statusError: "",
-            dateAppliedError: "",
-            isCompanyInErrorState: false,
-            isJobTitleInErrorState: false,
-            isDescriptionInErrorState: false,
-            isStatusErrorInErrorState: false,
-            isDateAppliedInErrorState: false
-        });
+        editJobAppToBackend();
     }
 
     const onAddInterviewButtonPressed = () => {
         setisAddModalShowing(true);
     }
 
-    const addJobApplicationToBackend = async () => {
+    const editJobAppToBackend = async () => {
         setIsLoading(true);
-        console.log("The url is " + APIEndPoint.addJobApp);
         const token = getToken();
-        const url = APIEndPoint.addJobApp;
+        const url = APIEndPoint.editJobApp;
 
-        addJobApp(jobApp, url, token).then((response) => {
-             handleAddJobApp(response);
-        })
-         .catch((reason: string) => {
-             handleUnexpectedError(reason);
-        });
+        try {
+            const resp = await editJobApp(token, url, jobApp);
+            handleEditJobApp(resp);
+        } catch (error) {
+            handleUnexpectedError(error as string); 
+        }
+    };
+
+    const handleEditJobApp = (resp: HttpResponse<string>) => {
+        setIsLoading(false);
+
+        if (resp !== undefined && !resp.isError()) {
+            handleSuccess();
+        } else if (resp === undefined) {
+            handleUndefined();
+        } else if (resp.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
+            handleTokenExpired();
+        } else if (resp.isError()) {
+            handleError(resp);
+        }
     }
 
     const closeAlert = () => {
@@ -248,22 +273,8 @@ export const AddJobAppPage = () => {
         setIsEditModalShowing(false);
     }
 
-    const handleAddJobApp = (response: (HttpResponse<string> | undefined)) => {
-        setIsLoading(false);
-
-        if (response !== undefined && !response.isError()) {
-            handleSuccess(); 
-        } else if (response === undefined) {
-            handleUndefined();
-        } else if (response.isErrorOfType(HttpResponseErrorType.tokenExpired)) {
-            handleTokenExpired();
-        } else if (response.isError()) {
-            handleError(response);
-        }
-    }
-
     const handleSuccess = () => {
-        clearForm();
+        navigate(RoutePath.jobapplist); 
     }
 
     const handleError = (resp: HttpResponse<string>) => {
@@ -315,6 +326,11 @@ export const AddJobAppPage = () => {
         navigate(RoutePath.login);        
     }
 
+    const navigateToAddJobApp = () => {
+        shouldLoadAgain.current = true;
+        navigate(RoutePath.addJobApp);
+    };
+
     return (
         <div>
             { isAlertShowing &&
@@ -344,9 +360,9 @@ export const AddJobAppPage = () => {
                 />
             }
             <NavBar 
-                title={navBarTitle}
-                logoutUser={logUserOut}
-                navigateToAddJobApp={() => {}}
+                title={navBarTitle} 
+                logoutUser={logUserOut} 
+                navigateToAddJobApp={navigateToAddJobApp} 
                 shouldShowDropDown
             />
             <Container className="signupformcontainer">
@@ -359,7 +375,7 @@ export const AddJobAppPage = () => {
                     />
                 }
                 <Form className="Auth-form">
-                    <h4 data-testid={AddJobAppPageTestIds.header}>
+                    <h4 data-testid={EditJobAppPageTestIds.header}>
                         {header}
                     </h4>
                     <FloatingLabel
@@ -377,12 +393,12 @@ export const AddJobAppPage = () => {
                         value={jobApp.jobTitle}
                         isInvalid={jobAppErrors.isJobTitleInErrorState}
                         style={ {color: "black"} }
-                        data-testid={AddJobAppPageTestIds.jobTitle}
+                        data-testid={EditJobAppPageTestIds.jobTitle}
                         />
                         { jobAppErrors.isJobTitleInErrorState &&
                             <FormControlFeedback type="invalid" 
                                 text={jobAppErrors.jobTitleError}
-                                data-testid={AddJobAppPageTestIds.jobTitleError}
+                                data-testid={EditJobAppPageTestIds.jobTitleError}
                             />
                         }
                     </FloatingLabel>
@@ -401,12 +417,12 @@ export const AddJobAppPage = () => {
                         value={jobApp.company}
                         isInvalid={jobAppErrors.isCompanyInErrorState}
                         style={ {color: "black"} }
-                        data-testid={AddJobAppPageTestIds.companyField}
+                        data-testid={EditJobAppPageTestIds.companyField}
                         />
                         { jobAppErrors.isCompanyInErrorState &&
                             <FormControlFeedback type="invalid"
                                 text={jobAppErrors.companyError}
-                                data-testid={AddJobAppPageTestIds.companyError}
+                                data-testid={EditJobAppPageTestIds.companyError}
                             />
                         }
                     </FloatingLabel>
@@ -426,7 +442,7 @@ export const AddJobAppPage = () => {
                         value={jobApp.description}
                         isInvalid={jobAppErrors.isDescriptionInErrorState}
                         style={ {color: "black", minHeight: "100px"} }
-                        data-testid={AddJobAppPageTestIds.descriptionField}
+                        data-testid={EditJobAppPageTestIds.descriptionField}
                         />
                     </FloatingLabel>
                     <FloatingLabel
@@ -444,15 +460,32 @@ export const AddJobAppPage = () => {
                         value={jobApp.status}
                         isInvalid={jobAppErrors.isStatusErrorInErrorState}
                         style={ {color: "black"} }
-                        data-testid={AddJobAppPageTestIds.statusField}
+                        data-testid={EditJobAppPageTestIds.statusField}
                         />
                         { jobAppErrors.isStatusErrorInErrorState &&
                             <FormControlFeedback 
                                 type="invalid"
                                 text={jobAppErrors.statusError}
-                                data-testid={AddJobAppPageTestIds.statusFieldError}
+                                data-testid={EditJobAppPageTestIds.statusFieldError}
                             />
                         }
+                    </FloatingLabel>
+                    <FloatingLabel
+                    label="Old Date Applied"
+                    controlId="floatingInput"
+                    className="mb-3"
+                    style={ {color: "black"} }
+                    >
+                        <Form.Control
+                            readOnly
+                            value={formatDateForDatePicker(oldDateApplied)} 
+                            className="me-2"
+                            type="input" 
+                            name="olddateapplied"
+                            style={ { color: "black" } } 
+                            isInvalid={jobAppErrors.isDateAppliedInErrorState}
+                            data-testid={EditJobAppPageTestIds.oldDateApplied}
+                        />
                     </FloatingLabel>
                     <FloatingLabel
                     label="Date Applied*"
@@ -461,15 +494,15 @@ export const AddJobAppPage = () => {
                     style={ {color: "black"} }
                     >
                         <Form.Control className="me-2" type="datetime-local" name="dateapplied"
-                             placeholder="Date Applied" onChange={onDateChanged}
+                             placeholder="Date Applied" onChange={onDateChanged} 
                              style={ { color: "black" } } 
                              isInvalid={jobAppErrors.isDateAppliedInErrorState}
-                             data-testid={AddJobAppPageTestIds.dateAppliedField}
+                             data-testid={EditJobAppPageTestIds.dateAppliedField}
                         />
                         { jobAppErrors.isDateAppliedInErrorState &&
                             <Form.Control.Feedback 
                             type="invalid"
-                            data-testid={AddJobAppPageTestIds.dateAppliedError}
+                            data-testid={EditJobAppPageTestIds.dateAppliedError}
                             >
                                 {jobAppErrors.dateAppliedError}
                             </Form.Control.Feedback>
@@ -488,7 +521,7 @@ export const AddJobAppPage = () => {
                                             onEditButtonPressed={onEditButtonPressed}
                                             index={index}
                                             id={jobApp.id}
-                                            data-testid={AddJobAppPageTestIds.jobInterviewCard + index}
+                                            data-testid={EditJobAppPageTestIds.jobInterviewCard + index}
                                         />
                                     </td>
                                 ))} 
@@ -497,11 +530,11 @@ export const AddJobAppPage = () => {
                     </Table> 
                     <Stack gap={2} direction="horizontal" style={ { marginTop: "10px", padding: "1px" } }>
                         <Button onClick={onSubmitButtonPressed} style={ { width: "100%" } } 
-                            data-testid={AddJobAppPageTestIds.submitJobAppButton}>
+                            data-testid={EditJobAppPageTestIds.submitJobAppButton}>
                                 {submitButtonText}
                         </Button>
                         <Button onClick={onAddInterviewButtonPressed} style={ { width: "100%" } } 
-                            data-testid={AddJobAppPageTestIds.addInterviewButton}>
+                            data-testid={EditJobAppPageTestIds.addInterviewButton}>
                                 {addInterviewButtonText}
                         </Button>
                     </Stack>
@@ -509,5 +542,4 @@ export const AddJobAppPage = () => {
             </Container>
         </div>
     );
-
 }

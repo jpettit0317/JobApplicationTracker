@@ -9,12 +9,10 @@ import com.jpettit.jobapplicationbackend.models.jobapplication.JobAppData;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterviewData;
 import com.jpettit.jobapplicationbackend.models.requests.AddJobAppRequest;
+import com.jpettit.jobapplicationbackend.models.requests.EditJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetNewJobAppRequest;
 import com.jpettit.jobapplicationbackend.models.requests.GetOneJobAppRequest;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.repos.JobAppDataRepository;
 import com.jpettit.jobapplicationbackend.repos.JobInterviewDataRepository;
@@ -36,7 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JobAppServiceTest {
@@ -371,5 +369,96 @@ class JobAppServiceTest {
         final GetOneJobAppResponse actual = sut.getJobAppById(req);
 
         JobAppControllerTestHelper.assertGetOneJobAppErrorResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void editJobApp_whenGivenValidRequest_ShouldReturnSuccess() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
+        JobApplication jobApp = JobApplicationTestTestVars.jobApp;
+        jobApp.setJobTitle(UUID.randomUUID().toString());
+        jobApp.setCompany(UUID.randomUUID().toString());
+        final JobAppData jobAppData = JobAppData.initFromJobApp(jobApp, user.get().getEmail());
+
+        final EditJobAppResponse expected = EditJobAppResponse
+                .builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .errorMessage("")
+                .build();
+
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .token(token)
+                .updatedJobApp(jobApp)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getEmail());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(user);
+        when(jobAppDataRepository.findByJobAppDataIdAndCreator(ArgumentMatchers.any(),
+                ArgumentMatchers.anyString())).thenReturn(Optional.of(jobAppData));
+        lenient().when(jobAppDataRepository.save(ArgumentMatchers.any())).thenReturn(jobApp);
+        lenient().doNothing().when(jobInterviewDataRepository).deleteAllById(ArgumentMatchers.any());
+        lenient().when(jobInterviewDataRepository.saveAll(ArgumentMatchers.any())).thenReturn(List.of());
+
+        final EditJobAppResponse actual = sut.editJobApp(req);
+
+        JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void editJobApp_whenGivenExpiredToken_shouldReturnForbidden() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final JobApplication jobApp = JobApplicationTestTestVars.jobApp;
+
+        final EditJobAppResponse expected = EditJobAppResponse
+                .builder()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .errorType(ErrorType.TOKEN_EXPIRED)
+                .errorMessage(ErrorMessages.OtherMessages.tokenExpiredError)
+                .build();
+
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .token(token)
+                .updatedJobApp(jobApp)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(true);
+
+        final EditJobAppResponse actual = sut.editJobApp(req);
+
+        JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expected, actual);
+    }
+
+    @Test
+    public void editJobApp_whenGivenJobAppWithNoChanges_shouldReturnSuccess() {
+        final String token = JobApplicationTestTestVars.getUUID();
+        final Optional<User> user = Optional.of(JobApplicationTestTestVars.user);
+        final JobApplication jobApp = JobApplicationTestTestVars.jobApp;
+        final JobAppData jobAppData = JobAppData.initFromJobApp(jobApp, user.get().getEmail());
+        final ArrayList<JobInterviewData> data = JobApplicationTestTestVars.getJobInterviewData(jobApp.getId(), jobApp.getInterviews());
+
+        final EditJobAppResponse expected = EditJobAppResponse
+                .builder()
+                .statusCode(HttpStatus.OK.value())
+                .errorType(ErrorType.NONE)
+                .errorMessage("")
+                .build();
+
+        final EditJobAppRequest req = EditJobAppRequest.builder()
+                .token(token)
+                .updatedJobApp(jobApp)
+                .build();
+
+        when(jwtService.isTokenExpired(ArgumentMatchers.anyString())).thenReturn(false);
+        when(jwtService.extractUsername(ArgumentMatchers.anyString())).thenReturn(user.get().getEmail());
+        when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(user);
+        when(jobAppDataRepository.findByJobAppDataIdAndCreator(ArgumentMatchers.any(),
+                ArgumentMatchers.anyString())).thenReturn(Optional.of(jobAppData));
+        when(jobInterviewDataRepository.findJobInterviewDataByJobAppId(any())).thenReturn(data);
+
+        final EditJobAppResponse actual = sut.editJobApp(req);
+
+        JobAppControllerTestHelper.assertEditJobAppResponsesAreEqual(expected, actual);
     }
 }

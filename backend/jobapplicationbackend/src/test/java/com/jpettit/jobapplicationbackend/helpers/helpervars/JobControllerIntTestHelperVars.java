@@ -4,10 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jpettit.jobapplicationbackend.enums.Role;
 import com.jpettit.jobapplicationbackend.models.jobapplication.JobApplication;
 import com.jpettit.jobapplicationbackend.models.jobinterview.JobInterview;
-import com.jpettit.jobapplicationbackend.models.responses.AddJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.DeleteJobAppResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetJobAppsResponse;
-import com.jpettit.jobapplicationbackend.models.responses.GetOneJobAppResponse;
+import com.jpettit.jobapplicationbackend.models.responses.*;
 import com.jpettit.jobapplicationbackend.models.user.User;
 import com.jpettit.jobapplicationbackend.staticVars.JobAppTimeZone;
 import com.jpettit.jobapplicationbackend.staticVars.Routes;
@@ -61,6 +58,8 @@ public class JobControllerIntTestHelperVars {
 
     public static final String baseDeleteJobAppsURL = Routes.BaseRoutes.mainRoute + Routes.DeleteRoutes.deleteJobApp;
     public static final String baseGetOneJobAppURL = Routes.BaseRoutes.mainRoute + Routes.GetRoutes.getJobAppById;
+
+    public static final String baseEditJobAppURL = Routes.BaseRoutes.mainRoute + Routes.EditRoutes.editJobApp;
 
     public static class JsonPaths {
         public static class JobInterviewPaths {
@@ -270,6 +269,16 @@ public class JobControllerIntTestHelperVars {
         return url +
                 "?token=" +
                 token;
+    }
+
+    public static EditJobAppResponse createEditJobAppResponseFromString(final String resp) throws JSONException {
+        final JSONObject respJSON = new JSONObject(resp);
+
+        return EditJobAppResponse.builder()
+                .errorMessage(respJSON.getString(JsonPaths.ResponsePaths.responseErrorMessage))
+                .errorType(respJSON.getString(JsonPaths.ResponsePaths.errorTypePath))
+                .statusCode(respJSON.getInt(JsonPaths.ResponsePaths.statusCodePath))
+                .build();
     }
 
     public static String createGetNewJobAppsURL(final String url, final String token,

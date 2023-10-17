@@ -11,6 +11,7 @@ import { RoutePath
 import { JobAppListPage } from './components/jobapplist/JobAppListPage';
 import { AddJobAppPage } from './components/addJobApp/AddJobAppPage';
 import { ViewJobAppPage } from './components/viewJobApp/ViewJobAppPage';
+import { EditJobAppPage } from './components/editjobApp/EditJobAppPage';
  
 const App = () => {
   const router = createBrowserRouter([
@@ -37,6 +38,10 @@ const App = () => {
     {
       path: RoutePath.viewJobAppPath,
       element: <ViewJobAppPage id=""/> 
+    },
+    {
+      path: RoutePath.editJobAppPath,
+      element: <EditJobAppPage />
     }
   ]);
 
