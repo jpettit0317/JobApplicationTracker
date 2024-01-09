@@ -1,10 +1,12 @@
 package com.jpettit.jobapplicationbackend.services;
 
+import com.jpettit.jobapplicationbackend.enums.EnvironmentVars;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,13 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY = "LJ1eqdypia0ebO4HQZKwndNijlgslZdsJ97B30zdSynk6N0Itb0h5HkuWY51MhIe";
+
+    private final EnvironmentService environmentService;
+
+    @Autowired
+    public JwtService (final EnvironmentService environmentService) {
+        this.environmentService = environmentService;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -67,8 +75,23 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    private int getKeySize(final String key) {
+        return key.length();
+    }
+
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        final String secretKey = environmentService.getEnvironmentVarOrDefault(EnvironmentVars.JOBAPP_SECRETKEY, "");
+        final String secretKey2 = environmentService.getEnvironmentVarOrDefault(EnvironmentVars.JOBAPP_SECRETKEY2, "");
+
+        System.out.println("Secret key length is " + getKeySize(secretKey));
+        System.out.println("Secret key 2 length is " + getKeySize(secretKey2));
+
+        if (secretKey.equals("")) {
+            final String message = "Couldn't get secret key.";
+            throw new RuntimeException(message);
+        }
+
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 
         return Keys.hmacShaKeyFor(keyBytes);
     }
