@@ -75,16 +75,8 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private int getKeySize(final String key) {
-        return key.length();
-    }
-
     private Key getSignInKey() {
         final String secretKey = environmentService.getEnvironmentVarOrDefault(EnvironmentVars.JOBAPP_SECRETKEY, "");
-        final String secretKey2 = environmentService.getEnvironmentVarOrDefault(EnvironmentVars.JOBAPP_SECRETKEY2, "");
-
-        System.out.println("Secret key length is " + getKeySize(secretKey));
-        System.out.println("Secret key 2 length is " + getKeySize(secretKey2));
 
         if (secretKey.equals("")) {
             final String message = "Couldn't get secret key.";
